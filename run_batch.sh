@@ -1,16 +1,29 @@
 #!/bin/bash
+#SBATCH --qos=shallow
+#SBATCH --mem=4GB
+#SBATCH --time=02-00:00:00
+#SBATCH --output=/fs/clip-realspeech/projects/vid_game/data/control_game/log/batch.txt
+#SBATCH --mail-type=all
+#SBATCH --mail-user=craigtho@umiacs.umd.edu
+
+
+
 experiment=$1
 num_runs=$2
 slurm=$3
 overwrite=$4
 
-conda activate audneurorl
+. path.sh
+export train_cmd="slurm.pl --config conf/slurm.conf"
+
+
+source activate audneurorl
 
 if [[ "$slurm" == "true" ]]
 then
-    echo "comencing slurm batch parallel across "$slurm" machines"
+    echo "comencing slurm batch parallel across "$num_runs" machines"
 
-    $train_cmd --mem 8GB --time 01-00:00:00 JOB=1:$num_jobs ../../data/$experiment/log/main_game.JOB.log batch_individual $overwrite || exit 1; 
+    $train_cmd --mem 16GB --time 01-00:00:00 JOB=1:$num_runs ../../data/$experiment/log/main_game.JOB.log  run_batch_individual.sh $overwrite || exit 1; 
     wait
     echo "finished"
 

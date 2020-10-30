@@ -33,6 +33,9 @@ args = parser.parse_args()
 if args.modelname:
     MODELNAME = args.modelname
 
+if args.overwrite:
+    OVERWRITE = args.overwrite
+
 to_print = args.debug
 
 ### Define Optimization Function
@@ -176,7 +179,7 @@ env.initiate_environment()
 print('environment initialized')
 
 ### Touch Save Files
-if args.overwrite:
+if OVERWRITE:
     write_method = 'w'
 else:
     write_method = 'x'

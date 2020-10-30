@@ -12,10 +12,13 @@ MEM_SIZE = 50000
 TOKEN_TYPE = 'token'
 
 GAME_TYPE = 'movement'
-EXPERIMENT = 'both_contrast_game/'
+EXPERIMENT = 'control_game/'
 
-ROOT = '/mnt/c/files/research/projects/vid_game/data/'+EXPERIMENT
-#ROOT = '/fs/clip-realspeech/projects/aud_neuro/models/dqn/WSJ/'
+OVERWRITE = True
+
+#ROOT = '/mnt/c/files/research/projects/vid_game/data/'+EXPERIMENT
+ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
+
 
 UPDATES = 100
 STIMULUS_REPS = 8
