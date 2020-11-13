@@ -20,11 +20,12 @@ class Environment(object):
         self.current_state_num = 0
         self.current_state = ''
 
+        self.device = device
+
         self.load_rewards(reward_file)
         self.load_states(state_file)
         self.load_episodes(episode_file)
 
-        self.device = device
 
     def get_n_actions(self):
         return self.n_actions
