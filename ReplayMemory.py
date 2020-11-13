@@ -2,6 +2,8 @@ from collections import namedtuple
 import random
 Transition = namedtuple('Transition',
                         ('state', 'action', 'next_state', 'reward'))
+LSTMTransition = namedtuple('Transition',
+                        ('state', 'action', 'next_state', 'reward', 'hidden','next_hidden'))
 
 class ReplayMemory(object):
 
@@ -22,3 +24,12 @@ class ReplayMemory(object):
 
     def __len__(self):
         return len(self.memory)
+
+class LSTMReplayMemory(ReplayMemory):
+
+    def push(self, *args):
+        """Saves a transition."""
+        if len(self.memory) < self.capacity:
+            self.memory.append(None)
+        self.memory[self.position] = LSTMTransition(*args)
+        self.position = (self.position + 1) % self.capacity

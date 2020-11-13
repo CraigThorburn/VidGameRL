@@ -11,23 +11,25 @@ LAYERS = [[3,3],[3,3]]
 MEM_SIZE = 50000
 TOKEN_TYPE = 'token'
 
-GAME_TYPE = 'movement'
-EXPERIMENT = 'control_game/'
+GAME_TYPE = 'continuous_oneshotmovement'
+EXPERIMENT = 'experimental_continuous_oneshotgame5/'
 
 OVERWRITE = True
 
-#ROOT = '/mnt/c/files/research/projects/vid_game/data/'+EXPERIMENT
-ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
+ROOT = '/mnt/c/files/research/projects/vid_game/data/'+EXPERIMENT
+#ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
 
 
 UPDATES = 100
 STIMULUS_REPS = 8
+MOVE_SEPERATION = 1 #(not implemented yet)
 
 STATE_FILE = 'states'
 REWARD_FILE = 'rewards'
 EPISODE_FILE = 'episodes'
 TRANSITION_FILE = 'transitions'
 LOCATION_FILE = 'locations'
+MODEL_FOLDER = 'models'
 
 ACTION_LIST_FILE = 'exp/action_out'
 STATE_LIST_FILE = 'exp/state_out'
@@ -42,3 +44,4 @@ REWARD_PATH = ROOT + REWARD_FILE+'.txt'
 EPISODE_PATH = ROOT + EPISODE_FILE+'.txt'
 LOCATION_PATH = ROOT + LOCATION_FILE+'.txt'
 TRANSITION_PATH = ROOT + TRANSITION_FILE+'.txt'
+MODEL_PATH = ROOT + MODEL_FOLDER + '/'
