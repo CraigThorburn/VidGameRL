@@ -5,7 +5,7 @@ import torch
 
 class Environment(object):
 
-    def __init__(self, reward_file, state_file, episode_file):
+    def __init__(self, reward_file, state_file, episode_file, device=None):
         self.states = {}
         self.rewards = {}
         self.episodes = []
@@ -23,6 +23,8 @@ class Environment(object):
         self.load_rewards(reward_file)
         self.load_states(state_file)
         self.load_episodes(episode_file)
+
+        self.device = device
 
     def get_n_actions(self):
         return self.n_actions
@@ -54,7 +56,7 @@ class Environment(object):
 
             for line in input_data[1:]:
                 assert line.split('\t')[0] not in self.rewards.keys()
-                self.rewards[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:], dtype=np.double))
+                self.rewards[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:],device = self.device, dtype=np.double))
 
     def load_states(self, STATE_FILE):
         with open(STATE_FILE, 'r') as f:
@@ -65,7 +67,7 @@ class Environment(object):
 
             for line in input_data[1:]:
                 assert line.split('\t')[0] not in self.states.keys()
-                self.states[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:], dtype=np.double))
+                self.states[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:],device = self.device, dtype=np.double))
 
     def load_episodes(self, EPISODE_FILE):
         with open(EPISODE_FILE, 'r') as f:
@@ -81,8 +83,8 @@ class Environment(object):
 
 class MovementGame(Environment):
 
-    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, stimulus_repetitions):
-        super().__init__(reward_file, state_file, episode_file)
+    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, stimulus_repetitions, device=None):
+        super().__init__(reward_file, state_file, episode_file, device)
         self.current_location = ''
         self.n_locations=0
         self.locations = {}
@@ -103,7 +105,7 @@ class MovementGame(Environment):
 
             for line in input_data[1:]:
                 assert line.split('\t')[0] not in self.states.keys()
-                self.locations[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:], dtype=np.double))
+                self.locations[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:],device = self.device, dtype=np.double))
 
     def load_transitions(self, TRANSITION_FILE):
         with open(TRANSITION_FILE, 'r') as f:
@@ -164,8 +166,8 @@ class MovementGame(Environment):
 
 class OneShotMovementGame(MovementGame):
 
-    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, stimulus_repetitions):
-        super.__init__(reward_file, state_file, episode_file, location_file, transition_file, stimulus_repetitions)
+    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, stimulus_repetitions, device=None):
+        super.__init__(reward_file, state_file, episode_file, location_file, transition_file, stimulus_repetitions, device)
 
     def step(self, action):
         reward = self.rewards[self.current_state + '_' + self.current_location][action]
@@ -176,8 +178,8 @@ class OneShotMovementGame(MovementGame):
 
 class SimpleGame(Environment):
 
-    def __init__(self, reward_file, state_file, episode_file):
-        super().__init__(reward_file, state_file, episode_file)
+    def __init__(self, reward_file, state_file, episode_file, device=None):
+        super().__init__(reward_file, state_file, episode_file, device)
 
 
     def advance_episode(self):
@@ -208,8 +210,8 @@ class SimpleGame(Environment):
 
 class AcousticsGame(Environment):
 
-    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time):
-        super().__init__(reward_file, state_file, episode_file)
+    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time, device=None):
+        super().__init__(reward_file, state_file, episode_file, device)
         self.current_location = ''
         self.n_locations=0
         self.locations = {}
@@ -247,7 +249,7 @@ class AcousticsGame(Environment):
                     # end of current state
                     state_name = line[0].split('_')[0]
                     current_array[current_dim] = np.array(line[1:], dtype=np.double)
-                    self.states[state_name] = torch.tensor(current_array)
+                    self.states[state_name] = torch.tensor(current_array,device = self.device)
 
                     current_dim = 0
                     current_array = np.zeros((self.n_dims, self.n_timepoints))
@@ -279,7 +281,7 @@ class AcousticsGame(Environment):
 
             for line in input_data[1:]:
                 assert line.split('\t')[0] not in self.states.keys()
-                self.locations[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:], dtype=np.double))
+                self.locations[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:],device = self.device, dtype=np.double))
 
     def load_transitions(self, TRANSITION_FILE):
         with open(TRANSITION_FILE, 'r') as f:

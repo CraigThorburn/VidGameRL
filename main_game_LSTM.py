@@ -153,7 +153,7 @@ elif GAME_TYPE == 'oneshotmovement':
     to_output = ['', '', '', '']
 
 elif GAME_TYPE == 'continuous_oneshotmovement':
-    env = AcousticsGame(REWARD_PATH, STATE_PATH, EPISODE_PATH, LOCATION_PATH, TRANSITION_PATH, MOVE_SEPERATION)
+    env = AcousticsGame(REWARD_PATH, STATE_PATH, EPISODE_PATH, LOCATION_PATH, TRANSITION_PATH, MOVE_SEPERATION, WAITTIME)
     LOCATION_LIST = ROOT + LOCATION_LIST_FILE + '_' + MODELNAME + '.txt'
     OUTPUTS = [REWARD_LIST, ACTION_LIST, STATE_LIST, LOCATION_LIST,]
     to_output = ['', '', '', '']
@@ -213,8 +213,8 @@ for i_episode in range(num_episodes):
         to_output[i] = to_output[i] + 'eps' + str(i_episode)
 
     ### Initialize hidden states
-    h0 = torch.randn(1, 1, 20).to(device)
-    c0 = torch.randn(1, 1, 20).to(device)
+    h0 = torch.randn(1, 1, 20, device=device)
+    c0 = torch.randn(1, 1, 20, device=device)
     hidden = (h0, c0)
 
     ### Initialize This Episode

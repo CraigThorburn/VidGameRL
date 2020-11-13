@@ -23,6 +23,7 @@ ROOT = '/mnt/c/files/research/projects/vid_game/data/'+EXPERIMENT
 UPDATES = 100
 STIMULUS_REPS = 8
 MOVE_SEPERATION = 1 #(not implemented yet)
+WAITTIME = 30
 
 STATE_FILE = 'states'
 REWARD_FILE = 'rewards'
