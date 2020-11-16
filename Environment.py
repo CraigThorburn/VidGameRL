@@ -57,7 +57,7 @@ class Environment(object):
 
             for line in input_data[1:]:
                 assert line.split('\t')[0] not in self.rewards.keys()
-                self.rewards[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:],device = self.device, dtype=np.double))
+                self.rewards[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:], dtype=np.double),device = self.device)
 
     def load_states(self, STATE_FILE):
         with open(STATE_FILE, 'r') as f:
@@ -68,7 +68,7 @@ class Environment(object):
 
             for line in input_data[1:]:
                 assert line.split('\t')[0] not in self.states.keys()
-                self.states[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:],device = self.device, dtype=np.double))
+                self.states[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:], dtype=np.double),device = self.device)
 
     def load_episodes(self, EPISODE_FILE):
         with open(EPISODE_FILE, 'r') as f:
@@ -106,7 +106,7 @@ class MovementGame(Environment):
 
             for line in input_data[1:]:
                 assert line.split('\t')[0] not in self.states.keys()
-                self.locations[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:],device = self.device, dtype=np.double))
+                self.locations[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:], dtype=np.double),device = self.device)
 
     def load_transitions(self, TRANSITION_FILE):
         with open(TRANSITION_FILE, 'r') as f:
@@ -282,7 +282,7 @@ class AcousticsGame(Environment):
 
             for line in input_data[1:]:
                 assert line.split('\t')[0] not in self.states.keys()
-                self.locations[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:],device = self.device, dtype=np.double))
+                self.locations[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:], dtype=np.double),device = self.device)
 
     def load_transitions(self, TRANSITION_FILE):
         with open(TRANSITION_FILE, 'r') as f:

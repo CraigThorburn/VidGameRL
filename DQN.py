@@ -48,7 +48,7 @@ class DQN_NN(nn.Module):
 
 class DQN_LSTM(nn.Module):
 
-    def __init__(self, inputs,  outputs, layers):
+    def __init__(self, inputs,  outputs, layers, device):
 
         super(DQN_LSTM, self).__init__()
         self.lin0 = nn.Linear(inputs,20)
@@ -76,7 +76,9 @@ class DQN_LSTM(nn.Module):
 
 
         #x = torch.from_numpy(x).float()
-        x = F.softplus(self.lin0(x))
+        x = self.lin0(x)
+        x = F.softplus(x)
+       # x = F.softplus(self.lin0(x))
 
         x = F.softplus(self.mid1(x))
         # This means that we are looking at a batch

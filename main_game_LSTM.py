@@ -172,8 +172,8 @@ n_actions = env.get_n_actions()
 print('num actions: ' + str(n_actions))
 
 ### Create Model Networks
-policy_net = DQN_LSTM(num_inputs, n_actions, LAYERS).to(device)
-target_net = DQN_LSTM(num_inputs, n_actions, LAYERS).to(device)
+policy_net = DQN_LSTM(num_inputs, n_actions, LAYERS,device).to(device) # .to(device)
+target_net = DQN_LSTM(num_inputs, n_actions, LAYERS, device).to(device) #to(device)
 target_net.load_state_dict(policy_net.state_dict())
 target_net.eval()
 policy_net.train()
@@ -204,6 +204,7 @@ for name in OUTPUTS:
 ### Set Model Start
 tic = time.time()
 steps_done = 0
+
 
 print('starting simulation')
 for i_episode in range(num_episodes):
@@ -251,7 +252,7 @@ for i_episode in range(num_episodes):
             done = True
             next_hidden=None
         else:
-            next_state.to(device)
+            next_state = next_state.to(device)
 
         ### Store Transition
         memory.push(state, action, next_state, reward, hidden, next_hidden)

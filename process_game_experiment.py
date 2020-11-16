@@ -17,7 +17,6 @@ args = parser.parse_args()
 with open(args.root+ '/' + args.state) as f:
     state_data = f.read().splitlines()
     header = state_data[0].split('\t')
-    assert header[0] == 'state'
 
 
 
