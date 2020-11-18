@@ -176,7 +176,7 @@ class OneShotMovementGame(MovementGame):
             self.current_rep = self.n_reps
         self.advance_state(action)
         return reward
-
+#TODO: Absorb this above
 class SimpleGame(Environment):
 
     def __init__(self, reward_file, state_file, episode_file, device=None):
@@ -211,7 +211,7 @@ class SimpleGame(Environment):
 
 class AcousticsGame(Environment):
 
-    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time, device=None):
+    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time, mode, device=None):
         super().__init__(reward_file, state_file, episode_file, device)
         self.current_location = ''
         self.n_locations=0
@@ -226,6 +226,19 @@ class AcousticsGame(Environment):
         self.load_transitions(transition_file)
 
         self.action_timepoints = list(range(0, self.n_timepoints, self.n_moves))
+
+        if mode=='correct':
+            self.step=self.oneshot_step
+
+        elif mode=='oneshot':
+            self.step=self.oneshot_step
+
+        elif mode=='multiple':
+            self.step = self.multiple_step
+
+        else:
+            raise(AssertionError, 'mode not implemented')
+
 
     def load_states(self, STATE_FILE):
         with open(STATE_FILE, 'r') as f:
@@ -295,11 +308,29 @@ class AcousticsGame(Environment):
                 self.transitions[line.split('\t')[0]] = line.split('\t')[1:]
 
 
-    def step(self, action):
+    def oneshot_step(self, action):
         if self.current_timepoint > self.n_waittime:
             reward = self.rewards[self.current_state+'_'+self.current_location][action]
             if action==2:
                 self.current_timepoint = self.n_timepoints-1
+        else:
+            reward = 0
+        self.advance_state(action)
+        return reward
+
+    def correct_step(self, action):
+        if self.current_timepoint > self.n_waittime:
+            reward = self.rewards[self.current_state+'_'+self.current_location][action]
+            if reward==1:
+                self.current_timepoint = self.n_timepoints-1
+        else:
+            reward = 0
+        self.advance_state(action)
+        return reward
+
+    def multiple_step(self, action):
+        if self.current_timepoint > self.n_waittime:
+            reward = self.rewards[self.current_state+'_'+self.current_location][action]
         else:
             reward = 0
         self.advance_state(action)

@@ -1,17 +1,18 @@
-BATCH_SIZE = 100
-GAMMA = 0.8
+BATCH_SIZE = 128
+GAMMA = 0.9
 EPS_START = 0.99
 EPS_END = 0.05
-EPS_DECAY = 800
-TARGET_UPDATE = 10
+EPS_DECAY = 16000
+TARGET_UPDATE = 5
 LR = 0.09
 
 LAYERS = [[3,3],[3,3]]
 
-MEM_SIZE = 50000
+MEM_SIZE = 100000
 TOKEN_TYPE = 'token'
 
 GAME_TYPE = 'continuous_oneshotmovement'
+GAME_MODE = ''
 EXPERIMENT = 'experimental_continuous_oneshotgame5/'
 
 OVERWRITE = True

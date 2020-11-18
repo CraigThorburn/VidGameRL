@@ -50,19 +50,13 @@ def optimize_model():
     # detailed explanation). This converts batch-array of Transitions
     # to Transition of batch-arrays.
     batch = LSTMTransition(*zip(*transitions))
-    policy_net.train()
 
     # Compute a mask of non-final states and concatenate the batch elements
     # (a final state would've been the one after which simulation ended)
-    non_final_mask = torch_tensor(tuple(map(lambda s: s is not None,
-                                            batch.next_state)), device=device, dtype=torch.bool)
-    non_final_next_states = torch_stack(tuple([s for s in batch.next_state
-                                               if s is not None]))
-    non_final_h0 = torch_stack(tuple([h[0] for h in batch.next_hidden
-                                      if h is not None]))
-    non_final_c0 = torch_stack(tuple([c[1] for c in batch.next_hidden
-                                      if c is not None]))
-    non_final_hidden = (non_final_h0, non_final_c0)
+    next_states_batch = torch_stack(tuple(batch.next_state))
+    next_h0_batch = torch_stack(tuple([h[0] for h in batch.next_hidden]))
+    next_c0_batch = torch_stack(tuple([h[1] for h in batch.next_hidden]))
+    next_hidden = (next_h0_batch, next_c0_batch)
 
     state_batch = torch_stack(batch.state)
     action_batch = torch_cat(batch.action)
@@ -83,16 +77,14 @@ def optimize_model():
     # This is merged based on the mask, such that we'll have either the expected
     # state value or 0 in case the state was final.
     next_state_values = torch.zeros(BATCH_SIZE, device=device)
-    next_state_values_network, _ = target_net(non_final_next_states, non_final_hidden)
-
-    next_state_values[non_final_mask] = next_state_values_network.max(-1)[0]
+    next_state_values_network, _ = target_net(next_states_batch, next_hidden).max(-1)[0]
 
     # Compute the expected Q values
     expected_state_action_values = reward_batch + (next_state_values * GAMMA)
     # TODO: Make sure loss is functioning correctly
     # TODO: sort Cuda Movement
     # TODO: Optimization change
-    policy_net.train()
+    # TODO: Have removed final states from here
 
     # Compute Huber loss
     loss = F.smooth_l1_loss(state_action_values.double(), expected_state_action_values.unsqueeze(1).double())
@@ -156,8 +148,8 @@ elif GAME_TYPE == 'oneshotmovement':
     OUTPUTS = [REWARD_LIST, ACTION_LIST, STATE_LIST, LOCATION_LIST,]
     to_output = [[], [], [], []]
 
-elif GAME_TYPE == 'continuous_oneshotmovement':
-    env = AcousticsGame(REWARD_PATH, STATE_PATH, EPISODE_PATH, LOCATION_PATH, TRANSITION_PATH, MOVE_SEPERATION, WAITTIME)
+elif GAME_TYPE == 'continuous_movement':
+    env = AcousticsGame(REWARD_PATH, STATE_PATH, EPISODE_PATH, LOCATION_PATH, TRANSITION_PATH, MOVE_SEPERATION, WAITTIME, GAME_MODE)
     LOCATION_LIST = ROOT + LOCATION_LIST_FILE + '_' + MODELNAME + '.txt'
     OUTPUTS = [REWARD_LIST, ACTION_LIST, STATE_LIST, LOCATION_LIST,]
     to_output = [[], [], [], []]
@@ -269,9 +261,8 @@ for i_episode in range(num_episodes):
             next_hidden=None
         else:
             next_state = next_state.to(device)
-
-        ### Store Transition
-        memory.push(state, action, next_state, reward, hidden, next_hidden)
+            ### Store Transition
+            memory.push(state, action, next_state, reward, hidden, next_hidden)
 
         ### Move to the next state
         state = next_state
