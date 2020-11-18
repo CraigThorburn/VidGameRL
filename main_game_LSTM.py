@@ -38,6 +38,9 @@ if args.overwrite:
 
 to_print = args.debug
 
+torch_cat = torch.cat
+torch_stack = torch.stack
+torch_tensor = torch.tensor
 ### Define Optimization Function
 def optimize_model():
     if len(memory) < BATCH_SIZE:
@@ -51,21 +54,21 @@ def optimize_model():
 
     # Compute a mask of non-final states and concatenate the batch elements
     # (a final state would've been the one after which simulation ended)
-    non_final_mask = torch.tensor(tuple(map(lambda s: s is not None,
+    non_final_mask = torch_tensor(tuple(map(lambda s: s is not None,
                                             batch.next_state)), device=device, dtype=torch.bool)
-    non_final_next_states = torch.stack(tuple([s for s in batch.next_state
+    non_final_next_states = torch_stack(tuple([s for s in batch.next_state
                                                if s is not None]))
-    non_final_h0 = torch.stack(tuple([h[0] for h in batch.next_hidden
+    non_final_h0 = torch_stack(tuple([h[0] for h in batch.next_hidden
                                       if h is not None]))
-    non_final_c0 = torch.stack(tuple([c[1] for c in batch.next_hidden
+    non_final_c0 = torch_stack(tuple([c[1] for c in batch.next_hidden
                                       if c is not None]))
     non_final_hidden = (non_final_h0, non_final_c0)
 
-    state_batch = torch.stack(batch.state)
-    action_batch = torch.cat(batch.action)
-    reward_batch = torch.cat(batch.reward)
-    h0_batch = torch.cat(tuple([h[0] for h in batch.hidden]))
-    c0_batch = torch.cat(tuple([h[1] for h in batch.hidden]))
+    state_batch = torch_stack(batch.state)
+    action_batch = torch_cat(batch.action)
+    reward_batch = torch_cat(batch.reward)
+    h0_batch = torch_cat(tuple([h[0] for h in batch.hidden]))
+    c0_batch = torch_cat(tuple([h[1] for h in batch.hidden]))
     hidden_batch = (h0_batch, c0_batch)
 
     # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
@@ -102,10 +105,11 @@ def optimize_model():
     #       param.grad.data.clamp_(-1, 1)
     optimizer.step()
 
+rand = random.random
 ### Define Action Selection Function
 def select_action(state, hidden):
     global steps_done
-    sample = random.random()
+    sample = rand()
     eps_threshold = EPS_END + (EPS_START - EPS_END) * \
                     math.exp(-1. * steps_done / EPS_DECAY)
     steps_done += 1
@@ -138,25 +142,25 @@ STATE_LIST = ROOT + STATE_LIST_FILE + '_' + MODELNAME + '.txt'
 if GAME_TYPE == 'simple':
     env = SimpleGame(REWARD_PATH, STATE_PATH, EPISODE_PATH)
     OUTPUTS = [REWARD_LIST, ACTION_LIST, STATE_LIST]
-    to_output = ['', '', '']
+    to_output = [[], [], []]
 
 elif GAME_TYPE == 'movement':
     env = MovementGame(REWARD_PATH, STATE_PATH, EPISODE_PATH, LOCATION_PATH, TRANSITION_PATH, STIMULUS_REPS)
     LOCATION_LIST = ROOT + LOCATION_LIST_FILE + '_' + MODELNAME + '.txt'
     OUTPUTS = [REWARD_LIST, ACTION_LIST, STATE_LIST, LOCATION_LIST]
-    to_output = ['', '', '', '']
+    to_output = [[], [], [], []]
 
 elif GAME_TYPE == 'oneshotmovement':
     env = MovementGame(REWARD_PATH, STATE_PATH, EPISODE_PATH, LOCATION_PATH, TRANSITION_PATH, STIMULUS_REPS)
     LOCATION_LIST = ROOT + LOCATION_LIST_FILE + '_' + MODELNAME + '.txt'
     OUTPUTS = [REWARD_LIST, ACTION_LIST, STATE_LIST, LOCATION_LIST,]
-    to_output = ['', '', '', '']
+    to_output = [[], [], [], []]
 
 elif GAME_TYPE == 'continuous_oneshotmovement':
     env = AcousticsGame(REWARD_PATH, STATE_PATH, EPISODE_PATH, LOCATION_PATH, TRANSITION_PATH, MOVE_SEPERATION, WAITTIME)
     LOCATION_LIST = ROOT + LOCATION_LIST_FILE + '_' + MODELNAME + '.txt'
     OUTPUTS = [REWARD_LIST, ACTION_LIST, STATE_LIST, LOCATION_LIST,]
-    to_output = ['', '', '', '']
+    to_output = [[], [], [], []]
 print("environment created")
 
 ### Validate Environment
@@ -206,12 +210,20 @@ tic = time.time()
 steps_done = 0
 
 
+
+tensor = torch.tensor
+step = env.step
+get_state_str = env.get_state_str
+get_location_str = env.get_location_str
+get_state = env.get_state
+
+
 print('starting simulation')
 for i_episode in range(num_episodes):
 
     ### Set Episode For Output
     for i in range(len(to_output)):
-        to_output[i] = to_output[i] + 'eps' + str(i_episode)
+        to_output[i].append('eps' + str(i_episode))
 
     ### Initialize hidden states
     h0 = torch.randn(1, 1, 20, device=device)
@@ -231,23 +243,27 @@ for i_episode in range(num_episodes):
         action, next_hidden = select_action(state, hidden)
 
         ### Set State For Output
-        to_output[2] = to_output[2] + ' ' + env.get_state_str()
+        to_output[2].append(get_state_str())
 
         ### Take Game Step
-        reward = env.step(action)
+        reward = step(action)
         total_reward += reward
 
         ### Set Remaining Outputs
-        to_output[0] = to_output[0] + ' ' + str(float(reward))
-        to_output[1] = to_output[1] + ' ' + str(float(action))
-        if GAME_TYPE != 'simplegame':
-            to_output[3] = to_output[3] + ' ' + env.get_location_str()
+        to_output[0].append(float(reward))
+        to_output[1].append(float(action))
+        try:
+            to_output[3].append(env.get_location_str())
+        except KeyError:
+            pass
+     #   if GAME_TYPE != 'simplegame':
+     #       to_output[3] = to_output[3] + ' ' + get_location_str()
 
         ### Get State Tensor
-        reward = torch.tensor([reward], device=device, dtype=torch.float64)
+        reward = tensor([reward], device=device, dtype=torch.float64)
 
         ### Get Next State
-        next_state = env.get_state()
+        next_state = get_state()
         if next_state == None:
             done = True
             next_hidden=None
@@ -262,13 +278,12 @@ for i_episode in range(num_episodes):
         hidden = next_hidden
 
         ### Perform Optimization Step
-        policy_net.train()
         optimize_model()
 
         ### If Episode End
         if done:
             for i in range(len(to_output)):
-                to_output[i] += '\n'
+                to_output[i].append('\n')
 
             if i_episode + 1 != num_episodes:
                 env.advance_episode()
@@ -282,8 +297,8 @@ for i_episode in range(num_episodes):
     if i_episode % UPDATES == 0:
         for i in range(len(to_output)):
             outfile = open(OUTPUTS[i], 'a+')
-            outfile.write(to_output[i])
-            to_output[i] = ''
+            outfile.write(''.join(str(j) + ' ' for j in to_output[i]))
+            to_output[i] = []
             outfile.close()
 
         ### Save Model Checkpoint
@@ -304,7 +319,7 @@ print('saving data')
 ### Save Final Outputs
 for i in range(len(to_output)):
     outfile = open(OUTPUTS[i], 'a+')
-    outfile.write(to_output[i])
+    outfile.write(''.join(str(j) + ' ' for j in to_output[i]))
     outfile.close()
 print('data saved')
 

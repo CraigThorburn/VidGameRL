@@ -143,6 +143,9 @@ elif GAME_TYPE == 'oneshotmovement':
     LOCATION_LIST = ROOT + LOCATION_LIST_FILE + '_' + MODELNAME + '.txt'
     OUTPUTS = [REWARD_LIST, ACTION_LIST, STATE_LIST, LOCATION_LIST,]
     to_output = ['', '', '', '']
+
+else:
+    raise(TypeError, 'Game type on implemented in this script')
 print("environment created")
 
 ### Validate Environment
