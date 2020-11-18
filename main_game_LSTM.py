@@ -197,6 +197,8 @@ for name in OUTPUTS:
     outfile = open(name, write_method)
     outfile.close()
 
+save_params()
+
 ### Set Model Start
 tic = time.time()
 steps_done = 0
