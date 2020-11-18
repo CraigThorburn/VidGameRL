@@ -64,5 +64,5 @@ ALL_PARAMS = ['BATCH_SIZE',  BATCH_SIZE, '\n',
 'EXPERIMENT', EXPERIMENT ]
 
 def save_params():
-     with open(ROOT + MODELNAME + '_params.txt') as fi:
+     with open(ROOT + MODELNAME + '_params.txt', 'w') as fi:
          fi.write(''.join(str(p) + ' ' for p in ALL_PARAMS))
