@@ -11,14 +11,14 @@ LAYERS = [[3,3],[3,3]]
 MEM_SIZE = 100000
 TOKEN_TYPE = 'token'
 
-GAME_TYPE = 'continuous_oneshotmovement'
-GAME_MODE = ''
-EXPERIMENT = 'experimental_continuous_oneshotgame5/'
+GAME_TYPE = 'continuous_movement'
+GAME_MODE = 'correct'
+EXPERIMENT = 'experimental_continuous_movement_parameterexploration/'
 
 OVERWRITE = True
 
 ROOT = '/mnt/c/files/research/projects/vid_game/data/'+EXPERIMENT
-#ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
+ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
 
 
 UPDATES = 100

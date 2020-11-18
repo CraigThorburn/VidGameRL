@@ -77,14 +77,16 @@ def optimize_model():
     # This is merged based on the mask, such that we'll have either the expected
     # state value or 0 in case the state was final.
     next_state_values = torch.zeros(BATCH_SIZE, device=device)
-    next_state_values_network, _ = target_net(next_states_batch, next_hidden).max(-1)[0]
+    next_state_values_network, _ = target_net(next_states_batch, next_hidden)
+    next_state_values_network = next_state_values_network.max(-1)[0]
 
     # Compute the expected Q values
     expected_state_action_values = reward_batch + (next_state_values * GAMMA)
     # TODO: Make sure loss is functioning correctly
     # TODO: sort Cuda Movement
     # TODO: Optimization change
-    # TODO: Have removed final states from here
+    # TODO: Have removed final states from
+    # TODO: No clamping?
 
     # Compute Huber loss
     loss = F.smooth_l1_loss(state_action_values.double(), expected_state_action_values.unsqueeze(1).double())
