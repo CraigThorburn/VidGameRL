@@ -235,19 +235,22 @@ for i_episode in range(num_episodes):
         action, next_hidden = select_action(state, hidden)
 
         ### Set State For Output
-        to_output[2].append(get_state_str())
+        current_state = get_state_str()
+
 
         ### Take Game Step
         reward = step(action)
         total_reward += reward
 
         ### Set Remaining Outputs
-        to_output[0].append(float(reward))
-        to_output[1].append(float(action))
-        try:
-            to_output[3].append(env.get_location_str())
-        except KeyError:
-            pass
+        if reward==1:
+            to_output[0].append(float(reward))
+            to_output[1].append(float(action))
+            to_output[2].append(current_state)
+            try:
+                to_output[3].append(env.get_location_str())
+            except KeyError:
+                pass
      #   if GAME_TYPE != 'simplegame':
      #       to_output[3] = to_output[3] + ' ' + get_location_str()
 
