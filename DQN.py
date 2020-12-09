@@ -51,14 +51,14 @@ class DQN_LSTM(nn.Module):
     def __init__(self, inputs,  outputs, layers, device):
 
         super(DQN_LSTM, self).__init__()
-        self.lin0 = nn.Linear(inputs,20)
+        self.lin0 = nn.Linear(inputs,40)
 
         #self.midlayers = []
         #for l in layers:
         #    self.midlayers.append(nn.Linear(l[0], l[1]))
-        self.mid1 = nn.Linear(20,20)
-        self.lstm = nn.LSTM(20, 20, 1)
-        #self.mid2 = nn.Linear(2,2)
+        self.mid1 = nn.Linear(40,40)
+        self.lstm = nn.LSTM(40, 40, 1)
+        self.mid2 = nn.Linear(40,20)
         self.linfinal = nn.Linear(20,outputs)
 
         # Number of Linear input connections depends on output of conv2d layers
@@ -83,18 +83,24 @@ class DQN_LSTM(nn.Module):
         x = F.softplus(self.mid1(x))
         # This means that we are looking at a batch
         if x.dim() != 1:
-            x = x.reshape(1, x.size()[0], 20)
-            h0 = hidden[0].reshape(1, hidden[0].size()[0], 20)
-            c0 = hidden[1].reshape(1, hidden[1].size()[0], 20)
+            x = x.reshape(1, x.size()[0], 40)
+            h0 = hidden[0].reshape(1, hidden[0].size()[0], 40)
+            c0 = hidden[1].reshape(1, hidden[1].size()[0], 40)
         else:
-            x = x.reshape(1, 1, 20)
+            x = x.reshape(1, 1, 40)
             h0 = hidden[0]
             c0 = hidden[1]
+
        # x = F.relu(self.mid2(x))
+
         x, hidden = self.lstm(x, (h0, c0))
+
         #for l in self.midlayers:
         #    x = F.relu(l(x))
+
+        x = F.softplus(self.mid2(x))
         x = F.softplus(self.linfinal(x))
+
         #CHANGE: relu -> softplus
 
         return x, hidden# self.head(x.view(x.size(0), -1))

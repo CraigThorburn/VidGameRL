@@ -224,6 +224,7 @@ class AcousticsGame(Environment):
 
         self.load_locations(location_file)
         self.load_transitions(transition_file)
+        self.new_state = True
 
         self.action_timepoints = list(range(0, self.n_timepoints, self.n_moves))
 
@@ -238,6 +239,9 @@ class AcousticsGame(Environment):
 
         else:
             raise(AssertionError, 'mode not implemented')
+
+    def is_new_state(self):
+        return self.new_state
 
 
     def load_states(self, STATE_FILE):
@@ -348,9 +352,11 @@ class AcousticsGame(Environment):
                 self.current_state = None
             else:
                 self.current_state = self.current_episode[self.current_state_num]
+            self.new_state = True
 
         else:
             self.current_timepoint +=1
+            self.new_state = False
 
     def initiate_environment(self):
         self.current_location = random.choice(list(self.locations.keys()))
@@ -372,9 +378,103 @@ class AcousticsGame(Environment):
         self.current_state_num = 0
         self.current_state = self.current_episode[self.current_state_num]
         self.current_timepoint = 1
+        self.current_location = random.choice(list(self.locations.keys()))
 
     def get_location_str(self):
         return self.current_location
 
     def is_action_timepoint(self):
         return  self.current_timepoint in self.action_timepoints
+
+
+
+class ConvAcousticsGame(AcousticsGame):
+
+    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time, mode, conv_size, device=None):
+        self.conv_size = conv_size
+        self.current_timepoint_start = 0
+        self.current_timepoint_end = self.conv_size - 1
+        super().__init__(reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time, mode, device)
+
+
+    def load_states(self, STATE_FILE):
+        super().load_states(STATE_FILE)
+        self.n_dims = self.conv_size*self.n_dims
+
+    def advance_state(self, action):
+        if action < 99:
+            self.current_location = self.transitions[self.current_location][action]
+
+
+        if self.current_timepoint_end == self.n_timepoints-1:
+            self.current_timepoint_start = 0
+            self.current_timepoint_end = self.conv_size
+            self.current_state_num+=1
+            if self.current_state_num == len(self.current_episode):
+                self.current_state = None
+            else:
+                self.current_state = self.current_episode[self.current_state_num]
+
+            self.new_state = True
+
+        else:
+            self.current_timepoint_start +=1
+            self.current_timepoint_end += 1
+            self.new_state = False
+
+    def initiate_environment(self):
+        self.current_location = random.choice(list(self.locations.keys()))
+        self.current_episode = self.episodes[self.current_episode_num]
+        self.current_state = self.current_episode[self.current_state_num]
+        self.current_timepoint_start = 0
+        self.current_timepoint_end = self.conv_size
+        self.new_state = True
+
+    def get_state(self):
+
+
+
+        if self.current_state is not None:
+            return torch.cat((torch.flatten(self.states[self.current_state][:,self.current_timepoint_start:self.current_timepoint_end])
+                              , self.locations[self.current_location]),0).float()
+        else:
+            return None
+
+
+    def advance_episode(self):
+        self.current_episode_num += 1
+        self.current_episode = self.episodes[self.current_episode_num]
+        self.current_state_num = 0
+        self.current_state = self.current_episode[self.current_state_num]
+        self.current_location = random.choice(list(self.locations.keys()))
+        self.current_timepoint_start = 0
+        self.current_timepoint_end = self.conv_size
+
+#######################
+    def oneshot_step(self, action):
+        if self.current_timepoint_end > self.n_waittime:
+            reward = self.rewards[self.current_state+'_'+self.current_location][action]
+            if action==2:
+                self.current_timepoint_end = self.n_timepoints-1
+        else:
+            reward = 0
+        self.advance_state(action)
+        return reward
+
+    def correct_step(self, action):
+        if self.current_timepoint_end > self.n_waittime:
+            reward = self.rewards[self.current_state+'_'+self.current_location][action]
+            if reward==1:
+                self.current_timepoint_end = self.n_timepoints-1
+        else:
+            reward = 0
+        self.advance_state(action)
+        return reward
+
+    def multiple_step(self, action):
+        if self.current_timepoint_end > self.n_waittime:
+            reward = self.rewards[self.current_state+'_'+self.current_location][action]
+        else:
+            reward = 0
+        self.advance_state(action)
+        return reward

@@ -31,7 +31,7 @@ state_list = [s.split('\t')[0] for s in state_data[1:]]
 if args.batch:
     episodefiles = [args.episode + '/' + s for s in os.listdir(args.root+'/'+args.episode) if s[:5] == 'state' ]
     outfiles = [args.out + '/' + s for s in os.listdir(args.root+'/'+args.out) if s[:6] == 'reward' ]
-    resultfiles = [args.results + '/results_' + s.split('_')[-1] for s in os.listdir(args.root+'/'+args.out)if s[:6] == 'reward' ]
+    resultfiles = [args.results + '/results_' + s.split('expl_')[-1] for s in os.listdir(args.root+'/'+args.out)if s[:6] == 'reward' ]
 else:
     outfiles = [args.out]
     resultfiles = [args.results]
@@ -73,6 +73,8 @@ for i in range(iters):
         for x in range(len(ep)-1):
             state = ep[x+1]
             reward = out[x+1]
+            if state=='':
+                pass
             ep_result[state_list.index(state)] += float(reward)
         results.append([ep[0]]+ ep_result)
 
