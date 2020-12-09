@@ -97,6 +97,10 @@ def optimize_model():
     # TODO: Optimization change
     # TODO: Have removed final states from
     # TODO: No clamping?
+    #### BEGIN DEBUG
+  #  if sum(reward_batch) > 1:
+      #  print('morereward')
+    #### END DEBUG
  #.unsqueeze(1)
     # Compute Huber loss
     loss = F.smooth_l1_loss(state_action_values.double(), expected_state_action_values.transpose(0,1).double())
@@ -194,7 +198,7 @@ policy_net.train()
 
 ### Define Optimizer
 optimizer = optim.RMSprop(policy_net.parameters())
-torch.backends.cudnn.enabled = False
+#torch.backends.cudnn.enabled = False
 # TODO: Check what exactly this is doing ^^^
 # CHANGE: from RMSprop to SGD
 
