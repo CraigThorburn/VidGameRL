@@ -48,6 +48,7 @@ for i in range(iters):
     o = outfiles[i]
     r = resultfiles[i]
     e = episodefiles[i]
+    print(o)
 
     with open(args.root + '/' + e) as f:
         episode_data = f.read().splitlines()

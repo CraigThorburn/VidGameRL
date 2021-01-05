@@ -113,6 +113,9 @@ def optimize_model():
         param.grad.data.clamp_(-1, 1)
     optimizer.step()
 
+    ### BEGIN DEBUG
+    to_output[-1].append(round(float(loss),4))
+
 rand = random.random
 ### Define Action Selection Function
 def select_action(state, hidden):
@@ -175,6 +178,16 @@ elif GAME_TYPE == 'convolutionalmovement':
     LOCATION_LIST = ROOT + LOCATION_LIST_FILE + '_' + MODELNAME + '.txt'
     OUTPUTS = [REWARD_LIST, ACTION_LIST, STATE_LIST, LOCATION_LIST,]
     to_output = [[], [], [], []]
+
+else:
+    raise ModuleNotFoundError
+
+    ### BEGIN DEBUG
+to_output.append([])
+OUTPUTS.append(ROOT + 'exp/loss' + '_' + MODELNAME + '.txt')
+
+
+
 print("environment created")
 
 ### Validate Environment
@@ -198,7 +211,7 @@ policy_net.train()
 
 ### Define Optimizer
 optimizer = optim.RMSprop(policy_net.parameters())
-#torch.backends.cudnn.enabled = False
+torch.backends.cudnn.enabled = False
 # TODO: Check what exactly this is doing ^^^
 # CHANGE: from RMSprop to SGD
 
