@@ -52,70 +52,13 @@ torch_cat = torch.cat
 torch_stack = torch.stack
 torch_tensor = torch.tensor
 ### Define Optimization Function
-def optimize_model():
-    if len(memory) < BATCH_SIZE:
-        return
-    transitions = memory.sample(BATCH_SIZE)
-    # Transpose the batch (see https://stackoverflow.com/a/19343/3343043 for
-    # detailed explanation). This converts batch-array of Transitions
-    # to Transition of batch-arrays.
-    batch = LSTMTransition(*zip(*transitions))
 
-    # Compute a mask of non-final states and concatenate the batch elements
-    # (a final state would've been the one after which simulation ended)
-    next_states_batch = torch_stack(tuple(batch.next_state))
-    next_h0_batch = torch_stack(tuple([h[0] for h in batch.next_hidden]))
-    next_c0_batch = torch_stack(tuple([h[1] for h in batch.next_hidden]))
-    next_hidden = (next_h0_batch, next_c0_batch)
-
-    state_batch = torch_stack(batch.state)
-    action_batch = torch_cat(batch.action)
-    reward_batch = torch_cat(batch.reward)
-    h0_batch = torch_cat(tuple([h[0] for h in batch.hidden]))
-    c0_batch = torch_cat(tuple([h[1] for h in batch.hidden]))
-    hidden_batch = (h0_batch, c0_batch)
-
-    # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
-    # columns of actions taken. These are the actions which would've been taken
-    # for each batch state according to policy_net
-    state_action_values,_ = policy_net(state_batch, hidden_batch)
-    state_action_values = state_action_values.reshape(BATCH_SIZE, n_actions).gather(1, action_batch)
-
-    # Compute V(s_{t+1}) for all next states.
-    # Expected values of actions for non_final_next_states are computed based
-    # on the "older" target_net; selecting their best reward with max(1)[0].
-    # This is merged based on the mask, such that we'll have either the expected
-    # state value or 0 in case the state was final.
-    next_state_values = torch.zeros(BATCH_SIZE, device=device)
-    next_state_values_network, _ = target_net(next_states_batch, next_hidden)
-    next_state_values = next_state_values_network.max(-1)[0]
-
-    # Compute the expected Q values
-    expected_state_action_values = reward_batch + (next_state_values * GAMMA)
-    # TODO: Make sure loss is functioning correctly
-    # TODO: sort Cuda Movement
-    # TODO: Optimization change
-    # TODO: Have removed final states from
-    # TODO: No clamping?
- #.unsqueeze(1)
-    # Compute Huber loss
-    loss = F.smooth_l1_loss(state_action_values.double(), expected_state_action_values.transpose(0,1).double())
-    loss = loss.double()
-    # Optimize the model
-    optimizer.zero_grad()
-    # print(policy_net.training)
-    loss.backward()
-    for param in policy_net.parameters():
-        param.grad.data.clamp_(-1, 1)
-    optimizer.step()
 
 rand = random.random
 ### Define Action Selection Function
 def select_action(state, hidden):
     global steps_done
-    sample = rand()
-    eps_threshold = EPS_END + (EPS_START - EPS_END) * \
-                    math.exp(-1. * i_episode / EPS_DECAY)
+
     steps_done += 1
     with torch.no_grad():
         # t.max(1) will return largest column value of each row.
@@ -123,19 +66,15 @@ def select_action(state, hidden):
         # found, so we pick action with the larger expected reward.
         network_return, hidden = policy_net(state, hidden)
         network_return = network_return.max(-1)[1].view(1, 1)
-    if sample > eps_threshold:
-        action = network_return
-    else:
-        action = torch.tensor([[random.randrange(n_actions)]], device=device, dtype=torch.long)
+
+
+    action = torch.tensor([[random.randrange(n_actions)]], device=device, dtype=torch.long)
     return action, hidden
 
 ### Set Computational Device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print('using device ' + str(device))
 
-### Define Memory Transitions
-transition = namedtuple('Transition',
-                        ('state', 'action', 'next_state', 'reward', 'hidden', 'next_hidden'))
 
 ### Set File Locations
 ACTION_LIST = ROOT + ACTION_LIST_FILE + '_' + MODELNAME + '.txt'
@@ -186,21 +125,8 @@ n_actions = env.get_n_actions()
 print('num actions: ' + str(n_actions))
 
 ### Create Model Networks
-policy_net = DQN_LSTM(num_inputs, n_actions, LAYERS,device).to(device) # .to(device)
-target_net = DQN_LSTM(num_inputs, n_actions, LAYERS, device).to(device) #to(device)
-target_net.load_state_dict(policy_net.state_dict())
-target_net.eval()
-policy_net.train()
+policy_net = torch.load(MODEL_PATH + MODELNAME + '.pt', map_location=device)
 
-### Define Optimizer
-optimizer = optim.RMSprop(policy_net.parameters())
-torch.backends.cudnn.enabled = False
-# TODO: Check what exactly this is doing ^^^
-# CHANGE: from RMSprop to SGD
-
-### Define Model Memory
-memory = LSTMReplayMemory(10000)
-print('model and memory initialized')
 
 ### Initiate Environment
 env.initiate_environment()
@@ -231,7 +157,7 @@ get_state = env.get_state
 is_new = env.is_new_state()
 
 
-print('starting simulation')
+print('starting test')
 for i_episode in range(num_episodes):
 
     ### Set Episode For Output
@@ -265,14 +191,13 @@ for i_episode in range(num_episodes):
         total_reward += reward
 
         ### Set Remaining Outputs
-        if reward==1:
-            to_output[0].append(float(reward))
-            to_output[1].append(float(action))
-            to_output[2].append(current_state)
-            try:
-                to_output[3].append(env.get_location_str())
-            except KeyError:
-                pass
+        to_output[0].append(float(reward))
+        to_output[1].append(float(action))
+        to_output[2].append(current_state)
+        try:
+            to_output[3].append(env.get_location_str())
+        except KeyError:
+            pass
      #   if GAME_TYPE != 'simplegame':
      #       to_output[3] = to_output[3] + ' ' + get_location_str()
 
@@ -286,8 +211,7 @@ for i_episode in range(num_episodes):
             next_hidden=None
         else:
             next_state = next_state.to(device)
-            ### Store Transition
-            memory.push(state, action, next_state, reward, hidden, next_hidden)
+
 
         ### Move to the next state
         state = next_state
@@ -297,8 +221,6 @@ for i_episode in range(num_episodes):
         else:
             hidden = next_hidden
 
-        ### Perform Optimization Step
-        optimize_model()
 
         ### If Episode End
         if done:
@@ -307,9 +229,7 @@ for i_episode in range(num_episodes):
                 env.advance_episode()
             break
 
-    ### Update Target Network
-    if i_episode % TARGET_UPDATE == 0:
-        target_net.load_state_dict(policy_net.state_dict())
+
 
     ### Save Updates To File
     if i_episode % UPDATES == 0:
@@ -331,7 +251,7 @@ for i_episode in range(num_episodes):
                 math.ceil((i_episode / num_episodes) * 100)) + \
             ', time remaining: ' + str(int(time_remaining)) + ' minutes')
 
-print('model complete')
+print('test complete')
 print('saving data')
 
 ### Save Final Outputs
@@ -341,10 +261,6 @@ for i in range(len(to_output)):
     outfile.close()
 print('data saved')
 
-### Save Final Model
-print('saving model')
-torch.save(policy_net.state_dict(),  MODEL_PATH + MODELNAME + '_final.pt')
-print('model saved')
 print('done')
 
 # TODO: Cuda issues on clip (loaded vocab is not going to device)
