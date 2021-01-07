@@ -1,4 +1,4 @@
-BATCH_SIZE = 128
+BATCH_SIZE = 32
 GAMMA = 0.9
 EPS_START = 0.99
 EPS_END = 0.05
@@ -19,7 +19,7 @@ TOKEN_TYPE = 'token'
 
 GAME_TYPE = 'convolutionalmovement'
 GAME_MODE = 'correct'
-EXPERIMENT = 'experimental_continuous_movement_conv/'
+EXPERIMENT = 'experimental_continuous_movement_conv_bettermem/'
 
 OVERWRITE = True
 
@@ -27,7 +27,7 @@ MODELNAME = 'lstm_' + GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay'+ str(EPS_D
             + '_waittime'+ str(WAITTIME) + '_convsize'+ str(CONV_SIZE) + '_memreset2'
 
 ROOT = '/mnt/c/files/research/projects/vid_game/data/'+EXPERIMENT
-ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
+#ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
 #MODELNAME = 'test'
 
 

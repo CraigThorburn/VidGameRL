@@ -25,11 +25,28 @@ class ReplayMemory(object):
     def __len__(self):
         return len(self.memory)
 
-class LSTMReplayMemory(ReplayMemory):
+    def advance_episode(self):
+        pass
+
+class SequentialUpdatesReplayMemory(object):
+
+    def __init__(self, episode_capacity):
+        self.episode_capacity = episode_capacity
+        self.memory = [[]]
+        self.episode_position = 0
 
     def push(self, *args):
         """Saves a transition."""
-        if len(self.memory) < self.capacity:
+        self.memory[self.episode_position].append(LSTMTransition(*args))
+
+    def advance_episode(self):
+        self.episode_position = (self.episode_position + 1) % self.episode_capacity
+        if len(self.memory) < self.episode_capacity:
             self.memory.append(None)
-        self.memory[self.position] = LSTMTransition(*args)
-        self.position = (self.position + 1) % self.capacity
+        self.memory[self.episode_position] = []
+
+    def __len__(self):
+        return len(self.memory)
+
+    def sample(self, batch_size):
+        return random.sample(self.memory, batch_size)
