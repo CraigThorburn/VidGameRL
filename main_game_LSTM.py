@@ -58,10 +58,10 @@ def optimize_model():
     pad_number = 99
     longest_seq = max(seq_lengths)
     cat_dim_length = BATCH_SIZE*longest_seq
-    padded_state = torch.ones(BATCH_SIZE, longest_seq, num_inputs) * pad_number
-    padded_action = torch.zeros(BATCH_SIZE, longest_seq)
-    padded_next_state = torch.ones(BATCH_SIZE, longest_seq, num_inputs) * pad_number
-    padded_reward = torch.ones(BATCH_SIZE, longest_seq) * pad_number
+    padded_state = torch.ones(BATCH_SIZE, longest_seq, num_inputs, device=device) * pad_number
+    padded_action = torch.zeros(BATCH_SIZE, longest_seq, device=device)
+    padded_next_state = torch.ones(BATCH_SIZE, longest_seq, num_inputs, device=device) * pad_number
+    padded_reward = torch.ones(BATCH_SIZE, longest_seq, device=device) * pad_number
 
     for ind, seq_len in enumerate(seq_lengths):
         this_state = states[ind]
@@ -84,7 +84,7 @@ def optimize_model():
     # columns of actions taken. These are the actions which would've been taken
     # for each batch state according to policy_net
 
-    h_initial = (torch.zeros(1, BATCH_SIZE, 40), torch.zeros(1, BATCH_SIZE, 40))
+    h_initial = (torch.zeros(1, BATCH_SIZE, 40, device=device), torch.zeros(1, BATCH_SIZE, 40, device=device))
     state_action_values,_ = policy_net(padded_state, seq_lengths, h_initial)
 
     # create a mask by filtering out all tokens that ARE NOT the padding token
@@ -111,15 +111,13 @@ def optimize_model():
     state_action_values = state_action_values * mask
     padded_reward = padded_reward * mask
 
-    print(state_action_values.size())
 
     # Compute the expected Q values
     expected_state_action_values = padded_reward + (next_state_values * GAMMA)
 
-    print(expected_state_action_values.size())
 
     # Compute Huber loss
-    loss = F.smooth_l1_loss(state_action_values.double(), expected_state_action_values)
+    loss = F.smooth_l1_loss(state_action_values.double(), expected_state_action_values, reduction = 'sum')/sum(seq_lengths)
     loss = loss.double()
     # Optimize the model
     optimizer.zero_grad()
@@ -145,7 +143,7 @@ def select_action(state, hidden):
         # second column on max result is index of where max element was
         # found, so we pick action with the larger expected reward.
         network_state = state#.reshape(1,len(state),1)
-        network_return, hidden = policy_net(network_state, 1, hidden)
+        network_return, hidden = policy_net(network_state.float(), 1, hidden)
         network_return = network_return.max(-1)[1].view(1, 1)
     if sample > eps_threshold:
         action = network_return
@@ -288,7 +286,7 @@ for i_episode in range(num_episodes):
 
 
         ### Select Action
-        action, next_hidden = select_action(state, hidden)
+        action, next_hidden = select_action(state.double(), hidden)
 
         ### Set State For Output
         current_state = get_state_str()

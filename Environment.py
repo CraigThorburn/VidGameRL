@@ -146,7 +146,7 @@ class MovementGame(Environment):
 
     def get_state(self):
         if self.current_state is not None:
-            return torch.cat((self.states[self.current_state], self.locations[self.current_location]),0)
+            return torch.cat((self.states[self.current_state], self.locations[self.current_location]),0).float()
         else:
             return None
 
@@ -164,6 +164,9 @@ class MovementGame(Environment):
 
     def get_location_str(self):
         return self.current_location
+
+    def is_new_state(self):
+        return False
 
 class OneShotMovementGame(MovementGame):
 
@@ -248,7 +251,6 @@ class AcousticsGame(Environment):
         with open(STATE_FILE, 'r') as f:
             input_data = f.read().splitlines()
             header = input_data.pop(0).split('\t')
-            print(header)
 
 
 

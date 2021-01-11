@@ -32,18 +32,22 @@ class SequentialUpdatesReplayMemory(object):
 
     def __init__(self, episode_capacity):
         self.episode_capacity = episode_capacity
-        self.memory = [[]]
+        self.memory = []
         self.episode_position = 0
+        self.current_episode = []
 
     def push(self, *args):
         """Saves a transition."""
-        self.memory[self.episode_position].append(LSTMTransition(*args))
+        self.current_episode.append(LSTMTransition(*args))
 
     def advance_episode(self):
+        try:
+            self.memory[self.episode_position] = self.current_episode
+        except IndexError:
+            self.memory.append(self.current_episode)
+        self.current_episode = []
         self.episode_position = (self.episode_position + 1) % self.episode_capacity
-        if len(self.memory) < self.episode_capacity:
-            self.memory.append(None)
-        self.memory[self.episode_position] = []
+
 
     def __len__(self):
         return len(self.memory)

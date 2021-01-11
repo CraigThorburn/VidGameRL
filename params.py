@@ -1,12 +1,12 @@
-BATCH_SIZE = 32
+BATCH_SIZE = 4
 GAMMA = 0.9
 EPS_START = 0.99
 EPS_END = 0.05
-EPS_DECAY = 100
-TARGET_UPDATE = 5
+EPS_DECAY = 150
+TARGET_UPDATE = 25
 LR = 0.09
 
-UPDATES = 100
+UPDATES = 20
 STIMULUS_REPS = 8
 MOVE_SEPERATION = 1 #(not implemented yet)
 WAITTIME = 10
@@ -14,7 +14,7 @@ CONV_SIZE = 10
 
 LAYERS = [[3,3],[3,3]]
 
-MEM_SIZE = 100000
+MEM_SIZE = 200
 TOKEN_TYPE = 'token'
 
 GAME_TYPE = 'convolutionalmovement'
@@ -26,8 +26,8 @@ OVERWRITE = True
 MODELNAME = 'lstm_' + GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay'+ str(EPS_DECAY) + '_targetupdate'+ str(TARGET_UPDATE) \
             + '_waittime'+ str(WAITTIME) + '_convsize'+ str(CONV_SIZE) + '_memreset2'
 
-ROOT = '/mnt/c/files/research/projects/vid_game/data/'+EXPERIMENT
-#ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
+#ROOT = '/mnt/c/files/research/projects/vid_game/data/'+EXPERIMENT
+ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
 #MODELNAME = 'test'
 
 

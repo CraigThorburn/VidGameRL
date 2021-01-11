@@ -52,11 +52,11 @@ class DQN_LSTM(nn.Module):
     def __init__(self, inputs,  outputs, layers,device):
 
         super(DQN_LSTM, self).__init__()
-        self.lin0 = nn.Linear(inputs,40)
-        self.mid1 = nn.Linear(40,40)
+        self.lin0 = nn.Linear(inputs,20)
+        self.mid1 = nn.Linear(20,40)
         self.lstm = nn.LSTM(40, 40, 1)
-        self.mid2 = nn.Linear(40,20)
-        self.linfinal = nn.Linear(20,outputs)
+        #self.mid2 = nn.Linear(40,20)
+        self.linfinal = nn.Linear(40,outputs)
 
 
     # Called with either one element to determine next action, or a batch
@@ -82,8 +82,8 @@ class DQN_LSTM(nn.Module):
             # undo the packing operation
             x, _ = torch.nn.utils.rnn.pad_packed_sequence(x, batch_first=True)
 
-
-        x = F.softplus(self.mid2(x))
+        x = F.softplus(x)
+      #  x = F.softplus(self.mid2(x))
         x = F.softplus(self.linfinal(x))
 
 
