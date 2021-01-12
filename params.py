@@ -9,8 +9,9 @@ LR = 0.09
 UPDATES = 20
 STIMULUS_REPS = 8
 MOVE_SEPERATION = 1 #(not implemented yet)
-WAITTIME = 10
-CONV_SIZE = 10
+WAITTIME = 0
+CONV_SIZE = 15
+STRIDE = 5
 
 LAYERS = [[3,3],[3,3]]
 
@@ -26,8 +27,8 @@ OVERWRITE = True
 MODELNAME = 'lstm_' + GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay'+ str(EPS_DECAY) + '_targetupdate'+ str(TARGET_UPDATE) \
             + '_waittime'+ str(WAITTIME) + '_convsize'+ str(CONV_SIZE) + '_memreset2'
 
-#ROOT = '/mnt/c/files/research/projects/vid_game/data/'+EXPERIMENT
-ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
+ROOT = '/mnt/c/files/research/projects/vid_game/data/'+EXPERIMENT
+#ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
 #MODELNAME = 'test'
 
 

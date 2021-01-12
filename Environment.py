@@ -392,8 +392,9 @@ class AcousticsGame(Environment):
 
 class ConvAcousticsGame(AcousticsGame):
 
-    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time, mode, conv_size, device=None):
+    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time, mode, conv_size, stride=1, device=None):
         self.conv_size = conv_size
+        self.stride = stride
         self.current_timepoint_start = 0
         self.current_timepoint_end = self.conv_size - 1
         super().__init__(reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time, mode, device)
@@ -408,7 +409,7 @@ class ConvAcousticsGame(AcousticsGame):
             self.current_location = self.transitions[self.current_location][action]
 
 
-        if self.current_timepoint_end == self.n_timepoints-1:
+        if self.current_timepoint_end+1  >= self.n_timepoints:
             self.current_timepoint_start = 0
             self.current_timepoint_end = self.conv_size
             self.current_state_num+=1
@@ -420,8 +421,8 @@ class ConvAcousticsGame(AcousticsGame):
             self.new_state = True
 
         else:
-            self.current_timepoint_start +=1
-            self.current_timepoint_end += 1
+            self.current_timepoint_start += self.stride
+            self.current_timepoint_end += self.stride
             self.new_state = False
 
     def initiate_environment(self):
