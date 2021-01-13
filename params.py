@@ -10,12 +10,12 @@ UPDATES = 20
 STIMULUS_REPS = 8
 MOVE_SEPERATION = 1 #(not implemented yet)
 WAITTIME = 0
-CONV_SIZE = 15
-STRIDE = 5
+CONV_SIZE = 20
+STRIDE = 1
 
 LAYERS = [[3,3],[3,3]]
 
-MEM_SIZE = 200
+MEM_SIZE = 1000
 TOKEN_TYPE = 'token'
 
 GAME_TYPE = 'convolutionalmovement'
