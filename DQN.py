@@ -105,3 +105,49 @@ class DQN_LSTM(nn.Module):
 
         return x, hidden# self.head(x.view(x.size(0), -1))
     #TODO: Look closer at architecture
+
+class DQN_NN_conv(nn.Module):
+
+    def __init__(self, h, w, inputs, outputs, kernel = 5, sstride = 2):
+        super(DQN_NN_conv, self).__init__()
+        self.conv1 = nn.Conv2d(1, 16, kernel_size=kernel, stride=sstride)
+        self.bn1 = nn.BatchNorm2d(16)
+        self.conv2 = nn.Conv2d(16, 32, kernel_size=kernel, stride=sstride)
+        self.bn2 = nn.BatchNorm2d(32)
+
+
+        # Number of Linear input connections depends on output of conv2d layers
+        # and therefore the input image size, so compute it.
+        def conv2d_size_out(size, kernel_size = kernel, stride = sstride):
+            return (size - (kernel_size - 1) - 1) // stride  + 1
+        convw = conv2d_size_out(conv2d_size_out(w,kernel,sstride))
+        convh = conv2d_size_out(conv2d_size_out(h,kernel,sstride))
+        linear_input_size = convw * convh * 32
+
+        mid_size = 20
+
+        self.head1 = nn.Linear(linear_input_size+inputs, mid_size)
+        self.head2 = nn.Linear(mid_size, outputs)
+
+    # Called with either one element to determine next action, or a batch
+    # during optimization. Returns tensor([[left0exp,right0exp]...]).
+    def forward(self, x_aud, x_loc):
+
+        if len(x_aud.size()) == 2:
+            # not batch
+            x_aud = x_aud.reshape(1,1,x_aud.size()[0], x_aud.size()[1])
+            x_aud = F.relu(self.bn1(self.conv1(x_aud)))
+            x_aud = F.relu(self.bn2(self.conv2(x_aud)))
+            x = torch.cat((x_aud.flatten(), x_loc))
+        else:
+            # batch
+            x_aud = x_aud.reshape(x_aud.size()[0],1,x_aud.size()[1], x_aud.size()[2])
+            x_aud = F.relu(self.bn1(self.conv1(x_aud)))
+            x_aud = F.relu(self.bn2(self.conv2(x_aud)))
+            x = torch.cat((x_aud.reshape(x_aud.size()[0],x_aud.size()[1]*x_aud.size()[2]*x_aud.size()[3]) , x_loc), 1)
+
+        x = F.softplus(self.head1(x))
+        x = F.softplus(self.head2(x))
+
+
+        return x
