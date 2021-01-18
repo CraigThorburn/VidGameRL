@@ -24,6 +24,9 @@ import argparse
 
 ### Parse Arguments
 parser = argparse.ArgumentParser()
+parser.add_argument("-game_mode", help="root directory")
+parser.add_argument("-target_update", help="state file to use as input")
+
 parser.add_argument("-debug", help="run with debugging output on")
 parser.add_argument("-overwrite", help="overwrite any existing output files")
 parser.add_argument("-modelname", help='name of this simulation')
@@ -35,6 +38,10 @@ if args.modelname:
 
 if args.overwrite:
     OVERWRITE = args.overwrite
+
+if args.game_mode:
+    GAME_MODE=args.game_mode
+
 
 to_print = args.debug
 
@@ -178,7 +185,7 @@ target_net.eval()
 policy_net.train()
 
 ### Define Optimizer
-optimizer = optim.SGD(policy_net.parameters(), lr = LR) ## TODO: Changed from RMSprop
+optimizer = optim.RMSprop(policy_net.parameters(), lr = LR) ## TODO: Changed from RMSprop
 torch.backends.cudnn.enabled = False
 # TODO: Check what exactly this is doing ^^^
 # CHANGE: from RMSprop to SGD
@@ -215,8 +222,8 @@ for i_episode in range(num_episodes):
     total_reward = 0
     episode_length = env.get_current_episode_length()
     state, loc = env.get_state()
-    state.to(device)
-    loc.to(device)
+    state = state.to(device)
+    loc = loc.to(device)
     done = False
 
     ### Iterate Over Episode
@@ -253,8 +260,8 @@ for i_episode in range(num_episodes):
         if next_state == None:
             done = True
         else:
-            next_state.to(device)
-            next_loc.to(device)
+            next_state = next_state.to(device)
+            next_loc = next_loc.to(device)
 
         ### Store Transition
         memory.push(state, loc, action, next_state, next_loc, reward)
