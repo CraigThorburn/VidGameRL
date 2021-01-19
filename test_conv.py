@@ -19,7 +19,6 @@ from DQN import *
 from Environment import *
 
 import time
-from params import *
 import argparse
 
 ### Parse Arguments

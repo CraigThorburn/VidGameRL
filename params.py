@@ -28,7 +28,7 @@ EXPERIMENT = 'experimental_convolution_noncontinuous/'
 OVERWRITE = True
 
 #MODELNAME = GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay'+ str(EPS_DECAY) + '_targetupdate'+ str(TARGET_UPDATE) \
-            + '_waittime'+ str(WAITTIME) + '_convsize'+ str(CONV_SIZE)
+     #       + '_waittime'+ str(WAITTIME) + '_convsize'+ str(CONV_SIZE)
 
 ROOT = '/mnt/c/files/research/projects/vid_game/data/'+EXPERIMENT
 ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
