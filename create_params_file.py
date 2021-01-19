@@ -25,6 +25,7 @@ parser.add_argument("-game_mode")
 parser.add_argument("-game_type")
 parser.add_argument("-experiment")
 parser.add_argument("-overwrite")
+parser.add_argument("-run_num")
 args = parser.parse_args()
 
 if args.gamma:
@@ -83,6 +84,15 @@ if args.experiment:
 
 if args.overwrite:
     OVERWRITE = args.overwrite
+
+MODELNAME = GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay' + str(EPS_DECAY) + '_targetupdate' + str(TARGET_UPDATE) \
+                + '_waittime' + str(WAITTIME) + '_convsize' + str(CONV_SIZE)
+
+if args.run_num:
+    RUN_NUM = args.run_num
+    MODELNAME = MODELNAME + '_run'+str(RUN_NUM)
+
+
 
 filename = args.param_save_file
 ps={}

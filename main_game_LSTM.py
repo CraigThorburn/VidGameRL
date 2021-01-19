@@ -30,10 +30,10 @@ for key in all_params:
 # if args.target_update:
 #     TARGET_UPDATE=int(args.target_update)
 
-
+MODELNAME='lstm_'+MODELNAME
 print('parameters loaded from '+args.params_file)
 
-os.move(args.params_file, ROOT + MODELNAME + '.params')
+os.rename(args.params_file, ROOT + MODELNAME + '.params')
 
 print('parameter file moved to results location')
 
