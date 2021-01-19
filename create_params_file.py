@@ -29,46 +29,46 @@ parser.add_argument("-run_num")
 args = parser.parse_args()
 
 if args.gamma:
-    GAMMA=args.gamma
+    GAMMA=float(args.gamma)
 
 if args.eps_start:
-    EPS_START = args.eps_start
+    EPS_START = float(args.eps_start)
 
 if args.eps_end:
-    EPS_END = args.eps_end
+    EPS_END = float(args.eps_end)
 
 if args.eps_decay:
-    EPS_DECAY = args.eps_decay
+    EPS_DECAY = float(args.eps_decay)
 
 if args.target_update:
-    TARGET_UPDATE = args.target_update
+    TARGET_UPDATE = int(args.target_update)
 
 if args.lr:
-    LR = args.lr
+    LR = float(args.lr)
 
 if args.updates:
-   UPDATES = args.updates
+   UPDATES = int(args.updates)
 
 if args.stimulus_reps:
-    STIMULUS_REPS = args.stimulus_reps
+    STIMULUS_REPS = int(args.stimulus_reps)
 
 if args.move_seperation:
-    MOVE_SEPERATION = args.move_seperation
+    MOVE_SEPERATION = int(args.move_seperation)
 
 if args.waittime:
-    WAITTIME = args.waittime
+    WAITTIME = int(args.waittime)
 
 if args.conv_size:
-    CONV_SIZE = args.conv_size
+    CONV_SIZE = int(args.conv_size)
 
 if args.kernel:
-    KERNEL = args.kernel
+    KERNEL = int(args.kernel)
 
 if args.stride:
-    STRIDE = args.stride
+    STRIDE = int(args.stride)
 
 if args.mem_size:
-    MEM_SIZE = args.mem_size
+    MEM_SIZE = int(args.mem_size)
 
 if args.token_type:
     TOKEN_TYPE = args.token_sype
