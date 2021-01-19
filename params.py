@@ -1,3 +1,4 @@
+
 BATCH_SIZE = 32
 GAMMA = 0.9
 EPS_START = 0.99
@@ -10,13 +11,14 @@ UPDATES = 20
 STIMULUS_REPS = 8
 MOVE_SEPERATION = 1 #(not implemented yet)
 WAITTIME = 0
+
 CONV_SIZE = 10
 KERNEL = 5
 STRIDE = 2
 
 LAYERS = [[3,3],[3,3]]
 
-MEM_SIZE = 100000
+MEM_SIZE = 1000
 TOKEN_TYPE = 'token'
 
 GAME_TYPE = 'convmovement'

@@ -1,0 +1,7 @@
+
+*.xml
+__pycache__/ReplayMemory.cpython-36.pyc
+__pycache__/params.cpython-36.pyc
+__pycache__/Environment.cpython-36.pyc
+__pycache__/DQN.cpython-36.pyc
+.idea/VidGameRL.iml

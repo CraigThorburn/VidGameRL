@@ -1,19 +1,10 @@
 ### Set Imports
 
-# import math
-# import random
-# import numpy as np
-# import matplotlib
+
 import matplotlib.pyplot as plt
 import sys
-# from collections import namedtuple
 from itertools import count
-
-# import torch
-# import torch.nn as nn
 import torch.optim as optim
-# import torch.nn.functional as F
-# import torchvision.transforms as T
 from ReplayMemory import *
 from DQN import *
 from Environment import *
@@ -51,7 +42,8 @@ to_print = args.debug
 torch_cat = torch.cat
 torch_stack = torch.stack
 torch_tensor = torch.tensor
-### Define Optimization Function
+
+
 def optimize_model():
     if len(memory) < BATCH_SIZE:
         return
@@ -59,51 +51,73 @@ def optimize_model():
     # Transpose the batch (see https://stackoverflow.com/a/19343/3343043 for
     # detailed explanation). This converts batch-array of Transitions
     # to Transition of batch-arrays.
-    batch = LSTMTransition(*zip(*transitions))
+    batch = [LSTMTransition(*zip(*b)) for b in transitions]
+    states, actions, next_states, rewards, hiddens, next_hiddens = zip(*batch)
 
-    # Compute a mask of non-final states and concatenate the batch elements
-    # (a final state would've been the one after which simulation ended)
-    next_states_batch = torch_stack(tuple(batch.next_state))
-    next_h0_batch = torch_stack(tuple([h[0] for h in batch.next_hidden]))
-    next_c0_batch = torch_stack(tuple([h[1] for h in batch.next_hidden]))
-    next_hidden = (next_h0_batch, next_c0_batch)
+    seq_lengths = [len(s) for s in states]
+    pad_number = 99
+    longest_seq = max(seq_lengths)
+    cat_dim_length = BATCH_SIZE*longest_seq
+    padded_state = torch.ones(BATCH_SIZE, longest_seq, num_inputs, device=device) * pad_number
+    padded_action = torch.zeros(BATCH_SIZE, longest_seq, device=device)
+    padded_next_state = torch.ones(BATCH_SIZE, longest_seq, num_inputs, device=device) * pad_number
+    padded_reward = torch.ones(BATCH_SIZE, longest_seq, device=device) * pad_number
 
-    state_batch = torch_stack(batch.state)
-    action_batch = torch_cat(batch.action)
-    reward_batch = torch_cat(batch.reward)
-    h0_batch = torch_cat(tuple([h[0] for h in batch.hidden]))
-    c0_batch = torch_cat(tuple([h[1] for h in batch.hidden]))
-    hidden_batch = (h0_batch, c0_batch)
+    for ind, seq_len in enumerate(seq_lengths):
+        this_state = states[ind]
+        this_action = actions[ind]
+        this_next_state = next_states[ind]
+        this_reward = rewards[ind]
+        padded_state[ind, 0:seq_len, :] = torch.stack(this_state)
+        padded_action[ind, 0:seq_len] = torch.tensor(this_action)
+        padded_next_state[ind, 0:seq_len, :] = torch.stack(this_next_state)
+        padded_reward[ind, 0:seq_len] = torch.tensor(this_reward)
+
+    #should now have padded states
+
+    # Reshape action and reward tensors
+    padded_action = padded_action.reshape(1,cat_dim_length).type(torch.int64)
+    padded_reward = padded_reward.reshape(cat_dim_length)
+
 
     # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
     # columns of actions taken. These are the actions which would've been taken
     # for each batch state according to policy_net
-    state_action_values,_ = policy_net(state_batch, hidden_batch)
-    state_action_values = state_action_values.reshape(BATCH_SIZE, n_actions).gather(1, action_batch)
+
+    h_initial = (torch.zeros(1, BATCH_SIZE, 40, device=device), torch.zeros(1, BATCH_SIZE, 40, device=device))
+    state_action_values,_ = policy_net(padded_state, seq_lengths, h_initial)
+
+    # create a mask by filtering out all tokens that ARE NOT the padding token
+    mask = (padded_reward > pad_number).float()
+
+    state_action_values = state_action_values.reshape(BATCH_SIZE*longest_seq,n_actions).gather(1,padded_action).flatten()
 
     # Compute V(s_{t+1}) for all next states.
     # Expected values of actions for non_final_next_states are computed based
     # on the "older" target_net; selecting their best reward with max(1)[0].
     # This is merged based on the mask, such that we'll have either the expected
     # state value or 0 in case the state was final.
-    next_state_values = torch.zeros(BATCH_SIZE, device=device)
-    next_state_values_network, _ = target_net(next_states_batch, next_hidden)
-    next_state_values = next_state_values_network.max(-1)[0]
+
+    #next_state_values = torch.zeros(BATCH_SIZE, device=device)
+    next_state_values_network, _ = target_net(padded_next_state, seq_lengths, h_initial)
+    ## TODO: This is where filtering of non-final states would happen
+    next_state_values = next_state_values_network.reshape(cat_dim_length,n_actions).max(-1)[0]
+
+    # Create Mask
+    mask = (padded_reward != pad_number).float()
+
+    # pick the values for the label and zero out the rest with the mask
+    next_state_values = next_state_values * mask
+    state_action_values = state_action_values * mask
+    padded_reward = padded_reward * mask
+
 
     # Compute the expected Q values
-    expected_state_action_values = reward_batch + (next_state_values * GAMMA)
-    # TODO: Make sure loss is functioning correctly
-    # TODO: sort Cuda Movement
-    # TODO: Optimization change
-    # TODO: Have removed final states from
-    # TODO: No clamping?
-    #### BEGIN DEBUG
-  #  if sum(reward_batch) > 1:
-      #  print('morereward')
-    #### END DEBUG
- #.unsqueeze(1)
+    expected_state_action_values = padded_reward + (next_state_values * GAMMA)
+
+
     # Compute Huber loss
-    loss = F.smooth_l1_loss(state_action_values.double(), expected_state_action_values.transpose(0,1).double())
+    loss = F.smooth_l1_loss(state_action_values.double(), expected_state_action_values, reduction = 'sum')/sum(seq_lengths)
     loss = loss.double()
     # Optimize the model
     optimizer.zero_grad()
@@ -128,7 +142,8 @@ def select_action(state, hidden):
         # t.max(1) will return largest column value of each row.
         # second column on max result is index of where max element was
         # found, so we pick action with the larger expected reward.
-        network_return, hidden = policy_net(state, hidden)
+        network_state = state#.reshape(1,len(state),1)
+        network_return, hidden = policy_net(network_state.float(), 1, hidden)
         network_return = network_return.max(-1)[1].view(1, 1)
     if sample > eps_threshold:
         action = network_return
@@ -174,7 +189,7 @@ elif GAME_TYPE == 'continuousmovement':
     to_output = [[], [], [], []]
 
 elif GAME_TYPE == 'convolutionalmovement':
-    env = ConvAcousticsGame(REWARD_PATH, STATE_PATH, EPISODE_PATH, LOCATION_PATH, TRANSITION_PATH, MOVE_SEPERATION, WAITTIME, GAME_MODE, CONV_SIZE)
+    env = ConvAcousticsGame(REWARD_PATH, STATE_PATH, EPISODE_PATH, LOCATION_PATH, TRANSITION_PATH, MOVE_SEPERATION, WAITTIME, GAME_MODE, CONV_SIZE, STRIDE)
     LOCATION_LIST = ROOT + LOCATION_LIST_FILE + '_' + MODELNAME + '.txt'
     OUTPUTS = [REWARD_LIST, ACTION_LIST, STATE_LIST, LOCATION_LIST,]
     to_output = [[], [], [], []]
@@ -216,7 +231,7 @@ torch.backends.cudnn.enabled = False
 # CHANGE: from RMSprop to SGD
 
 ### Define Model Memory
-memory = LSTMReplayMemory(10000)
+memory = SequentialUpdatesReplayMemory(10000)
 print('model and memory initialized')
 
 ### Initiate Environment
@@ -271,7 +286,7 @@ for i_episode in range(num_episodes):
 
 
         ### Select Action
-        action, next_hidden = select_action(state, hidden)
+        action, next_hidden = select_action(state.double(), hidden)
 
         ### Set State For Output
         current_state = get_state_str()
@@ -322,6 +337,7 @@ for i_episode in range(num_episodes):
 
             if i_episode + 1 != num_episodes:
                 env.advance_episode()
+                memory.advance_episode()
             break
 
     ### Update Target Network
