@@ -1,7 +1,16 @@
 
+<<<<<<< Updated upstream
 *.xml
 __pycache__/ReplayMemory.cpython-36.pyc
 __pycache__/params.cpython-36.pyc
 __pycache__/Environment.cpython-36.pyc
 __pycache__/DQN.cpython-36.pyc
 .idea/VidGameRL.iml
+=======
+.idea/dictionaries/craig.xml
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/misc.xml
+.idea/vcs.xml
+.idea/modules.xml
+.idea/inspectionProfiles/Project_Default.xml
+>>>>>>> Stashed changes
