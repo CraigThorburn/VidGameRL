@@ -481,3 +481,68 @@ class ConvAcousticsGame(AcousticsGame):
             reward = 0
         self.advance_state(action)
         return reward
+
+class ConvMovementGame(ConvAcousticsGame):
+
+    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time,
+                 mode, conv_size, total_reps, device=None):
+        super().__init__(reward_file, state_file, episode_file, location_file, transition_file, non_move_gap,
+                     wait_time, mode, conv_size, device=None)
+        self.rep = 0
+        self.total_reps = total_reps-1
+
+    def get_state(self):
+
+        if self.current_state is not None:
+            return self.states[self.current_state].float(), self.locations[self.current_location].float()
+        else:
+            return None, None
+
+    def get_aud_dims(self):
+        h = self.states[self.episodes[0][0]].size()[0]
+        w = self.states[self.episodes[0][0]].size()[1]
+
+        return w, h
+
+
+    def advance_state(self, action):
+        if action < 99:
+            self.current_location = self.transitions[self.current_location][action]
+
+        self.rep += 1
+        if self.rep >= self.total_reps:
+            self.rep = 0
+            self.current_state_num+=1
+            if self.current_state_num == len(self.current_episode):
+                self.current_state = None
+            else:
+                self.current_state = self.current_episode[self.current_state_num]
+
+    def oneshot_step(self, action):
+        if self.rep > self.n_waittime:
+            reward = self.rewards[self.current_state+'_'+self.current_location][action]
+            if action==2:
+                self.rep = self.total_reps-1
+        else:
+            reward = 0
+        self.advance_state(action)
+        return reward
+
+    def correct_step(self, action):
+        if self.rep > self.n_waittime:
+            reward = self.rewards[self.current_state+'_'+self.current_location][action]
+            if reward==1:
+                self.rep = self.total_reps-1
+        else:
+            reward = 0
+        self.advance_state(action)
+        return reward
+
+    def multiple_step(self, action):
+        if self.rep > self.n_waittime:
+            reward = self.rewards[self.current_state+'_'+self.current_location][action]
+        else:
+            reward = 0
+        self.advance_state(action)
+        return reward
+

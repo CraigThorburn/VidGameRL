@@ -1,26 +1,29 @@
-BATCH_SIZE = 4
+
+BATCH_SIZE = 32
 GAMMA = 0.9
 EPS_START = 0.99
 EPS_END = 0.05
-EPS_DECAY = 150
-TARGET_UPDATE = 25
+EPS_DECAY = 5000
+TARGET_UPDATE = 5
 LR = 0.09
 
 UPDATES = 20
 STIMULUS_REPS = 8
 MOVE_SEPERATION = 1 #(not implemented yet)
 WAITTIME = 0
-CONV_SIZE = 20
-STRIDE = 1
+
+CONV_SIZE = 10
+KERNEL = 5
+STRIDE = 2
 
 LAYERS = [[3,3],[3,3]]
 
 MEM_SIZE = 1000
 TOKEN_TYPE = 'token'
 
-GAME_TYPE = 'convolutionalmovement'
-GAME_MODE = 'correct'
-EXPERIMENT = 'experimental_continuous_movement_conv_bettermem/'
+GAME_TYPE = 'convmovement'
+GAME_MODE = 'multiple'
+EXPERIMENT = 'experimental_convolution_noncontinuous/'
 
 OVERWRITE = True
 

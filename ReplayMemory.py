@@ -4,6 +4,8 @@ Transition = namedtuple('Transition',
                         ('state', 'action', 'next_state', 'reward'))
 LSTMTransition = namedtuple('Transition',
                         ('state', 'action', 'next_state', 'reward', 'hidden','next_hidden'))
+ConvTransition = namedtuple('Transition',
+                        ('state', 'loc', 'action', 'next_state', 'next_location', 'reward'))
 
 class ReplayMemory(object):
 
@@ -54,3 +56,12 @@ class SequentialUpdatesReplayMemory(object):
 
     def sample(self, batch_size):
         return random.sample(self.memory, batch_size)
+
+
+class ConvReplayMemory(ReplayMemory):
+    def push(self, *args):
+        """Saves a transition."""
+        if len(self.memory) < self.capacity:
+            self.memory.append(None)
+        self.memory[self.position] = ConvTransition(*args)
+        self.position = (self.position + 1) % self.capacity
