@@ -1,35 +1,28 @@
 ### Set Imports
 
-
-import matplotlib.pyplot as plt
-import sys
+import torch
 from itertools import count
 import torch.optim as optim
 from ReplayMemory import *
 from DQN import *
 from Environment import *
 
+import os
 import time
-from params import *
 import argparse
+import json
 
 ### Parse Arguments
 parser = argparse.ArgumentParser()
-
-parser.add_argument("-game_mode", help="root directory")
-parser.add_argument("-target_update", help="state file to use as input")
-
-parser.add_argument("-debug", help="run with debugging output on")
-parser.add_argument("-overwrite", help="overwrite any existing output files")
-parser.add_argument("-modelname", help='name of this simulation')
+parser.add_argument("params_file", help="root directory")
 args = parser.parse_args()
 
 ### Define Model Name From Arguments
-if args.modelname:
-    MODELNAME = args.modelname
+with open(args.params_file, 'r') as f:
+    all_params = json.load(f)
 
-if args.overwrite:
-    OVERWRITE = args.overwrite
+for key in all_params:
+    globals()[key] = all_params[key]
 #
 # if args.games_mode:
 #     GAME_MODE=args.game_mode
@@ -37,7 +30,12 @@ if args.overwrite:
 # if args.target_update:
 #     TARGET_UPDATE=int(args.target_update)
 
-to_print = args.debug
+
+print('parameters loaded from '+args.params_file)
+
+os.move(args.params_file, ROOT + MODELNAME + '.params')
+
+print('parameter file moved to results location')
 
 torch_cat = torch.cat
 torch_stack = torch.stack
@@ -247,7 +245,6 @@ for name in OUTPUTS:
     outfile = open(name, write_method)
     outfile.close()
 
-save_params()
 
 ### Set Model Start
 tic = time.time()
