@@ -86,7 +86,7 @@ if args.overwrite:
     OVERWRITE = args.overwrite
 
 MODELNAME = GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay' + str(EPS_DECAY) + '_targetupdate' + str(TARGET_UPDATE) \
-                + '_waittime' + str(WAITTIME) + '_convsize' + str(CONV_SIZE)
+                + '_waittime' + str(WAITTIME) + '_kernel' + str(KERNEL) + '_stride' + str(STRIDE)
 
 if args.run_num:
     RUN_NUM = args.run_num
