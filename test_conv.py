@@ -34,80 +34,17 @@ with open(args.params_file, 'r') as f:
 for key in all_params:
     globals()[key] = all_params[key]
 
-
-MODELNAME='conv_'+MODELNAME
+MODEL_LOCATION=MODEL_PATH + MODELNAME + '.pt'
+MODELNAME='conv_'+MODELNAME +'_test'
 print('parameters loaded from '+args.params_file)
 
-os.rename(args.params_file, ROOT + MODELNAME + '.params')
 
-print('parameter file moved to results location')
 
-### Define Optimization Function
-def optimize_model():
-    if len(memory) < BATCH_SIZE:
-        return
-    transitions = memory.sample(BATCH_SIZE)
-    # Transpose the batch (see https://stackoverflow.com/a/19343/3343043 for
-    # detailed explanation). This converts batch-array of Transitions
-    # to Transition of batch-arrays.
-    batch = ConvTransition(*zip(*transitions))
-    policy_net.train()
-
-    # Compute a mask of non-final states and concatenate the batch elements
-    # (a final state would've been the one after which simulation ended)
-    non_final_mask = torch.tensor(tuple(map(lambda s: s is not None,
-                                            batch.next_state)), device=device, dtype=torch.bool)
-    non_final_next_states = torch.stack(tuple([s for s in batch.next_state
-                                               if s is not None]))
-    non_final_next_locs = torch.stack(tuple([s for s in batch.next_location
-                                               if s is not None]))
-
-    state_batch = torch.stack(batch.state)
-    locs_batch = torch.stack(batch.loc)
-    action_batch = torch.cat(batch.action)
-    reward_batch = torch.cat(batch.reward)
-
-    # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
-    # columns of actions taken. These are the actions which would've been taken
-    # for each batch state according to policy_net
-    state_action_values = policy_net(state_batch, locs_batch)
-    state_action_values = state_action_values.reshape(BATCH_SIZE, n_actions).gather(1, action_batch)
-
-    # Compute V(s_{t+1}) for all next states.
-    # Expected values of actions for non_final_next_states are computed based
-    # on the "older" target_net; selecting their best reward with max(1)[0].
-    # This is merged based on the mask, such that we'll have either the expected
-    # state value or 0 in case the state was final.
-    next_state_values = torch.zeros(BATCH_SIZE, device=device)
-    next_state_values_network = target_net(non_final_next_states, non_final_next_locs)
-    # TODO: Update policy_net
-    next_state_values[non_final_mask] = next_state_values_network.max(-1)[0]
-
-    # Compute the expected Q values
-    expected_state_action_values = reward_batch + (next_state_values * GAMMA)
-    # TODO: Make sure loss is functioning correctly
-    # TODO: sort Cuda Movement
-    # TODO: Optimization change
-    policy_net.train()
-
-    # Compute Huber loss
-    loss = F.smooth_l1_loss(state_action_values.double(), expected_state_action_values.unsqueeze(1).double())
-    loss = loss.double()
-    # Optimize the model
-    optimizer.zero_grad()
-    # print(policy_net.training)
-    loss.backward()
-    #    for param in policy_net.parameters():
-    #       param.grad.data.clamp_(-1, 1)
-    optimizer.step()
-    to_output[-1] = to_output[-1] + ' ' + str(round(float(loss), 4))
 
 ### Define Action Selection Function
 def select_action(state, loc):
     global steps_done
-    sample = random.random()
-    eps_threshold = EPS_END + (EPS_START - EPS_END) * \
-                    math.exp(-1. * i_episode / EPS_DECAY)
+
     steps_done += 1
     with torch.no_grad():
         # t.max(1) will return largest column value of each row.
@@ -115,19 +52,12 @@ def select_action(state, loc):
         # found, so we pick action with the larger expected reward.
         network_return = policy_net(state, loc)
         network_return = network_return.max(-1)[1].view(1, 1)
-    if sample > eps_threshold:
         action = network_return
-    else:
-        action = torch.tensor([[random.randrange(n_actions)]], device=device, dtype=torch.long)
     return action
 
 ### Set Computational Device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print('using device ' + str(device))
-
-### Define Memory Transitions
-transition = namedtuple('Transition',
-                        ('state', 'loc', 'action', 'next_state', 'next_location', 'reward'))
 
 ### Set File Locations
 ACTION_LIST = ROOT + ACTION_LIST_FILE + '_' + MODELNAME + '.txt'
@@ -179,21 +109,7 @@ print('num actions: ' + str(n_actions))
 w,h = env.get_aud_dims()
 
 ### Create Model Networks
-policy_net = DQN_NN_conv(h, w,num_inputs, n_actions, KERNEL, STRIDE).to(device)
-target_net = DQN_NN_conv(h, w, num_inputs, n_actions, KERNEL, STRIDE).to(device)
-target_net.load_state_dict(policy_net.state_dict())
-target_net.eval()
-policy_net.train()
-
-### Define Optimizer
-optimizer = optim.RMSprop(policy_net.parameters(), lr = LR) ## TODO: Changed from RMSprop
-torch.backends.cudnn.enabled = False
-# TODO: Check what exactly this is doing ^^^
-# CHANGE: from RMSprop to SGD
-
-### Define Model Memory
-memory = ConvReplayMemory(10000)
-print('model and memory initialized')
+policy_net = torch.load(MODEL_LOCATION, map_location=device)
 
 ### Initiate Environment
 env.initiate_environment()
@@ -264,16 +180,9 @@ for i_episode in range(num_episodes):
             next_state = next_state.to(device)
             next_loc = next_loc.to(device)
 
-        ### Store Transition
-        memory.push(state, loc, action, next_state, next_loc, reward)
-
         ### Move to the next state
         state = next_state
         loc = next_loc
-
-        ### Perform Optimization Step
-        policy_net.train()
-        optimize_model()
 
         ### If Episode End
         if done:
@@ -283,10 +192,6 @@ for i_episode in range(num_episodes):
             if i_episode + 1 != num_episodes:
                 env.advance_episode()
             break
-
-    ### Update Target Network
-    if i_episode % TARGET_UPDATE == 0:
-        target_net.load_state_dict(policy_net.state_dict())
 
     ### Save Updates To File
     if i_episode % UPDATES == 0:
@@ -317,11 +222,6 @@ for i in range(len(to_output)):
     outfile.write(to_output[i])
     outfile.close()
 print('data saved')
-
-### Save Final Model
-print('saving model')
-torch.save(policy_net.state_dict(), ROOT + MODELNAME + '_final.pt')
-print('model saved')
 print('done')
 
 # TODO: Cuda issues on clip (loaded vocab is not going to device)

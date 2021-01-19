@@ -3,7 +3,7 @@ BATCH_SIZE = 32
 GAMMA = 0.9
 EPS_START = 0.99
 EPS_END = 0.05
-EPS_DECAY = 5000
+EPS_DECAY = 150
 TARGET_UPDATE = 5
 LR = 0.09
 
@@ -22,16 +22,16 @@ MEM_SIZE = 1000
 TOKEN_TYPE = 'token'
 
 GAME_TYPE = 'convmovement'
-GAME_MODE = 'multiple'
+GAME_MODE = 'correct'
 EXPERIMENT = 'experimental_convolution_noncontinuous/'
 
 OVERWRITE = True
 
-MODELNAME = GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay'+ str(EPS_DECAY) + '_targetupdate'+ str(TARGET_UPDATE) \
+#MODELNAME = GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay'+ str(EPS_DECAY) + '_targetupdate'+ str(TARGET_UPDATE) \
             + '_waittime'+ str(WAITTIME) + '_convsize'+ str(CONV_SIZE)
 
 ROOT = '/mnt/c/files/research/projects/vid_game/data/'+EXPERIMENT
-#ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
+ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
 #MODELNAME = 'test'
 
 

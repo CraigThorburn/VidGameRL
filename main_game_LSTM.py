@@ -23,12 +23,7 @@ with open(args.params_file, 'r') as f:
 
 for key in all_params:
     globals()[key] = all_params[key]
-#
-# if args.games_mode:
-#     GAME_MODE=args.game_mode
-#
-# if args.target_update:
-#     TARGET_UPDATE=int(args.target_update)
+
 
 MODELNAME='lstm_'+MODELNAME
 print('parameters loaded from '+args.params_file)
