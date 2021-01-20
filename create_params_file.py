@@ -63,9 +63,12 @@ if args.conv_size:
 
 if args.kernel:
     KERNEL = int(args.kernel)
+    print('kernel changed: '+args.kernel)
 
 if args.stride:
     STRIDE = int(args.stride)
+    print('stride changed: '+args.stride)
+
 
 if args.mem_size:
     MEM_SIZE = int(args.mem_size)

@@ -21,6 +21,8 @@ import json
 import time
 import argparse
 import os
+import shutil
+
 
 ### Parse Arguments
 parser = argparse.ArgumentParser()
@@ -38,7 +40,7 @@ for key in all_params:
 MODELNAME='conv_'+MODELNAME
 print('parameters loaded from '+args.params_file)
 
-os.rename(args.params_file, ROOT + MODELNAME + '.params')
+shutil.copyfile(args.params_file, ROOT + MODELNAME + '.params')
 
 print('parameter file moved to results location')
 
@@ -186,7 +188,7 @@ target_net.eval()
 policy_net.train()
 
 ### Define Optimizer
-optimizer = optim.RMSprop(policy_net.parameters(), lr = LR) ## TODO: Changed from RMSprop
+optimizer = optim.SGD(policy_net.parameters(), lr = LR) ## TODO: Changed from RMSprop
 torch.backends.cudnn.enabled = False
 # TODO: Check what exactly this is doing ^^^
 # CHANGE: from RMSprop to SGD
@@ -320,7 +322,7 @@ print('data saved')
 
 ### Save Final Model
 print('saving model')
-torch.save(policy_net.state_dict(), ROOT + MODELNAME + '_final.pt')
+torch.save(policy_net.state_dict(), ROOT + '/models/' + MODELNAME + '_final.pt')
 print('model saved')
 print('done')
 

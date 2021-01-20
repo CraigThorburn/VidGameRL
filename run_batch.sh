@@ -2,7 +2,7 @@
 #SBATCH --qos=shallow
 #SBATCH --mem=4GB
 #SBATCH --time=02-00:00:00
-#SBATCH --output=/fs/clip-realspeech/projects/vid_game/data/control_game/log/batch.txt
+#SBATCH --output=/fs/clip-realspeech/projects/vid_game/logs/batch_%j.txt
 #SBATCH --mail-type=all
 #SBATCH --mail-user=craigtho@umiacs.umd.edu
 
@@ -24,7 +24,7 @@ if [[ "$slurm" == "true" ]]
 then
     echo "comencing slurm batch parallel across "$num_runs" machines"
 
-    $train_cmd --mem 16GB --time 01-00:00:00 JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.JOB.log  run_batch_individual.sh $params || exit 1; 
+    $train_cmd --mem 16GB --time 01-00:00:00 JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual.sh $params || exit 1; 
     wait
     echo "finished"
 

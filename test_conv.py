@@ -34,7 +34,7 @@ with open(args.params_file, 'r') as f:
 for key in all_params:
     globals()[key] = all_params[key]
 
-MODEL_LOCATION=MODEL_PATH + MODELNAME + '.pt'
+MODEL_LOCATION= MODEL_PATH + 'conv_' + MODELNAME + '_final.pt'
 MODELNAME='conv_'+MODELNAME +'_test'
 print('parameters loaded from '+args.params_file)
 
@@ -109,7 +109,9 @@ print('num actions: ' + str(n_actions))
 w,h = env.get_aud_dims()
 
 ### Create Model Networks
-policy_net = torch.load(MODEL_LOCATION, map_location=device)
+policy_net = DQN_NN_conv(h, w,num_inputs, n_actions, KERNEL, STRIDE).to(device)
+policy_net.load_state_dict(torch.load(MODEL_LOCATION, map_location=device))
+policy_net.eval()
 
 ### Initiate Environment
 env.initiate_environment()
