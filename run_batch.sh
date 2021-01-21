@@ -13,7 +13,7 @@ num_runs=$2
 slurm=$3
 gpu=$4
 params=$5
-
+echo $params
 . path.sh
 export train_cmd="slurm.pl --config conf/slurm.conf"
 

@@ -4,10 +4,11 @@
 
 id=$SLURM_JOBID"_"$SLURM_ARRAY_TASK_ID
 i=$SLURM_ARRAY_TASK_ID
-params=$1
+params="$@"
 echo "id:"
 echo $id
-
+echo 'params: '
+echo $params
 source activate audneurorl
 module add cuda
 
@@ -15,14 +16,14 @@ echo "---------------------"
 echo "launching run "$i
 
 cd /fs/clip-realspeech/projects/vid_game/software/VidGameRL
-python create_params_file.py ../params/$id".params" "$params" -run_num=$i
+python create_params_file.py ../params/$id".params" $params -run_num=$i
 
 echo "param file created"
 echo "starting training"
-python main_game_conv.py ../params/$id".params"
+#python main_game_conv.py ../params/$id".params"
 echo "training complete"
 
 echo "starting testing"
-python test_conv.py ../params/$id".params"
+#python test_conv.py ../params/$id".params"
 
 echo "finished"
