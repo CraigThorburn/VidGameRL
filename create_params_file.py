@@ -98,6 +98,7 @@ if args.game_type:
 
 if args.experiment:
     EXPERIMENT = args.experiment
+    ROOT = '/fs/clip-realspeech/projects/vid_game/data/' + EXPERIMENT
     print('experiment changed: '+args.experiment)
 
 if args.overwrite:
@@ -111,7 +112,13 @@ if args.run_num:
     RUN_NUM = args.run_num
     MODELNAME = MODELNAME + '_run'+str(RUN_NUM)
 
-
+# Set Variables
+STATE_PATH = ROOT + STATE_FILE +'.txt'
+REWARD_PATH = ROOT + REWARD_FILE+'.txt'
+EPISODE_PATH = ROOT + EPISODE_FILE+'.txt'
+LOCATION_PATH = ROOT + LOCATION_FILE+'.txt'
+TRANSITION_PATH = ROOT + TRANSITION_FILE+'.txt'
+MODEL_PATH = ROOT + MODEL_FOLDER + '/'
 
 filename = args.param_save_file
 ps={}
