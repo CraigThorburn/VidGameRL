@@ -92,8 +92,6 @@ else:
     raise(TypeError, 'Game type on implemented in this script')
 print("environment created")
 
-to_output.append('')
-OUTPUTS.append(ROOT + 'exp/loss' + '_' + MODELNAME + '.txt')
 
 ### Validate Environment
 env.validate_environment()
