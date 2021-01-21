@@ -105,7 +105,7 @@ if args.overwrite:
     print('overwrite changed: '+args.overwrite)
 
 MODELNAME = GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay' + str(EPS_DECAY) + '_targetupdate' + str(TARGET_UPDATE) \
-                + '_waittime' + str(WAITTIME) + '_kernel' + str(KERNEL) + '_stride' + str(STRIDE)
+                + '_waittime' + str(WAITTIME) + '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_lr'+str(LR)
 
 if args.run_num:
     RUN_NUM = args.run_num
