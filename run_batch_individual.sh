@@ -20,10 +20,10 @@ python create_params_file.py ../params/$id".params" $params -run_num=$i
 
 echo "param file created"
 echo "starting training"
-python main_game_conv.py ../params/$id".params"
+#python main_game_conv.py ../params/$id".params"
 echo "training complete"
 
 echo "starting testing"
-python test_conv.py ../params/$id".params"
+#python test_conv.py ../params/$id".params"
 
 echo "finished"
