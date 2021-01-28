@@ -26,6 +26,9 @@ parser.add_argument("-game_type")
 parser.add_argument("-experiment")
 parser.add_argument("-overwrite")
 parser.add_argument("-run_num")
+parser.add_argument("-episode_file")
+parser.add_argument("-state_file")
+parser.add_argument("-reward_file")
 args = parser.parse_args()
 print(args)
 if args.gamma:
@@ -95,6 +98,18 @@ if args.game_mode:
 if args.game_type:
     GAME_TYPE = args.game_type
     print('game_type changed: '+args.game_type)
+
+if args.state_file:
+    STATE_FILE = args.state_file
+    print('state_file change: '+args.state_file)
+
+if args.episode_file:
+    EPISODE_FILE = args.episode_file
+    print('episode_file change: '+args.episode_file)
+
+if args.reward_file:
+    REWARD_FILE = args.reward_file
+    print('reward_file change: '+args.reward_file)
 
 if args.experiment:
     EXPERIMENT = args.experiment

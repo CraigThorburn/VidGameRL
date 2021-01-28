@@ -24,6 +24,6 @@ echo "starting training"
 echo "training complete"
 
 echo "starting testing"
-#python test_conv.py ../params/$id".params"
+python test_conv.py ../params/$id".params"
 
 echo "finished"
