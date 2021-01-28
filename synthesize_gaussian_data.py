@@ -3,8 +3,8 @@ max_freq = 3
 freq_sep = 0.05
 sigma = 0.15
 rounding = 3
-state_file = '/mnt/c/files/research/projects/vid_game/data/experimental_continuous_oneshotgame5_delay/states_correct.txt'
-new_states_file = '/mnt/c/files/research/projects/vid_game/data/experimental_convolution_noncontinuous/states.txt'
+state_file = '/mnt/c/files/research/projects/vid_game/data/experimental_convolution_noncontinuous/test_states_linear.txt'
+new_states_file = '/mnt/c/files/research/projects/vid_game/data/experimental_convolution_noncontinuous/test_states.txt'
 states = {}
 
 import numpy as np
