@@ -7,6 +7,9 @@ LSTMTransition = namedtuple('Transition',
 ConvTransition = namedtuple('Transition',
                         ('state', 'loc', 'action', 'next_state', 'next_location', 'reward'))
 
+ConvLSTMTransition = namedtuple('Transition',
+                        ('state', 'location', 'action', 'next_state', 'next_location', 'reward', 'hidden','next_hidden'))
+
 class ReplayMemory(object):
 
     def __init__(self, capacity):
@@ -65,3 +68,7 @@ class ConvReplayMemory(ReplayMemory):
             self.memory.append(None)
         self.memory[self.position] = ConvTransition(*args)
         self.position = (self.position + 1) % self.capacity
+
+class ConvSequentialUpdatesReplayMemory(SequentialUpdatesReplayMemory):
+    def push(self, *args):
+        self.current_episode.append(ConvLSTMTransition(*args))

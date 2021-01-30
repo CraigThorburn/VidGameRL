@@ -1,5 +1,5 @@
 
-BATCH_SIZE = 32
+BATCH_SIZE = 8
 GAMMA = 0.9
 EPS_START = 0.99
 EPS_END = 0.05
@@ -7,7 +7,7 @@ EPS_DECAY = 150
 TARGET_UPDATE = 5
 LR = 0.09
 
-UPDATES = 50
+UPDATES = 10
 STIMULUS_REPS = 8
 MOVE_SEPERATION = 1 #(not implemented yet)
 WAITTIME = 0
@@ -23,7 +23,7 @@ TOKEN_TYPE = 'token'
 
 GAME_TYPE = 'convmovement'
 GAME_MODE = 'correct'
-EXPERIMENT = 'experimental_convolution_noncontinuous/'
+EXPERIMENT = 'experimental_convolution_continuous/'
 
 OVERWRITE = True
 
@@ -31,7 +31,7 @@ OVERWRITE = True
      #       + '_waittime'+ str(WAITTIME) + '_convsize'+ str(CONV_SIZE)
 
 ROOT = '/mnt/c/files/research/projects/vid_game/data/'+EXPERIMENT
-ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
+#ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
 #MODELNAME = 'test'
 
 
