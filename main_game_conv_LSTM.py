@@ -195,6 +195,8 @@ elif GAME_TYPE == 'convmovement':
     to_output = ['', '', '', '']
 
 
+
+
 else:
     raise(TypeError, 'Game type on implemented in this script')
 print("environment created")
@@ -284,7 +286,7 @@ for i_episode in range(num_episodes):
 
         ### Set Remaining Outputs
 
-        if reward==1:
+        if reward>0:
             to_output[0] = to_output[0] + ' ' + str(float(reward))
             to_output[1] = to_output[1] + ' ' + str(float(action))
             to_output[2] = to_output[2] + ' ' + out_str

@@ -240,6 +240,9 @@ class AcousticsGame(Environment):
         elif mode=='multiple':
             self.step = self.multiple_step
 
+        elif mode=='cht':
+            self.step = self.cht_step
+
         else:
             raise(AssertionError, 'mode not implemented')
 
@@ -359,6 +362,9 @@ class AcousticsGame(Environment):
         else:
             self.current_timepoint +=1
             self.new_state = False
+
+    def cht_step(self):
+        pass
 
     def initiate_environment(self):
         self.current_location = random.choice(list(self.locations.keys()))
@@ -482,6 +488,9 @@ class ConvAcousticsGame(AcousticsGame):
         self.advance_state(action)
         return reward
 
+    def cht_step(self):
+        pass
+
 class ConvMovementGame(ConvAcousticsGame):
 
     def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time,
@@ -546,3 +555,7 @@ class ConvMovementGame(ConvAcousticsGame):
         self.advance_state(action)
         return reward
 
+    def cht_step(self, action):
+        reward = self.rewards[self.current_state + '_' + self.current_location][action]
+        self.advance_state(action)
+        return reward
