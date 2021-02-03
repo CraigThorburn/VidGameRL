@@ -96,7 +96,7 @@ def optimize_model():
     state_action_values,_ = policy_net(padded_state, padded_location, seq_lengths, h_initial)
 
     # create a mask by filtering out all tokens that ARE NOT the padding token
-    mask = (padded_reward > pad_number).float()
+    mask = (padded_reward != pad_number).float()
 
     state_action_values = state_action_values.reshape(BATCH_SIZE*longest_seq,n_actions).gather(1,padded_action).flatten()
 
@@ -111,8 +111,6 @@ def optimize_model():
     ## TODO: This is where filtering of non-final states would happen
     next_state_values = next_state_values_network.reshape(cat_dim_length,n_actions).max(-1)[0]
 
-    # Create Mask
-    mask = (padded_reward != pad_number).float()
 
     # pick the values for the label and zero out the rest with the mask
     next_state_values = next_state_values * mask

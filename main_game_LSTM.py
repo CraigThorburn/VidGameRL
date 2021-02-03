@@ -99,6 +99,10 @@ def optimize_model():
     # Create Mask
     mask = (padded_reward != pad_number).float()
 
+    next_state_values = next_state_values * mask
+    state_action_values = state_action_values * mask
+    padded_reward = padded_reward * mask
+
     # pick the values for the label and zero out the rest with the mask
     next_state_values = next_state_values * mask
     state_action_values = state_action_values * mask

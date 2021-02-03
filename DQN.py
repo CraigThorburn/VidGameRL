@@ -165,7 +165,7 @@ class DQN_convLSTM(nn.Module):
 
         self.trans = nn.Linear(self.linear_input_size + inputs,lstm_size)
 
-        self.lstm = nn.LSTM(lstm_size, lstm_size, 1)
+        self.lstm = nn.LSTM(lstm_size, lstm_size, 1, batch_first=True)
 
         self.lin1 = nn.Linear(lstm_size,lin_size)
         self.lin2 = nn.Linear(lin_size,outputs)
