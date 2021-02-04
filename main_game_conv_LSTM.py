@@ -122,7 +122,7 @@ def optimize_model():
 
 
     # Compute Huber loss
-    loss = F.smooth_l1_loss(state_action_values.double(), expected_state_action_values, reduction = 'sum')/sum(seq_lengths)
+    loss = F.mse_loss(state_action_values.double(), expected_state_action_values)#, reduction = 'sum')/sum(seq_lengths)
     loss = loss.double()
     # Optimize the model
     optimizer.zero_grad()
