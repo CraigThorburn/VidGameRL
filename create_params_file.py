@@ -118,7 +118,14 @@ if args.experiment:
     print('experiment changed: '+args.experiment)
 
 if args.overwrite:
-    OVERWRITE = args.overwrite
+    if args.overwrite.lower()=='true':
+        OVERWRITE = True
+    elif args.overwrite.lower()=='false':
+        OVERWRITE = False
+    else:
+        print('overwrite not recognized')
+        raise NotImplementedError
+
     print('overwrite changed: '+args.overwrite)
 
 if args.modelname:

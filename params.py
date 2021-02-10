@@ -25,7 +25,7 @@ GAME_TYPE = 'convmovement'
 GAME_MODE = 'correct'
 EXPERIMENT = 'experimental_convolution_continuous/'
 
-OVERWRITE = True
+OVERWRITE = False
 
 #MODELNAME = GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay'+ str(EPS_DECAY) + '_targetupdate'+ str(TARGET_UPDATE) \
      #       + '_waittime'+ str(WAITTIME) + '_convsize'+ str(CONV_SIZE)
