@@ -122,7 +122,7 @@ if args.overwrite:
     print('overwrite changed: '+args.overwrite)
 
 if args.modelname:
-    MODELNAME_ADITIONS = args.mdoelname
+    MODELNAME_ADITIONS = args.modelname
     print('added to model name: '+args.modelname)
 
 MODELNAME = GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay' + str(EPS_DECAY) + '_targetupdate' + str(TARGET_UPDATE) \
