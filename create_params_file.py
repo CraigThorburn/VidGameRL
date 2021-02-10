@@ -30,6 +30,10 @@ parser.add_argument("-episode_file")
 parser.add_argument("-state_file")
 parser.add_argument("-reward_file")
 parser.add_argument("-modelname")
+parser.add_argument("-conv1channels")
+parser.add_argument("-conv2channel")
+parser.add_argument("-midsize")
+parser.add_argument("-conv_freeze")
 args = parser.parse_args()
 print(args)
 if args.gamma:
@@ -83,6 +87,29 @@ if args.kernel:
 if args.stride:
     STRIDE = int(args.stride)
     print('stride changed: '+args.stride)
+
+if args.conv1channels:
+    CONV1CHANNELS = int(args.conv1channels)
+    print('conv1channels changed: '+args.conv1channels)
+
+if args.conv2channel:
+    CONV2CHANNELS = int(args.conv2channels)
+    print('conv2channels changed: '+args.conv2channels)
+
+if args.midsize:
+    MIDSIZE = int(args.midsize)
+    print('midsize changed: '+args.midsize)
+
+LAYERS = [CONV1CHANNELS, CONV2CHANNELS, MIDSIZE]
+
+if args.conv_freeze:
+    if args.conv_freeze.lower()=='true':
+        CONV_FREEZE = True
+    elif args.conv_freeze.lower()=='false':
+        CONV_FREEZE = False
+    else:
+        print('convolution_freeze not recognized')
+        raise NotImplementedError
 
 if args.mem_size:
     MEM_SIZE = int(args.mem_size)

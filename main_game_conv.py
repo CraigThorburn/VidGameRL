@@ -181,8 +181,8 @@ print('num actions: ' + str(n_actions))
 w,h = env.get_aud_dims()
 
 ### Create Model Networks
-policy_net = DQN_NN_conv(h, w,num_inputs, n_actions, KERNEL, STRIDE).to(device)
-target_net = DQN_NN_conv(h, w, num_inputs, n_actions, KERNEL, STRIDE).to(device)
+policy_net = DQN_NN_conv(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE).to(device)
+target_net = DQN_NN_conv(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE).to(device)
 target_net.load_state_dict(policy_net.state_dict())
 target_net.eval()
 policy_net.train()
