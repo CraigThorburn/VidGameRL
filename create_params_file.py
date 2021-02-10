@@ -29,6 +29,7 @@ parser.add_argument("-run_num")
 parser.add_argument("-episode_file")
 parser.add_argument("-state_file")
 parser.add_argument("-reward_file")
+parser.add_argument("-modelname")
 args = parser.parse_args()
 print(args)
 if args.gamma:
@@ -120,8 +121,13 @@ if args.overwrite:
     OVERWRITE = args.overwrite
     print('overwrite changed: '+args.overwrite)
 
+if args.modelname:
+    MODELNAME_ADITIONS = args.mdoelname
+    print('added to model name: '+args.modelname)
+
 MODELNAME = GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay' + str(EPS_DECAY) + '_targetupdate' + str(TARGET_UPDATE) \
-                + '_waittime' + str(WAITTIME) + '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_lr'+str(LR)
+                + '_waittime' + str(WAITTIME) + '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_lr'+str(LR) + \
+                '_' + MODELNAME_ADITIONS
 
 if args.run_num:
     RUN_NUM = args.run_num
