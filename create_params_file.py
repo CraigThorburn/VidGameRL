@@ -135,6 +135,12 @@ LOCATION_PATH = ROOT + LOCATION_FILE+'.txt'
 TRANSITION_PATH = ROOT + TRANSITION_FILE+'.txt'
 MODEL_PATH = ROOT + MODEL_FOLDER + '/'
 
+TEST_STATE_PATH = ROOT + 'test_' +STATE_FILE +'.txt'
+TEST_REWARD_PATH = ROOT + 'test_' +REWARD_FILE+'.txt'
+TEST_EPISODE_PATH = ROOT + 'test_' +EPISODE_FILE+'.txt'
+TEST_LOCATION_PATH = ROOT + 'test_' +LOCATION_FILE+'.txt'
+TEST_TRANSITION_PATH = ROOT + 'test_' + TRANSITION_FILE+'.txt'
+
 filename = args.param_save_file
 ps={}
 f = open(filename, 'w')
