@@ -40,7 +40,7 @@ for key in all_params:
 MODELNAME='conv_'+MODELNAME
 print('parameters loaded from '+args.params_file)
 
-#shutil.copyfile(args.params_file, ROOT + PARAMS_FOLDER + '/' + MODELNAME + '.params')
+shutil.copyfile(args.params_file, ROOT + PARAMS_FOLDER + '/' + MODELNAME + '.params')
 
 print('parameter file moved to results location')
 
