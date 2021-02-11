@@ -27,7 +27,7 @@ MEM_SIZE = 1000
 TOKEN_TYPE = 'token'
 
 GAME_TYPE = 'convmovement'
-GAME_MODE = 'correct'
+GAME_MODE = 'oneshot'
 EXPERIMENT = 'experimental_convolution_continuous/'
 
 OVERWRITE = False

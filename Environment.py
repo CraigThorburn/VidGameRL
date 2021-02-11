@@ -232,7 +232,7 @@ class AcousticsGame(Environment):
         self.action_timepoints = list(range(0, self.n_timepoints, self.n_moves))
 
         if mode=='correct':
-            self.step=self.oneshot_step
+            self.step=self.correct_step
 
         elif mode=='oneshot':
             self.step=self.oneshot_step
@@ -320,7 +320,7 @@ class AcousticsGame(Environment):
     def oneshot_step(self, action):
         if self.current_timepoint > self.n_waittime:
             reward = self.rewards[self.current_state+'_'+self.current_location][action]
-            if action==2:
+            if action>=2:
                 self.current_timepoint = self.n_timepoints-1
         else:
             reward = 0
@@ -463,7 +463,7 @@ class ConvAcousticsGame(AcousticsGame):
     def oneshot_step(self, action):
         if self.current_timepoint_end > self.n_waittime:
             reward = self.rewards[self.current_state+'_'+self.current_location][action]
-            if action==2:
+            if action>=2:
                 self.current_timepoint_end = self.n_timepoints-1
         else:
             reward = 0
@@ -530,7 +530,7 @@ class ConvMovementGame(ConvAcousticsGame):
     def oneshot_step(self, action):
         if self.rep > self.n_waittime:
             reward = self.rewards[self.current_state+'_'+self.current_location][action]
-            if action==2:
+            if action>=2:
                 self.rep = self.total_reps-1
         else:
             reward = 0
