@@ -31,7 +31,7 @@ parser.add_argument("-state_file")
 parser.add_argument("-reward_file")
 parser.add_argument("-modelname")
 parser.add_argument("-conv1channels")
-parser.add_argument("-conv2channel")
+parser.add_argument("-conv2channels")
 parser.add_argument("-midsize")
 parser.add_argument("-conv_freeze")
 args = parser.parse_args()
@@ -92,7 +92,7 @@ if args.conv1channels:
     CONV1CHANNELS = int(args.conv1channels)
     print('conv1channels changed: '+args.conv1channels)
 
-if args.conv2channel:
+if args.conv2channels:
     CONV2CHANNELS = int(args.conv2channels)
     print('conv2channels changed: '+args.conv2channels)
 
