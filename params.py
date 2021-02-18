@@ -43,6 +43,7 @@ ROOT = '/mnt/c/files/research/projects/vid_game/data/'+EXPERIMENT
 
 
 STATE_FILE = 'states'
+SIMPLE_STATE_FILE='states_simple'
 REWARD_FILE = 'rewards'
 EPISODE_FILE = 'episodes'
 TRANSITION_FILE = 'transitions'
@@ -55,6 +56,8 @@ ACTION_LIST_FILE = 'exp/action_out'
 STATE_LIST_FILE = 'exp/state_out'
 LOCATION_LIST_FILE = 'exp/location_out'
 REWARD_LIST_FILE = 'exp/reward_out'
+
+RESULTS_FILE= 'results/results_reward_out_'
 
 
 #

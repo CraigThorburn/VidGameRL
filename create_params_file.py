@@ -34,8 +34,10 @@ parser.add_argument("-conv1channels")
 parser.add_argument("-conv2channels")
 parser.add_argument("-midsize")
 parser.add_argument("-conv_freeze")
+parser.add_argument("-root")
 args = parser.parse_args()
 print(args)
+
 if args.gamma:
     GAMMA=float(args.gamma)
     print('gamma change: ' + args.gamma)
@@ -139,9 +141,20 @@ if args.reward_file:
     REWARD_FILE = args.reward_file
     print('reward_file change: '+args.reward_file)
 
-if args.experiment:
+if args.root:
+    PREROOT = args.root
+    print('root changed: '+args.root)
+
+    if args.experiment:
+        EXPERIMENT = args.experiment
+        ROOT = PREROOT + EXPERIMENT
+        #ROOT = '/mnt/c/files/research/projects/vid_game/data/' + EXPERIMENT
+        print('experiment changed: '+args.experiment)
+    else:
+        ROOT =PREROOT
+elif args.experiment:
     EXPERIMENT = args.experiment
-    ROOT = '/fs/clip-realspeech/projects/vid_game/data/' + EXPERIMENT
+    ROOT = ROOT + EXPERIMENT
     #ROOT = '/mnt/c/files/research/projects/vid_game/data/' + EXPERIMENT
     print('experiment changed: '+args.experiment)
 
@@ -170,6 +183,7 @@ if args.run_num:
 
 # Set Variables
 STATE_PATH = ROOT + STATE_FILE +'.txt'
+SIMPLE_STATE_PATH = ROOT + SIMPLE_STATE_FILE +'.txt'
 REWARD_PATH = ROOT + REWARD_FILE+'.txt'
 EPISODE_PATH = ROOT + EPISODE_FILE+'.txt'
 LOCATION_PATH = ROOT + LOCATION_FILE+'.txt'
