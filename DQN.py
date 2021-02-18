@@ -116,8 +116,9 @@ class DQN_NN_conv(nn.Module):
         convh = conv2d_size_out(conv2d_size_out(h,kernel,sstride))
         linear_input_size = convw * convh * self.conv2channels
 
-        self.head1 = nn.Linear(linear_input_size+inputs, self.mid_size)
-        self.head2 = nn.Linear(self.mid_size, outputs)
+        #self.head1 = nn.Linear(linear_input_size+inputs, self.mid_size)
+        #self.head2 = nn.Linear(self.mid_size, outputs)
+        self.head2 = nn.Linear(linear_input_size+inputs, outputs)
 
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
@@ -136,7 +137,7 @@ class DQN_NN_conv(nn.Module):
             x_aud = F.relu(self.bn2(self.conv2(x_aud)))
             x = torch.cat((x_aud.reshape(x_aud.size()[0],x_aud.size()[1]*x_aud.size()[2]*x_aud.size()[3]) , x_loc), 1)
 
-        x = F.softplus(self.head1(x))
+       # x = F.softplus(self.head1(x))
         x = F.softplus(self.head2(x))
 
 
