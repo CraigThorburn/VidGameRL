@@ -12,7 +12,8 @@ experiment=$1
 num_runs=$2
 slurm=$3
 gpu=$4
-params=$5
+stage=$5
+params=$6
 echo $params
 . path.sh
 export train_cmd="slurm.pl --config conf/slurm.conf"
@@ -24,7 +25,7 @@ if [[ "$slurm" == "true" ]]
 then
     echo "comencing slurm batch parallel across "$num_runs" machines"
 
-    $train_cmd --mem 16GB --time 01-00:00:00 JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual.sh $params || exit 1; 
+    $train_cmd --mem 16GB --time 01-00:00:00 JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual.sh $stage $params || exit 1;
     wait
     echo "finished"
 
