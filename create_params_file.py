@@ -142,6 +142,7 @@ if args.reward_file:
 if args.experiment:
     EXPERIMENT = args.experiment
     ROOT = '/fs/clip-realspeech/projects/vid_game/data/' + EXPERIMENT
+    #ROOT = '/mnt/c/files/research/projects/vid_game/data/' + EXPERIMENT
     print('experiment changed: '+args.experiment)
 
 if args.overwrite:

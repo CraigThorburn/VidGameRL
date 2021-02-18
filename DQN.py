@@ -104,9 +104,12 @@ class DQN_NN_conv(nn.Module):
         if freeze_convolution:
             self.conv1.bias.requires_grad=False
             self.conv1.weight.requires_grad = False
+            self.bn1.bias.requires_grad=False
+            self.bn1.weight.requires_grad=False
             self.conv2.bias.requires_grad = False
             self.conv2.weight.requires_grad = False
-
+            self.bn2.bias.requires_grad=False
+            self.bn2.weight.requires_grad=False
 
         # Number of Linear input connections depends on output of conv2d layers
         # and therefore the input image size, so compute it.
