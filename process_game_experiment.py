@@ -32,9 +32,9 @@ if args.params_file != 'NA':
     state_inp = SIMPLE_STATE_PATH
     ep_inp = EPISODE_PATH
     if args.is_test.lower() =='true':
-        MODELNAME='conv_'+MODELNAME +'_test' #<----- need an option for test or not!
+        MODELNAME='_conv_'+MODELNAME +'_test' #<----- need an option for test or not!
     elif args.is_test.lower() =='false':
-        MODELNAME = 'conv_' + MODELNAME
+        MODELNAME = '_conv_' + MODELNAME
     else:
         raise NotImplementedError
 
