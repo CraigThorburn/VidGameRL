@@ -119,7 +119,17 @@ def optimize_model():
 
     # Compute the expected Q values
     expected_state_action_values = padded_reward + (next_state_values * GAMMA)
-
+    ### BEGIN DEBUGING RIGHT HERE
+    training_state_a = torch.ones(5, 21) * 10
+    training_state_b = torch.ones(5, 21) * 0
+    debug_state = torch.cat((training_state_a, training_state_b))
+    debug_location = torch.tensor((1, 0))
+    debug_action_values = torch.tensor((8, 12))
+    training_data = [(debug_state, debug_location, debug_action_values)]
+    with torch.no_grad():
+        debug_state, debug_location, debug_action = training_data[0]
+        debug_output, debug_hidden = policy_net(debug_state, debug_location, 21, h_initial)
+        print(debug_output)
 
     # Compute Huber loss
     loss = F.mse_loss(state_action_values.double(), expected_state_action_values)#, reduction = 'sum')/sum(seq_lengths)

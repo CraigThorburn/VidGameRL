@@ -81,138 +81,7 @@ class Environment(object):
     def get_state_str(self):
         return self.current_state
 
-
-class MovementGame(Environment):
-
-    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, stimulus_repetitions, device=None):
-        super().__init__(reward_file, state_file, episode_file, device)
-        self.current_location = ''
-        self.n_locations=0
-        self.locations = {}
-
-        self.transitions = {}
-        self.n_reps = stimulus_repetitions
-        self.current_rep = 1
-
-        self.load_locations(location_file)
-        self.load_transitions(transition_file)
-
-    def load_locations(self, LOCATION_FILE):
-        with open(LOCATION_FILE, 'r') as f:
-            input_data = f.read().splitlines()
-            header = input_data[0].split('\t')
-            assert header[0] == 'location'
-            self.n_location_dims = len(header)-1
-
-            for line in input_data[1:]:
-                assert line.split('\t')[0] not in self.states.keys()
-                self.locations[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:], dtype=np.double),device = self.device)
-
-    def load_transitions(self, TRANSITION_FILE):
-        with open(TRANSITION_FILE, 'r') as f:
-            input_data = f.read().splitlines()
-            header = input_data[0].split('\t')
-            assert header[0] == 'location'
-
-            for line in input_data[1:]:
-                assert line.split('\t')[0] not in self.states.keys()
-                self.transitions[line.split('\t')[0]] = line.split('\t')[1:]
-
-
-    def step(self, action):
-        reward = self.rewards[self.current_state+'_'+self.current_location][action]
-        if reward==1:
-            self.current_rep = self.n_reps
-        self.advance_state(action)
-        return reward
-
-    def advance_state(self, action):
-        self.current_location = self.transitions[self.current_location][action]
-        if self.current_rep == self.n_reps:
-            self.current_rep = 1
-            self.current_state_num+=1
-            if self.current_state_num == len(self.current_episode):
-                self.current_state = None
-            else:
-                self.current_state = self.current_episode[self.current_state_num]
-
-        else:
-            self.current_rep +=1
-
-    def initiate_environment(self):
-        self.current_location = random.choice(list(self.locations.keys()))
-        self.current_episode = self.episodes[self.current_episode_num]
-        self.current_state = self.current_episode[self.current_state_num]
-
-    def get_state(self):
-        if self.current_state is not None:
-            return torch.cat((self.states[self.current_state], self.locations[self.current_location]),0).float()
-        else:
-            return None
-
-    def get_n_location_dims(self):
-        return self.n_location_dims
-
-    def advance_episode(self):
-        self.current_episode_num += 1
-        self.current_episode = self.episodes[self.current_episode_num]
-        self.current_state_num = 0
-        self.current_state = self.current_episode[self.current_state_num]
-        self.current_rep = 1
-
-
-
-    def get_location_str(self):
-        return self.current_location
-
-    def is_new_state(self):
-        return False
-
-class OneShotMovementGame(MovementGame):
-
-    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, stimulus_repetitions, device=None):
-        super.__init__(reward_file, state_file, episode_file, location_file, transition_file, stimulus_repetitions, device)
-
-    def step(self, action):
-        reward = self.rewards[self.current_state + '_' + self.current_location][action]
-        if action == 2:
-            self.current_rep = self.n_reps
-        self.advance_state(action)
-        return reward
-#TODO: Absorb this above
-class SimpleGame(Environment):
-
-    def __init__(self, reward_file, state_file, episode_file, device=None):
-        super().__init__(reward_file, state_file, episode_file, device)
-
-
-    def advance_episode(self):
-        self.current_episode_num +=1
-        self.current_episode = self.episodes[self.current_episode_num]
-        self.current_state_num = 0
-        self.current_state = self.current_episode[self.current_state_num]
-
-
-    def step(self, action):
-        reward = self.rewards[self.current_state][action]
-        self.advance_state()
-        return reward
-
-    def advance_state(self):
-        self.current_state_num += 1
-        if self.current_state_num == len(self.current_episode):
-            self.current_state = None
-        else:
-            self.current_state = self.current_episode[self.current_state_num]
-
-    def initiate_environment(self):
-        self.current_episode = self.episodes[self.current_episode_num]
-        self.current_state = self.current_episode[self.current_state_num]
-
-    def get_state(self):
-        return self.states[self.current_state]
-
-class AcousticsGame(Environment):
+class AcousticsGame1D(Environment):
 
     def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time, mode, device=None):
         super().__init__(reward_file, state_file, episode_file, device)
@@ -239,9 +108,6 @@ class AcousticsGame(Environment):
 
         elif mode=='multiple':
             self.step = self.multiple_step
-
-        elif mode=='cht':
-            self.step = self.cht_step
 
         else:
             raise(AssertionError, 'mode not implemented')
@@ -363,9 +229,6 @@ class AcousticsGame(Environment):
             self.current_timepoint +=1
             self.new_state = False
 
-    def cht_step(self):
-        pass
-
     def initiate_environment(self):
         self.current_location = random.choice(list(self.locations.keys()))
         self.current_episode = self.episodes[self.current_episode_num]
@@ -395,60 +258,23 @@ class AcousticsGame(Environment):
         return  self.current_timepoint in self.action_timepoints
 
 
+class AcousticsGame2DConv(AcousticsGame1D):
 
-class ConvAcousticsGame(AcousticsGame):
+    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time,
+                 mode,  total_reps, device=None):
 
-    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time, mode, conv_size, stride=1, device=None):
-        self.conv_size = conv_size
-        self.stride = stride
-        self.current_timepoint_start = 0
-        self.current_timepoint_end = self.conv_size - 1
+        self.rep = 0
+        self.total_reps = total_reps-1
+
+
         super().__init__(reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time, mode, device)
-
-
-    def load_states(self, STATE_FILE):
-        super().load_states(STATE_FILE)
-        self.n_dims = self.conv_size*self.n_dims
-
-    def advance_state(self, action):
-        if action < 99:
-            self.current_location = self.transitions[self.current_location][action]
-
-
-        if self.current_timepoint_end+1  >= self.n_timepoints:
-            self.current_timepoint_start = 0
-            self.current_timepoint_end = self.conv_size
-            self.current_state_num+=1
-            if self.current_state_num == len(self.current_episode):
-                self.current_state = None
-            else:
-                self.current_state = self.current_episode[self.current_state_num]
-
-            self.new_state = True
-
-        else:
-            self.current_timepoint_start += self.stride
-            self.current_timepoint_end += self.stride
-            self.new_state = False
 
     def initiate_environment(self):
         self.current_location = random.choice(list(self.locations.keys()))
         self.current_episode = self.episodes[self.current_episode_num]
         self.current_state = self.current_episode[self.current_state_num]
-        self.current_timepoint_start = 0
-        self.current_timepoint_end = self.conv_size
+
         self.new_state = True
-
-    def get_state(self):
-
-
-
-        if self.current_state is not None:
-            return torch.cat((torch.flatten(self.states[self.current_state][:,self.current_timepoint_start:self.current_timepoint_end])
-                              , self.locations[self.current_location]),0).float()
-        else:
-            return None
-
 
     def advance_episode(self):
         self.current_episode_num += 1
@@ -456,49 +282,6 @@ class ConvAcousticsGame(AcousticsGame):
         self.current_state_num = 0
         self.current_state = self.current_episode[self.current_state_num]
         self.current_location = random.choice(list(self.locations.keys()))
-        self.current_timepoint_start = 0
-        self.current_timepoint_end = self.conv_size
-
-#######################
-    def oneshot_step(self, action):
-        if self.current_timepoint_end > self.n_waittime:
-            reward = self.rewards[self.current_state+'_'+self.current_location][action]
-            if action>=2:
-                self.current_timepoint_end = self.n_timepoints-1
-        else:
-            reward = 0
-        self.advance_state(action)
-        return reward
-
-    def correct_step(self, action):
-        if self.current_timepoint_end > self.n_waittime:
-            reward = self.rewards[self.current_state+'_'+self.current_location][action]
-            if reward==1:
-                self.current_timepoint_end = self.n_timepoints-1
-        else:
-            reward = 0
-        self.advance_state(action)
-        return reward
-
-    def multiple_step(self, action):
-        if self.current_timepoint_end > self.n_waittime:
-            reward = self.rewards[self.current_state+'_'+self.current_location][action]
-        else:
-            reward = 0
-        self.advance_state(action)
-        return reward
-
-    def cht_step(self):
-        pass
-
-class ConvMovementGame(ConvAcousticsGame):
-
-    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time,
-                 mode, conv_size, total_reps, device=None):
-        super().__init__(reward_file, state_file, episode_file, location_file, transition_file, non_move_gap,
-                     wait_time, mode, conv_size, device=None)
-        self.rep = 0
-        self.total_reps = total_reps-1
 
     def get_state(self):
 
@@ -555,7 +338,3 @@ class ConvMovementGame(ConvAcousticsGame):
         self.advance_state(action)
         return reward
 
-    def cht_step(self, action):
-        reward = self.rewards[self.current_state + '_' + self.current_location][action]
-        self.advance_state(action)
-        return reward

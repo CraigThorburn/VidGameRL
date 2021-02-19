@@ -31,7 +31,7 @@ fi
 
 if [ $stage -le 1 ]; then
 echo "starting training results processing"
-python process_game_experiment.py ../params/$id".params false"
+python process_game_experiment.py ../params/$id".params" "false"
 echo "training results processing complete"
 fi
 
@@ -43,7 +43,7 @@ fi
 
 if [ $stage -le 3 ]; then
 echo "starting testing results processing"
-python process_game_experiment.py ../params/$id".params true"
+python process_game_experiment.py ../params/$id".params" "true"
 echo "testing results processing complete"
 fi
 

@@ -58,7 +58,7 @@ STATE_LIST_FILE = 'exp/state_out'
 LOCATION_LIST_FILE = 'exp/location_out'
 REWARD_LIST_FILE = 'exp/reward_out'
 
-RESULTS_FILE= 'results/results_reward_out_'
+RESULTS_FILE= 'results/results_reward_out'
 
 
 #
