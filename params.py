@@ -36,7 +36,7 @@ OVERWRITE = False
      #       + '_waittime'+ str(WAITTIME) + '_convsize'+ str(CONV_SIZE)
 
 ROOT = '/mnt/c/files/research/projects/vid_game/data/'+EXPERIMENT
-#ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
+ROOT = '/fs/clip-realspeech/projects/vid_game/data/'+EXPERIMENT
 #MODELNAME = 'test'
 
 
