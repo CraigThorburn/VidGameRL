@@ -142,21 +142,16 @@ if args.reward_file:
     print('reward_file change: '+args.reward_file)
 
 if args.root:
-    PREROOT = args.root
+    ROOT = args.root
     print('root changed: '+args.root)
 
-    if args.experiment:
-        EXPERIMENT = args.experiment
-        ROOT = PREROOT + EXPERIMENT
-        #ROOT = '/mnt/c/files/research/projects/vid_game/data/' + EXPERIMENT
-        print('experiment changed: '+args.experiment)
-    else:
-        ROOT =PREROOT
-elif args.experiment:
+if args.experiment:
     EXPERIMENT = args.experiment
     ROOT = ROOT + EXPERIMENT
     #ROOT = '/mnt/c/files/research/projects/vid_game/data/' + EXPERIMENT
     print('experiment changed: '+args.experiment)
+
+ROOT = ROOT + EXPERIMENT
 
 if args.overwrite:
     if args.overwrite.lower()=='true':
