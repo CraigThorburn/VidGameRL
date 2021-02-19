@@ -29,12 +29,14 @@ if args.params_file != 'NA':
         globals()[key] = all_params[key]
 
 
-    state_inp = SIMPLE_STATE_PATH
+
     ep_inp = EPISODE_PATH
     if args.is_test.lower() =='true':
         MODELNAME='conv_'+MODELNAME +'_test' #<----- need an option for test or not!
+        state_inp = SIMPLE_STATE_PATH
     elif args.is_test.lower() =='false':
         MODELNAME = 'conv_' + MODELNAME
+        state_inp = 'test_' + SIMPLE_STATE_PATH
     else:
         raise NotImplementedError
 
