@@ -147,7 +147,6 @@ if args.root:
 
 if args.experiment:
     EXPERIMENT = args.experiment
-    ROOT = ROOT + EXPERIMENT
     #ROOT = '/mnt/c/files/research/projects/vid_game/data/' + EXPERIMENT
     print('experiment changed: '+args.experiment)
 
