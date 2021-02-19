@@ -44,6 +44,7 @@ ROOT = '/fs/clip-realspeech/projects/vid_game/data/'
 
 STATE_FILE = 'states'
 SIMPLE_STATE_FILE='states_simple'
+SIMPLE_STATE_TEST_FILE='test_states_simple'
 REWARD_FILE = 'rewards'
 EPISODE_FILE = 'episodes'
 TRANSITION_FILE = 'transitions'
