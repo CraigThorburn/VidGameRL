@@ -32,15 +32,15 @@ if args.params_file != 'NA':
     state_inp = SIMPLE_STATE_PATH
     ep_inp = EPISODE_PATH
     if args.is_test.lower() =='true':
-        MODELNAME='_conv_'+MODELNAME +'_test' #<----- need an option for test or not!
+        MODELNAME='conv_'+MODELNAME +'_test' #<----- need an option for test or not!
     elif args.is_test.lower() =='false':
-        MODELNAME = '_conv_' + MODELNAME
+        MODELNAME = 'conv_' + MODELNAME
     else:
         raise NotImplementedError
 
     resultfiles = [ROOT + RESULTS_FILE + '_' + MODELNAME + '.txt']
     episodefiles = [ROOT + STATE_LIST_FILE + '_' + MODELNAME + '.txt']
-    outfiles = [ROOT +  REWARD_LIST_FILE + MODELNAME + '.txt']
+    outfiles = [ROOT +  REWARD_LIST_FILE + '_' +  MODELNAME + '.txt']
     overwrite = OVERWRITE
 
 
