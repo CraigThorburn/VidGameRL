@@ -38,9 +38,9 @@ if args.params_file != 'NA':
     else:
         raise NotImplementedError
 
-    resultfiles = [ROOT + REWARD_LIST_FILE + '_' + MODELNAME + '.txt']
+    resultfiles = [ROOT + RESULTS_FILE + '_' + MODELNAME + '.txt']
     episodefiles = [ROOT + STATE_LIST_FILE + '_' + MODELNAME + '.txt']
-    outfiles = [ROOT +  RESULTS_FILE + MODELNAME + '.txt']
+    outfiles = [ROOT +  REWARD_LIST_FILE + MODELNAME + '.txt']
     overwrite = OVERWRITE
 
 
