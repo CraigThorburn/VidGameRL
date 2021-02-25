@@ -71,7 +71,7 @@ LOSSFILE = ROOT + 'exp/loss' + '_' + PRETRAIN_MODELNAME + '.txt'
 loss_record = ''
 
 total_steps = PRETRAIN_EPOCHS*n_batches
-
+print(str(total_steps), 'total steps')
 ### Set Model Start
 tic = time.time()
 
@@ -114,7 +114,7 @@ for i_epoch in range(PRETRAIN_EPOCHS): #TODO: Need to define epochs
             time_passed = toc - tic
             time_remaining = ((time_passed / (i_batch + (i_epoch*n_batches + 1))) * total_steps - time_passed) / 60
             print(
-                'steps complete: ' + str(i_batch + (i_epoch*n_batches + 1)) + 'percent complete,  ' + str(
+                'steps complete: ' + str(i_batch + (i_epoch*n_batches + 1)) + ', percent complete: ' + str(
                     math.ceil((i_batch + (i_epoch*n_batches + 1)) / total_steps * 100)) + \
                 ', time remaining: ' + str(int(time_remaining)) + ' minutes')
 
