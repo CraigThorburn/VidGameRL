@@ -170,10 +170,13 @@ if args.modelname:
 MODELNAME = GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay' + str(EPS_DECAY) + '_targetupdate' + str(TARGET_UPDATE) \
                 + '_waittime' + str(WAITTIME) + '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_lr'+str(LR) + \
                 '_' + MODELNAME_ADITIONS
+PRETRAIN_MODELNAME = '_lr' + str(PRETRAIN_LR)+ '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_batchsize' + \
+                     str(PRETRAIN_BATCH_SIZE) + '_epochs' + str(PRETRAIN_EPOCHS) +  '_' + MODELNAME_ADITIONS
 
 if args.run_num:
     RUN_NUM = args.run_num
     MODELNAME = MODELNAME + '_run'+str(RUN_NUM)
+    PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run' + str(RUN_NUM)
 
 # Set Variables
 STATE_PATH = ROOT + STATE_FILE +'.txt'

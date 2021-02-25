@@ -23,6 +23,12 @@ cd /fs/clip-realspeech/projects/vid_game/software/VidGameRL
 python create_params_file.py ../params/$id".params" $params -run_num=$i
 echo "param file created"
 
+if [ $stage -ge 9 ]; then
+echo "starting pretraining"
+python pretrain_network.py ../params/$id".params"
+echo "pretraining complete"
+fi
+
 if [ $stage -le 0 ]; then
 echo "starting training"
 python main_game_conv.py ../params/$id".params"
