@@ -78,7 +78,7 @@ tic = time.time()
 for i_epoch in range(PRETRAIN_EPOCHS): #TODO: Need to define epochs
     print('starting epoch:',str(i_epoch))
 
-    loss_record = loss_record + 'epoch' + str(i_epoch)
+    loss_record = loss_record + '\nepoch' + str(i_epoch)
 
     data.randomize_data()
 
