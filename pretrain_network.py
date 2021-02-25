@@ -70,12 +70,12 @@ optimizer = optim.SGD(phoneme_classifier.parameters(), lr = LR)
 LOSSFILE = ROOT + 'exp/loss' + '_' + PRETRAIN_MODELNAME + '.txt'
 loss_record = []
 
-total_steps = EPOCHS*n_batches
+total_steps = PRETRAIN_EPOCHS*n_batches
 
 ### Set Model Start
 tic = time.time()
 
-for i_epoch in range(EPOCHS): #TODO: Need to define epochs
+for i_epoch in range(PRETRAIN_EPOCHS): #TODO: Need to define epochs
     print('starting epoch:',str(i_epoch))
 
     loss_record = loss_record + 'epoch' + str(i_epoch)
