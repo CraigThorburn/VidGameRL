@@ -59,8 +59,11 @@ def optimize_model():
     # (a final state would've been the one after which simulation ended)
     non_final_mask = torch.tensor(tuple(map(lambda s: s is not None,
                                             batch.next_state)), device=device, dtype=torch.bool)
-    non_final_next_states = torch.stack(tuple([s for s in batch.next_state
+    try:
+        non_final_next_states = torch.stack(tuple([s for s in batch.next_state
                                                if s is not None]))
+    except RuntimeError:
+        pass
     non_final_next_locs = torch.stack(tuple([s for s in batch.next_location
                                                if s is not None]))
 
@@ -139,6 +142,11 @@ STATE_LIST = ROOT + STATE_LIST_FILE + '_' + MODELNAME + '.txt'
 ### Create Environment and Set Other File Locations
 if GAME_TYPE == 'convmovement':
     env = AcousticsGame2DConv(REWARD_PATH, STATE_PATH, EPISODE_PATH, LOCATION_PATH, TRANSITION_PATH, MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device)
+    LOCATION_LIST = ROOT + LOCATION_LIST_FILE + '_' + MODELNAME + '.txt'
+    OUTPUTS = [REWARD_LIST, ACTION_LIST, STATE_LIST, LOCATION_LIST,]
+    to_output = ['', '', '', '']
+elif GAME_TYPE == 'cht':
+    env = AcousticsGame2DConvCHT(REWARD_PATH, STATE_PATH, EPISODE_PATH, LOCATION_PATH, TRANSITION_PATH, MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device)
     LOCATION_LIST = ROOT + LOCATION_LIST_FILE + '_' + MODELNAME + '.txt'
     OUTPUTS = [REWARD_LIST, ACTION_LIST, STATE_LIST, LOCATION_LIST,]
     to_output = ['', '', '', '']
@@ -227,7 +235,7 @@ for i_episode in range(num_episodes):
 
         ### Set Remaining Outputs
 
-        if reward==1:
+        if reward>=1:
             to_output[0] = to_output[0] + ' ' + str(float(reward))
             to_output[1] = to_output[1] + ' ' + str(float(action))
             to_output[2] = to_output[2] + ' ' + out_str
@@ -292,6 +300,9 @@ for i_episode in range(num_episodes):
             'episode: ' + str(i_episode) + ', percent complete: ' + str(
                 math.ceil((i_episode / num_episodes) * 100)) + \
             ', time remaining: ' + str(int(time_remaining)) + ' minutes')
+
+    if env.simulation_finished():
+        break
 
 print('model complete')
 print('saving data')

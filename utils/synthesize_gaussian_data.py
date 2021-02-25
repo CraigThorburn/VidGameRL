@@ -1,10 +1,10 @@
 gaus_peak = 10
-max_freq = 3
-freq_sep = 0.05
-sigma = 0.15
+max_freq = 4000
+freq_sep = 50
+sigma = 150
 rounding = 3
-state_file = '/mnt/c/files/research/projects/vid_game/data/control_convolution_noncontinuous/test_states_linear.txt'
-new_states_file = '/mnt/c/files/research/projects/vid_game/data/control_convolution_noncontinuous/test_states.txt'
+state_file = '/mnt/c/files/research/projects/vid_game/data/cht/states_linear.txt'
+new_states_file = '/mnt/c/files/research/projects/vid_game/data/cht/states.txt'
 states = {}
 
 import numpy as np
@@ -48,7 +48,7 @@ new_states = {}
 
 for s in states.keys():
     vector = states[s]
-    states_length = 31#len(vector[0])
+    states_length = len(vector[0])
     state_2d = np.zeros((states_length, num_freqs))
     for dim in vector:
         state_from_this_f = np.zeros((states_length, num_freqs))

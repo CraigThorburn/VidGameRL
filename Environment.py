@@ -81,6 +81,9 @@ class Environment(object):
     def get_state_str(self):
         return self.current_state
 
+    def simulation_finished(self):
+        return False
+
 class AcousticsGame1D(Environment):
 
     def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time, mode, device=None):
@@ -184,7 +187,7 @@ class AcousticsGame1D(Environment):
 
 
     def oneshot_step(self, action):
-        if self.current_timepoint > self.n_waittime:
+        if self.current_timepoint >= self.n_waittime:
             reward = self.rewards[self.current_state+'_'+self.current_location][action]
             if action>=2:
                 self.current_timepoint = self.n_timepoints-1
@@ -194,7 +197,7 @@ class AcousticsGame1D(Environment):
         return reward
 
     def correct_step(self, action):
-        if self.current_timepoint > self.n_waittime:
+        if self.current_timepoint >= self.n_waittime:
             reward = self.rewards[self.current_state+'_'+self.current_location][action]
             if reward==1:
                 self.current_timepoint = self.n_timepoints-1
@@ -204,7 +207,7 @@ class AcousticsGame1D(Environment):
         return reward
 
     def multiple_step(self, action):
-        if self.current_timepoint > self.n_waittime:
+        if self.current_timepoint >= self.n_waittime:
             reward = self.rewards[self.current_state+'_'+self.current_location][action]
         else:
             reward = 0
@@ -311,7 +314,7 @@ class AcousticsGame2DConv(AcousticsGame1D):
                 self.current_state = self.current_episode[self.current_state_num]
 
     def oneshot_step(self, action):
-        if self.rep > self.n_waittime:
+        if self.rep >= self.n_waittime:
             reward = self.rewards[self.current_state+'_'+self.current_location][action]
             if action>=2:
                 self.rep = self.total_reps-1
@@ -321,7 +324,7 @@ class AcousticsGame2DConv(AcousticsGame1D):
         return reward
 
     def correct_step(self, action):
-        if self.rep > self.n_waittime:
+        if self.rep >= self.n_waittime:
             reward = self.rewards[self.current_state+'_'+self.current_location][action]
             if reward==1:
                 self.rep = self.total_reps-1
@@ -331,10 +334,154 @@ class AcousticsGame2DConv(AcousticsGame1D):
         return reward
 
     def multiple_step(self, action):
-        if self.rep > self.n_waittime:
+        if self.rep >= self.n_waittime:
             reward = self.rewards[self.current_state+'_'+self.current_location][action]
         else:
             reward = 0
         self.advance_state(action)
         return reward
+
+class AcousticsGame2DConvCHT(AcousticsGame2DConv):
+
+    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time,
+                 mode,  total_reps, device=None, max_episodes = 50000):
+
+        self.rep = 0
+        self.total_reps = total_reps-1
+        self.current_section_num = 0
+        super().__init__(reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time, mode, total_reps, device)
+
+        self.step=self.cht_step
+        self.n_episodes = max_episodes
+
+    def load_episodes(self, EPISODE_FILE):
+        with open(EPISODE_FILE, 'r') as f:
+            input_data = f.read().splitlines()
+            self.n_episodes = len(input_data)
+            self.sections=[]
+            self.episodes=[]
+
+            for l in input_data:
+                if l[0:3] == '###':
+                    _, _, section_max, _, section_need, _, section_of, _, section_threshold = l.split(' ')
+                    section_max = int(section_max)
+                    section_need = int(section_need)
+                    section_of = int(section_of)
+                    section_threshold = int(section_threshold)
+                    self.sections.append([section_max, section_need, section_of, section_threshold])
+                    self.episodes.append([])
+                    ### max 100 need 3 of 3 threshold 10
+                #this is the start of a section
+
+                else:
+                    self.episodes[-1].append(l.split(' ')[1:])
+            self.episode_lengths = [[len(f) for f in e] for e in self.episodes]
+            self.section_lengths = [len(e) for e in self.episodes]
+            self.n_sections = len(self.section_lengths)
+
+    def initiate_environment(self):
+        self.current_section_length = self.section_lengths[self.current_section_num]
+        self.current_episode_num = random.randint(0, self.current_section_length-1)
+        self.current_section = self.episodes[self.current_section_num]
+
+        self.current_location = random.choice(list(self.locations.keys()))
+        self.current_episode = self.current_section[self.current_episode_num]
+        self.current_state = self.current_episode[self.current_state_num]
+
+        self.new_state = True
+        self.accumulated_reward=0
+
+        self.reward_memory=[]
+
+        self.section_max, self.section_need, self.section_of, self.section_threshold = self.sections[self.current_section_num]
+        self.time_in_section=0
+
+        self.is_finished=False
+
+    def advance_episode(self):
+        # need to check if section threholds have been reached
+        if len(self.reward_memory) < self.section_of:
+            self.reward_memory.append(self.accumulated_reward)
+
+            #continue
+
+        else:
+            self.reward_memory.pop(0)
+            self.reward_memory.append(self.accumulated_reward)
+            successes = sum([x >= self.section_threshold for x in self.reward_memory])
+
+            if successes >= self.section_need or self.time_in_section >= self.section_max:
+                self.debug()
+                print('successes')
+                if self.current_section_num != self.n_sections -1:
+                    print('moving to new section')
+                    self.current_section_num +=1
+                    self.current_section_length = self.section_lengths[self.current_section_num]
+                    self.current_section = self.episodes[self.current_section_num]
+                    self.section_max, self.section_need, self.section_of, self.section_threshold = self.sections[self.current_section_num]
+                    self.time_in_section = 0
+                    self.reward_memory = []
+                else:
+                    self.is_finished=True
+
+        # continuing in this section
+        self.accumulated_reward = 0
+        self.current_episode_num = random.randint(0, self.current_section_length - 1)
+        self.current_state_num = 0
+        self.current_episode = self.current_section[self.current_episode_num]
+        self.current_state = self.current_episode[self.current_state_num]
+        self.time_in_section +=1
+
+
+
+    def get_state(self):
+
+        if self.current_state is not None:
+            return self.states[self.current_state].float(), self.locations[self.current_location].float()
+        else:
+            return None, None
+
+    def get_aud_dims(self):
+        h = self.states[self.episodes[0][0][0]].size()[0]
+        w = self.states[self.episodes[0][0][0]].size()[1]
+
+        return w, h
+
+
+    def advance_state(self, action):
+        if action < 99:
+            self.current_location = self.transitions[self.current_location][action]
+
+        self.rep += 1
+
+        if self.rep >= self.total_reps:
+            self.rep = 0
+            self.current_state_num+=1
+            if self.current_state_num == len(self.current_episode):
+                self.current_state = None
+            else:
+                self.current_state = self.current_episode[self.current_state_num]
+
+    def cht_step(self, action):
+        if self.rep >= self.n_waittime:
+            reward = self.rewards[self.current_state+'_'+self.current_location][action]
+        else:
+            reward = 0
+        self.accumulated_reward += reward
+        self.advance_state(action)
+        return reward
+
+    def simulation_finished(self):
+        return self.is_finished
+
+    def debug(self):
+        print('-------')
+        print('section parameters: ', str(self.section_max), str(self.section_need), str(self.section_of), str(self.section_threshold))
+        print('accumulated reward:', str(self.accumulated_reward))
+        print('episode number:',str(self.current_episode_num))
+        print('time in section:',str(self.time_in_section))
+        print('current_section:',str(self.current_section))
+        print( 'reward memory:',str(self.reward_memory))
+
+
 
