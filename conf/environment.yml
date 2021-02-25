@@ -1,0 +1,16 @@
+name: audneurorl
+dependencies:
+  - python=3.6
+  - numpy
+  - matplotlib
+  - pip:
+    - pyglet
+    - torch
+    - torchvision
+    - pyopengl
+    - gym
+    - pillow
+    - -freeglut3-dev
+    - pyyaml
+    - torchaudio
+    - requests
