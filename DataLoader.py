@@ -37,7 +37,7 @@ class SpeechDataLoader(object):
 
     def load_phones(self, file):
         f = open(file, 'r')
-        self.phone_list = [p.split(' ')[0] for p in f.readlines()]
+        self.phone_list = [p.split('\n')[0] for p in f.readlines()]
         self.n_phones=len(self.phone_list)
         for i_phone in range(self.n_phones):
             phone_vector = torch.zeros(self.n_phones)
