@@ -68,7 +68,7 @@ optimizer = optim.SGD(phoneme_classifier.parameters(), lr = LR)
 
 
 LOSSFILE = ROOT + 'exp/loss' + '_' + PRETRAIN_MODELNAME + '.txt'
-loss_record = []
+loss_record = ''
 
 total_steps = PRETRAIN_EPOCHS*n_batches
 
