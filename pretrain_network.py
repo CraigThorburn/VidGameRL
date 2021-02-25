@@ -86,13 +86,14 @@ for i_epoch in range(PRETRAIN_EPOCHS): #TODO: Need to define epochs
 
         # Get raw waveforms from data and reshape for classifier
         wavs, labels= data.get_batch(i_batch*PRETRAIN_BATCH_SIZE, (i_batch+1)*PRETRAIN_BATCH_SIZE)
-        wavs = wavs.reshape(wavs.size()[0], 1, wavs.size()[1])
+        wavs = wavs.reshape(wavs.size()[0], 1, wavs.size()[1]).to(device)
+        labels =  torch.stack(labels).to(device)
 
         # Generate Predictions
         predictions = phoneme_classifier(wavs)
 
         # Loss calculated from predictions and true labels
-        loss = F.smooth_l1_loss(predictions, torch.stack(labels))
+        loss = F.smooth_l1_loss(predictions, labels)
 
         # Zero the optimizer
         optimizer.zero_grad()
