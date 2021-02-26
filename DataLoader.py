@@ -4,18 +4,19 @@ import torchaudio
 import math
 from collections import namedtuple
 Instance = namedtuple('Instance',
-                                ('file', 'start', 'end','label'))
+                                ('file', 'start', 'end','label', 'phone'))
 
 class SpeechDataLoader(object):
 
-    def __init__(self, segments_file, phones_file, alignments_file, wav_folder, sr = 16000, window_size = 0.2):
+    def __init__(self, segments_file, phones_file, alignments_file, wav_folder, transform_type='mfcc', sr = 16000, phone_window_size = 0.2,
+                 n_fft = 400, spec_window_length = 400, spec_window_hop = 160, n_mfcc = 13, log_mels=True):
 
         self.phone_list = []
         self.segments = {}
         self.data = []
         self.wavs= {}
         self.sr = sr
-        self.window_size = window_size
+        self.window_size = phone_window_size
         self.sr_window_size = math.floor(self.window_size * self.sr)
 
         self.wav_folder = wav_folder
@@ -25,6 +26,23 @@ class SpeechDataLoader(object):
         self.load_phones(phones_file)
         self.load_segments(segments_file)
         self.load_alignments(alignments_file)
+
+        self.w = int((sr * phone_window_size /spec_window_hop ) + 1)
+
+        if transform_type =='spectrogram':
+            self.Spectrogram = torchaudio.transforms.Spectrogram(win_length = spec_window_length, hop_length = spec_window_hop)
+            self.transform = self.transform_spectrogram
+            self.h = n_fft // 2 + 1
+        elif transform_type=='mfcc':
+            self.Deltas = torchaudio.transforms.ComputeDeltas()
+            self.Mfccs = torchaudio.transforms.MFCC(n_mfcc =n_mfcc, log_mels =log_mels, melkwargs = {'win_length':spec_window_length, 'hop_length':spec_window_hop})
+            self.transform = self.transform_mfcc
+            self.h = n_mfcc*3
+        else:
+            raise NotImplementedError('no implementation of selected transform type')
+
+    def get_feature_dims(self):
+        return self.w, self.h
 
     def __len__(self):
         return len(self.data)
@@ -56,7 +74,7 @@ class SpeechDataLoader(object):
             if phone in self.phone_list:
                 start = float(utt_start) + float(phone_start)
                 end = float(utt_start) + float(phone_end)
-                self.data.append(Instance(wav, start, end, self.vocab[phone]))
+                self.data.append(Instance(wav, start, end, self.vocab[phone], phone))
 
 
     def randomize_data(self):
@@ -82,6 +100,17 @@ class SpeechDataLoader(object):
 
         return cut_wavs.reshape(batch_size, self.sr_window_size), batch_unzipped.label
 
+    def get_batch_phones(self, start, end):
+        batch = self.data[start:end]
+        batch_unzipped = Instance(*zip(*batch))
+
+        wavs, labels = self.get_batch(start, end)
+
+        return wavs,  labels, batch_unzipped.phone
+
+    def get_phone_list(self):
+        return self.phone_list
+
     def get_wavs(self, files):
         wavs = [self.wavs[w] for w in files]
         if None in wavs:
@@ -90,8 +119,6 @@ class SpeechDataLoader(object):
                     loaded_file, _ = self.load_wav(files[f])
                     self.wavs[files[f]] = loaded_file
                     wavs[f] = loaded_file
-
-
 
         return wavs
 
@@ -104,4 +131,13 @@ class SpeechDataLoader(object):
 
     def load_all_wavs(self):
         pass
+
+    def transform_spectrogram(self, x):
+        return self.Spectrogram(x)
+
+    def transform_mfcc(self, x):
+        mfcc = self.Mfccs(x)
+        d1 = self.Deltas(mfcc)
+        d2 = self.Deltas(d1)
+        return torch.cat((mfcc, d1, d2), -2)
 

@@ -49,15 +49,15 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print('using device ' + str(device))
 
 data = SpeechDataLoader( ROOT+SEGMENTS_FILE, ROOT+PHONES_FILE, ROOT+ALIGNMENTS_FILE,
-                         ROOT+WAVS_FOLDER) #TODO: Need file names here
+                         ROOT+WAVS_FOLDER, spec_window_hop=SPEC_WINDOW_HOP, spec_window_length=SPEC_WINDOW_LENGTH) #TODO: Need file names here
 print('data loader created')
 
 n_datapoints = len(data)
 n_batches = math.floor(n_datapoints/PRETRAIN_BATCH_SIZE)
 print('running for',str(n_datapoints), 'datapoints over',str(n_batches),'batches of size',str(PRETRAIN_BATCH_SIZE))
 
-w = int((SAMPLE_RATE * WINDOW_SIZE /SPEC_WINDOW_LENGTH * 2) + 1)
-h = N_FFT // 2 + 1
+
+w, h = data.get_feature_dims()
 n_outputs = int(data.get_num_phones())
 print(int(n_outputs), 'outputs |',w, 'width |', h,'height')
 
@@ -87,6 +87,8 @@ for i_epoch in range(PRETRAIN_EPOCHS): #TODO: Need to define epochs
         # Get raw waveforms from data and reshape for classifier
         wavs, labels= data.get_batch(i_batch*PRETRAIN_BATCH_SIZE, (i_batch+1)*PRETRAIN_BATCH_SIZE)
         wavs = wavs.reshape(wavs.size()[0], 1, wavs.size()[1]).to(device)
+
+        wavs=data.transform(wavs)
         labels =  torch.stack(labels).to(device)
 
         # Generate Predictions
