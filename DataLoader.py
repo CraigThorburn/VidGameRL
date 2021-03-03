@@ -8,7 +8,7 @@ Instance = namedtuple('Instance',
 
 class SpeechDataLoader(object):
 
-    def __init__(self, segments_file, phones_file, alignments_file, wav_folder, transform_type='mfcc', sr = 16000, phone_window_size = 0.2,
+    def __init__(self, segments_file, phones_file, alignments_file, wav_folder, device, transform_type='mfcc', sr = 16000, phone_window_size = 0.2,
                  n_fft = 400, spec_window_length = 400, spec_window_hop = 160, n_mfcc = 13, log_mels=True):
 
         self.phone_list = []
@@ -18,6 +18,8 @@ class SpeechDataLoader(object):
         self.sr = sr
         self.window_size = phone_window_size
         self.sr_window_size = math.floor(self.window_size * self.sr)
+
+        self.device=device
 
         self.wav_folder = wav_folder
 
@@ -30,12 +32,12 @@ class SpeechDataLoader(object):
         self.w = int((sr * phone_window_size /spec_window_hop ) + 1)
 
         if transform_type =='spectrogram':
-            self.Spectrogram = torchaudio.transforms.Spectrogram(win_length = spec_window_length, hop_length = spec_window_hop)
+            self.Spectrogram = torchaudio.transforms.Spectrogram(win_length = spec_window_length, hop_length = spec_window_hop).to(device)
             self.transform = self.transform_spectrogram
             self.h = n_fft // 2 + 1
         elif transform_type=='mfcc':
             self.Deltas = torchaudio.transforms.ComputeDeltas()
-            self.Mfccs = torchaudio.transforms.MFCC(n_mfcc =n_mfcc, log_mels =log_mels, melkwargs = {'win_length':spec_window_length, 'hop_length':spec_window_hop})
+            self.Mfccs = torchaudio.transforms.MFCC(n_mfcc =n_mfcc, log_mels =log_mels, melkwargs = {'win_length':spec_window_length, 'hop_length':spec_window_hop}).to(device)
             self.transform = self.transform_mfcc
             self.h = n_mfcc*3
         else:

@@ -16,6 +16,10 @@ class PhonemeConvNN(nn.Module):
         convh = conv2d_size_out(conv2d_size_out(conv2d_size_out(h)))
         self.linear_input_size = convw * convh * 32
 
+        print(convw)
+        print(convh)
+        print(self.linear_input_size)
+
         #self.spectrogram = torchaudio.transforms.Spectrogram(win_length = window_length)
         self.conv1 = nn.Conv2d(1, 32, kernel_size=kernel, stride=sstride)
         self.bn1 = nn.BatchNorm2d(32)

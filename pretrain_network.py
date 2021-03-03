@@ -49,7 +49,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print('using device ' + str(device))
 
 data = SpeechDataLoader( ROOT+SEGMENTS_FILE, ROOT+PHONES_FILE, ROOT+ALIGNMENTS_FILE,
-                         ROOT+WAVS_FOLDER, spec_window_hop=SPEC_WINDOW_HOP, spec_window_length=SPEC_WINDOW_LENGTH) #TODO: Need file names here
+                         ROOT+WAVS_FOLDER, device, spec_window_hop=SPEC_WINDOW_HOP, spec_window_length=SPEC_WINDOW_LENGTH) #TODO: Need file names here
 print('data loader created')
 
 n_datapoints = len(data)
