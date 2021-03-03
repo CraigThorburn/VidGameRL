@@ -73,7 +73,7 @@ phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs).to(device) #
 phoneme_classifier.load_state_dict(torch.load(MODEL_LOCATION, map_location=device))
 phoneme_classifier.eval()
 
-testing_batch_size = 10000
+testing_batch_size = 64
 n_batches = math.floor(n_datapoints/testing_batch_size)
 
 
