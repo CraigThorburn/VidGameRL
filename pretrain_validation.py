@@ -73,42 +73,44 @@ phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs).to(device) #
 phoneme_classifier.load_state_dict(torch.load(MODEL_LOCATION, map_location=device))
 phoneme_classifier.eval()
 
+testing_batch_size = 10000
+n_batches = math.floor(n_datapoints/testing_batch_size)
+
 
 ### Set Model Start
 tic = time.time()
+running=True
+for i_batch in range(n_batches):
+    print('running batch:', str(i_batch))
 
-wavs, labels, phones = data.get_batch_phones(0, n_datapoints)
+    # Get raw waveforms from data and reshape for classifier
+    wavs, labels, phones = data.get_batch_phones(i_batch * testing_batch_size, (i_batch + 1) * testing_batch_size)
 
-wavs = wavs.reshape(wavs.size()[0], 1, wavs.size()[1]).to(device)
-wavs = data.transform(wavs)
-labels =  torch.stack(labels).to(device)
+    wavs = wavs.reshape(wavs.size()[0], 1, wavs.size()[1]).to(device)
+    wavs = data.transform(wavs)
+    labels =  torch.stack(labels).to(device)
 
-# Generate Predictions
-predictions = phoneme_classifier(wavs)
+    # Generate Predictions
+    predictions = phoneme_classifier(wavs)
 
-# Correct predictions
-predicted_cats = predictions.max(1).indices
-label_cats = labels.max(1).indices
-correct_predictions = predicted_cats == label_cats
-total_correct = sum(correct_predictions)
+    # Correct predictions
+    predicted_cats = predictions.max(1).indices
+    label_cats = labels.max(1).indices
+    correct_predictions = predicted_cats == label_cats
+    total_correct = sum(correct_predictions)
 
-all_phones = data.get_phone_list()
+    all_phones = data.get_phone_list()
 
-phone_results = [(sum(predicted_cats[correct_predictions] == i), sum(label_cats == i)) for i in range(data.get_num_phones())]
+    phone_results = [(sum(predicted_cats[correct_predictions] == i), sum(label_cats == i)) for i in range(data.get_num_phones())]
 
-
-
-
-print('model complete')
-print('saving data')
-
-### Save Final Outputs
-outfile = open(ROOT + REWARD_LIST_FILE + '_' + PRETRAIN_MODELNAME + '.txt', 'a+')
-for p in range(len(all_phones)):
-    outfile.write(all_phones[p]+' '+str(int(phone_results[p][0]))+ ' ' + str(int(phone_results[p][1])) + '\n')
+    ### Save Final Outputs
+    outfile = open(ROOT + REWARD_LIST_FILE + '_' + PRETRAIN_MODELNAME + '.txt', 'a+')
+    for p in range(len(all_phones)):
+        outfile.write(all_phones[p]+' '+str(int(phone_results[p][0]))+ ' ' + str(int(phone_results[p][1])) + '\n')
 
 
-outfile.close()
+    outfile.close()
+
 print('data saved')
 
 print('done')
