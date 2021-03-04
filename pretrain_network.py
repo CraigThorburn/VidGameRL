@@ -58,7 +58,7 @@ print(int(n_outputs), 'outputs |',w, 'width |', h,'height')
 
 phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs).to(device) #TODO: Need to create classifier
 phoneme_classifier.train()
-optimizer = optim.SGD(phoneme_classifier.parameters(), lr = LR)
+optimizer = optim.SGD(phoneme_classifier.parameters(), lr = PRETRAIN_LR)
 
 
 
@@ -139,6 +139,6 @@ print('data saved')
 
 ### Save Final Model
 print('saving model')
-torch.save(phoneme_classifier.state_dict(), ROOT + OUT_FOLDER + 'model_' + PRETRAIN_MODELNAME + '_final.pt')
+torch.save(phoneme_classifier.state_dict(), ROOT + OUT_FOLDER + MODEL_FOLDER + PRETRAIN_MODELNAME + '_final.pt')
 print('model saved')
 print('done')
