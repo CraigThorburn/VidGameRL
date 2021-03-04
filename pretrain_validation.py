@@ -68,7 +68,7 @@ for corpus in VALIDATION_COPORA:
     outfile.close()
 
 
-    data = SpeechDataLoader(ROOT + VALIDATION_SEGMENTS_FILE + '_' + corpus + '.txt', ROOT + PHONES_FILE, ROOT + VALIDATION_ALIGNMENTS_FILE+ '_' + corpus + '.txt',
+    data = SpeechDataLoader(ROOT + VALIDATION_SEGMENTS_FILE + '_' + corpus + '.txt', ROOT + PHONES_FILE + '.txt', ROOT + VALIDATION_ALIGNMENTS_FILE+ '_' + corpus + '.txt',
                             ROOT + WAVS_FOLDER + '_' + corpus + '.txt', device)  # TODO: Need file names here
     print('data loader created')
 
