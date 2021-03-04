@@ -8,9 +8,10 @@
 
 
 pretrain=$1
-num_runs=$2
-gpu=$3
-stage=$4
+experiment=$2
+num_runs=$3
+gpu=$4
+stage=$5
 
 id=$SLURM_JOBID
 

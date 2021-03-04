@@ -5,7 +5,7 @@ MODELNAME_ADITIONS = ''
 OVERWRITE = False
 EXPERIMENT = 'experimental_convolution_continuous/'
 ROOT = '/mnt/c/files/research/projects/vid_game/data/'
-#ROOT = '/fs/clip-realspeech/projects/vid_game/data/'
+ROOT = '/fs/clip-realspeech/projects/vid_game/data/'
 PARAMS_FOLDER = 'params'
 
 
