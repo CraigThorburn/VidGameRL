@@ -28,21 +28,28 @@ if args.params_file != 'NA':
     for key in all_params:
         globals()[key] = all_params[key]
 
+    OUT_FOLDER = OUT_FOLDER + TRAIN_MODELNAME + '\''
 
-
-    ep_inp = EPISODE_PATH
+    ep_inp = ROOT + EPISODE_FILE + '.txt'
     if args.is_test.lower() =='true':
-        MODELNAME='conv_'+MODELNAME +'_test' #<----- need an option for test or not!
-        state_inp = SIMPLE_STATE_TEST_PATH
+        resultfiles = [ROOT + OUT_FOLDER + 'test_'+ RESULTS_FILE + '_' +  TRAIN_MODELNAME + '.txt']
+        episodefiles = [ROOT + OUT_FOLDER + 'test_'+ STATE_OUT_FILE + '_' +  TRAIN_MODELNAME + '.txt']
+        outfiles = [ROOT + OUT_FOLDER + 'test_'+ REWARD_OUT_FILE + '_' +  TRAIN_MODELNAME + '.txt']
+
+        state_inp = ROOT + SIMPLE_STATE_TEST_FILE + '.txt'
+
     elif args.is_test.lower() =='false':
-        MODELNAME = 'conv_' + MODELNAME
-        state_inp = SIMPLE_STATE_PATH
+        resultfiles = [ROOT + OUT_FOLDER + 'train_'+ RESULTS_FILE + '_' +  TRAIN_MODELNAME + '.txt']
+        episodefiles = [ROOT + OUT_FOLDER + 'train_'+ STATE_OUT_FILE + '_' +  TRAIN_MODELNAME + '.txt']
+        outfiles = [ROOT + OUT_FOLDER + 'train_'+ REWARD_OUT_FILE + '_' +  TRAIN_MODELNAME + '.txt']
+
+        state_inp = ROOT + SIMPLE_STATE_FILE + '.txt'
+
+
     else:
         raise NotImplementedError
 
-    resultfiles = [ROOT + RESULTS_FILE + '_' + MODELNAME + '.txt']
-    episodefiles = [ROOT + STATE_LIST_FILE + '_' + MODELNAME + '.txt']
-    outfiles = [ROOT +  REWARD_LIST_FILE + '_' +  MODELNAME + '.txt']
+
     overwrite = OVERWRITE
 
 

@@ -1,19 +1,9 @@
 ### Set Imports
 
-# import math
-# import random
-# import numpy as np
-# import matplotlib
-#import matplotlib.pyplot as plt
-import sys
-# from collections import namedtuple
 from itertools import count
-
 import torch
-# import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-#import torchvision.transforms as T
 from ReplayMemory import *
 from DQN import *
 from Environment import *
@@ -36,11 +26,16 @@ with open(args.params_file, 'r') as f:
 for key in all_params:
     globals()[key] = all_params[key]
 
+try:
+    os.makedirs(ROOT + OUT_FOLDER + TRAIN_MODELNAME)
+    print('created experiment output folder')
+except OSError:
+    print('experiment output folder exists')
 
-MODELNAME='conv_'+MODELNAME
+OUT_FOLDER = OUT_FOLDER + TRAIN_MODELNAME + '/'
+
 print('parameters loaded from '+args.params_file)
-
-shutil.copyfile(args.params_file, ROOT + PARAMS_FOLDER + '/' + MODELNAME + '.params')
+shutil.copyfile(args.params_file, ROOT + OUT_FOLDER + 'params_'+TRAIN_MODELNAME + '.params')
 
 print('parameter file moved to results location')
 
@@ -135,20 +130,19 @@ transition = namedtuple('Transition',
                         ('state', 'loc', 'action', 'next_state', 'next_location', 'reward'))
 
 ### Set File Locations
-ACTION_LIST = ROOT + ACTION_LIST_FILE + '_' + MODELNAME + '.txt'
-REWARD_LIST = ROOT + REWARD_LIST_FILE + '_' + MODELNAME + '.txt'
-STATE_LIST = ROOT + STATE_LIST_FILE + '_' + MODELNAME + '.txt'
+ACTION_OUT_PATH = ROOT + OUT_FOLDER + 'train_' + ACTION_OUT_FILE + '_' + TRAIN_MODELNAME + '.txt'
+REWARD_OUT_PATH = ROOT + OUT_FOLDER +  'train_' +REWARD_OUT_FILE + '_' + TRAIN_MODELNAME + '.txt'
+STATE_OUT_PATH = ROOT + OUT_FOLDER +  'train_' +STATE_OUT_FILE + '_' + TRAIN_MODELNAME + '.txt'
+LOCATION_OUT_PATH = ROOT + OUT_FOLDER + 'train_' +LOCATION_OUT_FILE + '_' + TRAIN_MODELNAME + '.txt'
 
 ### Create Environment and Set Other File Locations
 if GAME_TYPE == 'convmovement':
-    env = AcousticsGame2DConv(REWARD_PATH, STATE_PATH, EPISODE_PATH, LOCATION_PATH, TRANSITION_PATH, MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device)
-    LOCATION_LIST = ROOT + LOCATION_LIST_FILE + '_' + MODELNAME + '.txt'
-    OUTPUTS = [REWARD_LIST, ACTION_LIST, STATE_LIST, LOCATION_LIST,]
+    env = AcousticsGame2DConv(ROOT + REWARD_FILE + '.txt', ROOT +STATE_FILE + '.txt', ROOT +EPISODE_FILE + '.txt', ROOT +LOCATION_FILE + '.txt', ROOT +TRANSITION_FILE + '.txt', MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device)
+    OUTPUTS = [REWARD_OUT_PATH, ACTION_OUT_PATH, STATE_OUT_PATH, LOCATION_OUT_PATH]
     to_output = ['', '', '', '']
 elif GAME_TYPE == 'cht':
-    env = AcousticsGame2DConvCHT(REWARD_PATH, STATE_PATH, EPISODE_PATH, LOCATION_PATH, TRANSITION_PATH, MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device)
-    LOCATION_LIST = ROOT + LOCATION_LIST_FILE + '_' + MODELNAME + '.txt'
-    OUTPUTS = [REWARD_LIST, ACTION_LIST, STATE_LIST, LOCATION_LIST,]
+    env = AcousticsGame2DConvCHT(ROOT + REWARD_FILE + '.txt', ROOT +STATE_FILE + '.txt', ROOT +EPISODE_FILE + '.txt', ROOT +LOCATION_FILE + '.txt', ROOT +TRANSITION_FILE + '.txt', MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device)
+    OUTPUTS = [REWARD_OUT_PATH, ACTION_OUT_PATH, STATE_OUT_PATH, LOCATION_OUT_PATH]
     to_output = ['', '', '', '']
 
 else:
@@ -156,7 +150,7 @@ else:
 print("environment created")
 
 to_output.append('')
-OUTPUTS.append(ROOT + 'exp/loss' + '_' + MODELNAME + '.txt')
+OUTPUTS.append(ROOT + OUT_FOLDER + LOSS_OUT_FILE + '_' + TRAIN_MODELNAME + '.txt')
 
 ### Validate Environment
 env.validate_environment()
@@ -179,7 +173,7 @@ target_net.eval()
 policy_net.train()
 
 ### Define Optimizer
-optimizer = optim.SGD(policy_net.parameters(), lr = LR) ## TODO: Changed from RMSprop
+optimizer = optim.SGD(policy_net.parameters(), lr = TRAIN_LR) ## TODO: Changed from RMSprop
 torch.backends.cudnn.enabled = False
 # TODO: Check what exactly this is doing ^^^
 # CHANGE: from RMSprop to SGD
@@ -290,7 +284,7 @@ for i_episode in range(num_episodes):
             outfile.close()
 
         ### Save Model Checkpoint
-        torch.save(policy_net.state_dict(), ROOT + '/checkpoints/' + MODELNAME + '_model.pt')
+        torch.save(policy_net.state_dict(), ROOT + '/checkpoints/' + TRAIN_MODELNAME + '_model.pt')
 
         ### Print Timing Information
         toc = time.time()
@@ -316,7 +310,7 @@ print('data saved')
 
 ### Save Final Model
 print('saving model')
-torch.save(policy_net.state_dict(), ROOT + '/models/' + MODELNAME + '_final.pt')
+torch.save(policy_net.state_dict(), ROOT + OUTFOLDER + 'model_' + TRAIN_MODELNAME + '_final.pt')
 print('model saved')
 print('done')
 

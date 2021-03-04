@@ -31,6 +31,8 @@ class SpeechDataLoader(object):
 
         self.w = int((sr * phone_window_size /spec_window_hop ) + 1)
 
+        self.discarded_segments = 0
+
         if transform_type =='spectrogram':
             self.Spectrogram = torchaudio.transforms.Spectrogram(win_length = spec_window_length, hop_length = spec_window_hop).to(device)
             self.transform = self.transform_spectrogram
@@ -103,15 +105,11 @@ class SpeechDataLoader(object):
             cut_wavs = torch.stack([ wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size] for ind in range(len(window_starts))])
             cut_wavs = cut_wavs.reshape(batch_size, self.sr_window_size)
         except RuntimeError:
-            print('------')
-            print(self.sr_window_size)
-            print(window_starts)
-            print(len(wavs))
+
             cut_wavs = torch.stack([ wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size] for ind in range(len(wavs)) if wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size].size()[1] == self.sr_window_size])
             labs = [batch_unzipped.label[ind] for ind in range(len(wavs)) if wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size].size()[1] == self.sr_window_size]
             labels = labs
-            print(len(wavs))
-            print([ wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size].size() for ind in range(len(wavs))])
+            self.discarded_segments += (len(labels) - len(window_starts))
             cut_wavs = cut_wavs.reshape(len(cut_wavs), self.sr_window_size)
 
 

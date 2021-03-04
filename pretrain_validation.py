@@ -1,30 +1,10 @@
 ### Set Imports
-
-# import math
-# import random
-# import numpy as np
-# import matplotlib
-#import matplotlib.pyplot as plt
-import sys
-# from collections import namedtuple
-from itertools import count
-
 import torch
-# import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
-#import torchvision.transforms as T
-import torchaudio
-from ReplayMemory import *
-from DQN import *
-from Environment import *
 from DataLoader import *
 from NN import *
 import json
 import time
 import argparse
-import os
-import shutil
 
 ### Parse Arguments
 parser = argparse.ArgumentParser()
@@ -37,13 +17,11 @@ with open(args.params_file, 'r') as f:
 for key in all_params:
     globals()[key] = all_params[key]
 
+OUT_FOLDER = OUT_FOLDER + TRAIN_MODELNAME + '\''
 
-PRETRAIN_MODELNAME='pretrain_'+PRETRAIN_MODELNAME
 print('parameters loaded from '+args.params_file)
 
-MODEL_LOCATION= MODEL_PATH + PRETRAIN_MODELNAME + '_final.pt'
-PRETRAIN_MODELNAME='pretrain_'+PRETRAIN_MODELNAME +'_test'
-print('parameters loaded from '+args.params_file)
+MODEL_LOCATION= ROOT + OUT_FOLDER + 'model_' + PRETRAIN_MODELNAME + '_final.pt'
 
 
 
@@ -64,7 +42,7 @@ for corpus in VALIDATION_COPORA:
         write_method = 'w'
     else:
         write_method = 'x'
-    outfile = open(ROOT + REWARD_LIST_FILE + '_' + PRETRAIN_MODELNAME + '_' + corpus + '.txt', write_method)
+    outfile = open(ROOT + OUT_FOLDER + RESULTS_FILE + '_' +  TRAIN_MODELNAME + '_' + corpus + '.txt', write_method)
     outfile.close()
 
 
@@ -115,10 +93,10 @@ for corpus in VALIDATION_COPORA:
             results[label_cats, predicted_cats] += 1
 
         ### Save Final Outputs
-    outfile = open(ROOT + REWARD_LIST_FILE + '_' + PRETRAIN_MODELNAME + '_' + corpus + '.txt', 'a+')
+    outfile = open(ROOT + OUT_FOLDER + RESULTS_FILE + '_' +  TRAIN_MODELNAME + '_' + corpus + '.txt', 'a+')
     outfile.write(''.join([p + ' ' for p in data.get_phone_list()])+ '\n')
     for p in range(len(results)):
-        outfile.write(''.join([str(i)+' ' for i in results[p]]) + '\n')
+        outfile.write(''.join([str(int(i))+' ' for i in results[p]]) + '\n')
 
     outfile.close()
 

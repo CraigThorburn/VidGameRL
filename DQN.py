@@ -93,9 +93,9 @@ class DQN_LSTM(nn.Module):
 
 class DQN_NN_conv(nn.Module):
 
-    def __init__(self, h, w, inputs, outputs, kernel = 5, sstride = 2, layers = [16, 32, 20], freeze_convolution=False):
+    def __init__(self, h, w, inputs, outputs, kernel = 5, sstride = 2, layers = [16, 32, 32, 20], freeze_convolution=False):
         super(DQN_NN_conv, self).__init__()
-        self.conv1channels, self.conv2channels, self.mid_size = layers
+        self.conv1channels, self.conv2channels, self.conv3channels, self.mid_size = layers
         self.conv1 = nn.Conv2d(1, self.conv1channels, kernel_size=kernel, stride=sstride)
         self.bn1 = nn.BatchNorm2d(self.conv1channels)
         self.conv2 = nn.Conv2d(self.conv1channels, self.conv2channels, kernel_size=kernel, stride=sstride)

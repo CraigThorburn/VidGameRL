@@ -1,23 +1,7 @@
 ### Set Imports
-
-# import math
-# import random
-# import numpy as np
-# import matplotlib
-#import matplotlib.pyplot as plt
-import sys
-# from collections import namedtuple
-from itertools import count
-
 import torch
-# import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-#import torchvision.transforms as T
-import torchaudio
-from ReplayMemory import *
-from DQN import *
-from Environment import *
 from DataLoader import *
 from NN import *
 import json
@@ -25,6 +9,7 @@ import time
 import argparse
 import os
 import shutil
+
 
 ### Parse Arguments
 parser = argparse.ArgumentParser()
@@ -36,13 +21,18 @@ with open(args.params_file, 'r') as f:
     all_params = json.load(f)
 for key in all_params:
     globals()[key] = all_params[key]
-
-
-PRETRAIN_MODELNAME='pretrain_'+PRETRAIN_MODELNAME
 print('parameters loaded from '+args.params_file)
 
-shutil.copyfile(args.params_file, ROOT + PARAMS_FOLDER + '/' + PRETRAIN_MODELNAME + '.params')
-print('parameter file moved to results location')
+try:
+    os.makedirs(ROOT + OUT_FOLDER + PRETRAIN_MODELNAME)
+    print('created experiment output folder')
+except OSError:
+    print('experiment output folder exists')
+
+OUT_FOLDER = OUT_FOLDER + PRETRAIN_MODELNAME + '/'
+
+print('parameters loaded from '+args.params_file)
+shutil.copyfile(args.params_file, ROOT + OUT_FOLDER + 'params_'+PRETRAIN_MODELNAME + '.params')
 
 ### Set Computational Device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -53,8 +43,8 @@ data = SpeechDataLoader( ROOT+PRETRAIN_SEGMENTS_FILE + '.txt', ROOT+PHONES_FILE 
 print('data loader created')
 
 n_datapoints = len(data)
-n_batches = math.floor(n_datapoints/PRETRAIN_BATCH_SIZE)
-print('running for',str(n_datapoints), 'datapoints over',str(n_batches),'batches of size',str(PRETRAIN_BATCH_SIZE))
+n_batches = math.floor(n_datapoints/BATCH_SIZE)
+print('running for',str(n_datapoints), 'datapoints over',str(n_batches),'batches of size',str(BATCH_SIZE))
 
 
 w, h = data.get_feature_dims()
@@ -67,7 +57,7 @@ optimizer = optim.SGD(phoneme_classifier.parameters(), lr = LR)
 
 
 
-LOSSFILE = ROOT + 'exp/loss' + '_' + PRETRAIN_MODELNAME + '.txt'
+LOSSFILE = ROOT + OUT_FOLDER + LOSS_OUT_FILE + '_' + PRETRAIN_MODELNAME + '.txt'
 loss_record = ''
 
 total_steps = PRETRAIN_EPOCHS*n_batches
@@ -85,7 +75,7 @@ for i_epoch in range(PRETRAIN_EPOCHS): #TODO: Need to define epochs
     for i_batch in range(n_batches):
 
         # Get raw waveforms from data and reshape for classifier
-        wavs, labels= data.get_batch(i_batch*PRETRAIN_BATCH_SIZE, (i_batch+1)*PRETRAIN_BATCH_SIZE)
+        wavs, labels= data.get_batch(i_batch*BATCH_SIZE, (i_batch+1)*BATCH_SIZE)
         wavs = wavs.reshape(wavs.size()[0], 1, wavs.size()[1]).to(device)
 
         wavs=data.transform(wavs)
@@ -144,6 +134,6 @@ print('data saved')
 
 ### Save Final Model
 print('saving model')
-torch.save(phoneme_classifier.state_dict(), ROOT + '/models/' + PRETRAIN_MODELNAME + '_final.pt')
+torch.save(phoneme_classifier.state_dict(), ROOT + OUT_FOLDER + MODEL_FOLDER + PRETRAIN_MODELNAME + '_final.pt')
 print('model saved')
 print('done')

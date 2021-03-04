@@ -1,23 +1,10 @@
 ### Set Imports
 
-# import math
-# import random
-# import numpy as np
-# import matplotlib
-#import matplotlib.pyplot as plt
-import sys
-# from collections import namedtuple
-from itertools import count
 
+from itertools import count
 import torch
-# import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
-#import torchvision.transforms as T
-from ReplayMemory import *
 from DQN import *
 from Environment import *
-import os
 import json
 import time
 import argparse
@@ -34,10 +21,12 @@ with open(args.params_file, 'r') as f:
 for key in all_params:
     globals()[key] = all_params[key]
 
-MODEL_LOCATION= MODEL_PATH + 'conv_' + MODELNAME + '_final.pt'
-MODELNAME='conv_'+MODELNAME +'_test'
+OUT_FOLDER = OUT_FOLDER + TRAIN_MODELNAME + '\''
+
+
 print('parameters loaded from '+args.params_file)
 
+MODEL_LOCATION= ROOT + OUT_FOLDER + 'model_' + TRAIN_MODELNAME + '_final.pt'
 
 
 
@@ -60,15 +49,15 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print('using device ' + str(device))
 
 ### Set File Locations
-ACTION_LIST = ROOT + ACTION_LIST_FILE + '_' + MODELNAME + '.txt'
-REWARD_LIST = ROOT + REWARD_LIST_FILE + '_' + MODELNAME + '.txt'
-STATE_LIST = ROOT + STATE_LIST_FILE + '_' + MODELNAME + '.txt'
+ACTION_OUT_PATH = ROOT + OUT_FOLDER + 'test_' +ACTION_OUT_FILE + '_' + TRAIN_MODELNAME + '.txt'
+REWARD_OUT_PATH = ROOT + OUT_FOLDER +  'test_' +REWARD_OUT_FILE + '_' + TRAIN_MODELNAME + '.txt'
+STATE_OUT_PATH = ROOT + OUT_FOLDER +  'test_' +STATE_OUT_FILE + '_' + TRAIN_MODELNAME + '.txt'
+LOCATION_OUT_PATH = ROOT + OUT_FOLDER + 'test_' +LOCATION_OUT_FILE + '_' + TRAIN_MODELNAME + '.txt'
 
 ### Create Environment and Set Other File Locations
 if GAME_TYPE == 'convmovement':
-    env = AcousticsGame2DConv(TEST_REWARD_PATH, TEST_STATE_PATH, TEST_EPISODE_PATH, TEST_LOCATION_PATH, TEST_TRANSITION_PATH, MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device)
-    LOCATION_LIST = ROOT + LOCATION_LIST_FILE + '_' + MODELNAME + '.txt'
-    OUTPUTS = [REWARD_LIST, ACTION_LIST, STATE_LIST, LOCATION_LIST,]
+    env = AcousticsGame2DConv(ROOT + REWARD_FILE + '.txt', ROOT +STATE_FILE + '.txt', ROOT +EPISODE_FILE + '.txt', ROOT +LOCATION_FILE + '.txt', ROOT +TRANSITION_FILE + '.txt', MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device)
+    OUTPUTS = [REWARD_OUT_PATH, ACTION_OUT_PATH, STATE_OUT_PATH, LOCATION_OUT_PATH]
     to_output = ['', '', '', '']
 
 else:
@@ -185,7 +174,7 @@ for i_episode in range(num_episodes):
             outfile.close()
 
         ### Save Model Checkpoint
-        torch.save(policy_net.state_dict(), ROOT + '/checkpoints/' + MODELNAME + '_model.pt')
+        torch.save(policy_net.state_dict(), ROOT + '/checkpoints/' + TRAIN_MODELNAME + '_model.pt')
 
         ### Print Timing Information
         toc = time.time()

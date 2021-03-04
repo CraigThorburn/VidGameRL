@@ -5,8 +5,9 @@ import torch.nn.functional as F
 
 class PhonemeConvNN(nn.Module):
 
-    def __init__(self, kernel, sstride, w, h, n_outputs, window_length = 100):
+    def __init__(self, kernel, sstride, w, h, n_outputs, layers = [32, 32, 32, 20], window_length = 100):
         super(PhonemeConvNN, self).__init__()
+        self.conv1channels, self.conv2channels, self.conv3channels, self.mid_size = layers
         # Number of Linear input connections depends on output of conv2d layers
         # and therefore the input image size, so compute it.
         def conv2d_size_out(size, kernel_size=kernel, stride=sstride):
@@ -14,19 +15,19 @@ class PhonemeConvNN(nn.Module):
 
         convw = conv2d_size_out(conv2d_size_out(conv2d_size_out(w)))
         convh = conv2d_size_out(conv2d_size_out(conv2d_size_out(h)))
-        self.linear_input_size = convw * convh * 32
+        self.linear_input_size = convw * convh * self.conv3channels
 
         print(convw)
         print(convh)
         print(self.linear_input_size)
 
         #self.spectrogram = torchaudio.transforms.Spectrogram(win_length = window_length)
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=kernel, stride=sstride)
-        self.bn1 = nn.BatchNorm2d(32)
-        self.conv2 = nn.Conv2d(32, 32, kernel_size=kernel, stride=sstride)
-        self.bn2 = nn.BatchNorm2d(32)
-        self.conv3 = nn.Conv2d(32, 32, kernel_size=kernel, stride=sstride)
-        self.bn3 = nn.BatchNorm2d(32)
+        self.conv1 = nn.Conv2d(1, self.conv1channels, kernel_size=kernel, stride=sstride)
+        self.bn1 = nn.BatchNorm2d(self.conv1channels)
+        self.conv2 = nn.Conv2d(self.conv1channels, self.conv2channels, kernel_size=kernel, stride=sstride)
+        self.bn2 = nn.BatchNorm2d(self.conv2channels)
+        self.conv3 = nn.Conv2d(self.conv2channels, self.conv3channels, kernel_size=kernel, stride=sstride)
+        self.bn3 = nn.BatchNorm2d(self.conv3channels)
 
         self.lin1 = nn.Linear(self.linear_input_size, n_outputs)
 
