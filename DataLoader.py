@@ -98,9 +98,26 @@ class SpeechDataLoader(object):
         ends= torch.tensor(batch_unzipped.end)
         window_starts = torch.floor( (ends + starts) / 2 * self.sr) - (self.sr_window_size // 2)
         window_starts = window_starts.type(torch.int64)
-        cut_wavs = torch.stack([ wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size] for ind in range(len(window_starts))])
+        labels = batch_unzipped.label
+        try:
+            cut_wavs = torch.stack([ wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size] for ind in range(len(window_starts))])
+            cut_wavs = cut_wavs.reshape(batch_size, self.sr_window_size)
+        except RuntimeError:
+            print('------')
+            print(self.sr_window_size)
+            print(window_starts)
+            print(len(wavs))
+            cut_wavs = torch.stack([ wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size] for ind in range(len(wavs)) if wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size].size()[1] == self.sr_window_size])
+            labs = [batch_unzipped.label[ind] for ind in range(len(wavs)) if wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size].size()[1] == self.sr_window_size]
+            labels = labs
+            print(len(wavs))
+            print([ wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size].size() for ind in range(len(wavs))])
+            cut_wavs = cut_wavs.reshape(len(cut_wavs), self.sr_window_size)
 
-        return cut_wavs.reshape(batch_size, self.sr_window_size), batch_unzipped.label
+
+
+
+        return cut_wavs , labels
 
     def get_batch_phones(self, start, end):
         batch = self.data[start:end]
