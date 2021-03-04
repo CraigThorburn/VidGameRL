@@ -8,6 +8,7 @@ import os
 parser = argparse.ArgumentParser()
 parser.add_argument("params_file", help="root directory")
 parser.add_argument("is_test", help='is this this test results?')
+parser.add_argument("-run_num")
 parser.add_argument("-root", help="root directory")
 parser.add_argument("-state", help="state file to use as input")
 parser.add_argument("-episode", help="episode file to use as input")
@@ -22,11 +23,16 @@ if args.params_file != 'NA':
     ### Define Model Name From Arguments
 
 
+
     with open(args.params_file, 'r') as f:
         all_params = json.load(f)
 
     for key in all_params:
         globals()[key] = all_params[key]
+
+    if args.run_num:
+        RUN_NUM = args.run_num
+        TRAIN_MODELNAME = TRAIN_MODELNAME + '_run' + str(RUN_NUM)
 
     OUT_FOLDER = OUT_FOLDER + TRAIN_MODELNAME + '\''
 

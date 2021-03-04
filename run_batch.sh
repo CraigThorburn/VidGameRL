@@ -7,41 +7,51 @@
 #SBATCH --mail-user=craigtho@umiacs.umd.edu
 
 
-
-experiment=$1
+pretrain=$1
 num_runs=$2
-slurm=$3
-gpu=$4
-stage=$5
-params=$6
-echo $params
+gpu=$3
+stage=$4
+
+id=$SLURM_JOBID
+
+
 . path.sh
 export train_cmd="slurm.pl --config conf/slurm.conf"
 
-
 source activate audneurorl
 
-if [[ "$slurm" == "true" ]]
+if [[ "$pretrain" == "false" ]]
 then
-    echo "comencing slurm batch parallel across "$num_runs" machines"
+    cd /fs/clip-realspeech/projects/vid_game/software/VidGameRL || exit
+    param_name=../params/$id".params"
+    echo "paramfile:"
+    echo param_name
 
-    $train_cmd --mem 16GB --time 01-00:00:00 JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual.sh $stage $params || exit 1;
+    python create_params_file.py $param_name || exit
+    echo "param file created"
+
+    echo "comencing slurm batch parallel across " $num_runs " machines"
+
+    $train_cmd --mem 16GB --time 01-00:00:00 JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual_nopretrain.sh $stage $param_name || exit 1;
     wait
     echo "finished"
 
-elif [[ "$slurm" == "false" ]]
+elif [[ "$pretrain" == "true" ]]
 then
-        echo "comencing batch without slurm"
-	for i in $(eval echo "{1..$num_runs}")
-        do
-                echo "---------------------"
-                echo "launching run "$i
-		module add cuda
-		python create_param_file.py ../params/$id".params" $SLURM_JOBID
-		python main_game_LSTM.py ../params/$id".params"
-                python main_game.py $host -overwrite $overwrite -modelname run$i
-        echo "finished"
-        done
+    cd /fs/clip-realspeech/projects/vid_game/software/VidGameRL || exit
+    param_name=../params/$id".params"
+    echo "paramfile:"
+    echo param_name
+
+    python create_params_file.py $param_name || exit
+    echo "param file created"
+
+    echo "comencing slurm batch parallel across " $num_runs " machines"
+
+    $train_cmd --mem 16GB --time 01-00:00:00 JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual_pretrain.sh $stage $param_name || exit 1;
+    wait
+    echo "finished"
+
 else
   echo "problem"
 fi

@@ -2,11 +2,10 @@
 #SBATCH --mem-per-cpu=16GB 
 #SBATCH --time=01-00:00:00
 
-id=$SLURM_JOBID"_"$SLURM_ARRAY_TASK_ID
 i=$SLURM_ARRAY_TASK_ID
 input="$@"
-stage="${input[@]:0:1}"
-params="${input[@]:1}"
+stage=$1
+params=$2
 echo "id:"
 echo $id
 echo 'params: '
@@ -19,37 +18,27 @@ module add cuda
 echo "---------------------"
 echo "launching run "$i
 
-cd /fs/clip-realspeech/projects/vid_game/software/VidGameRL
-python create_params_file.py ../params/$id".params" $params -run_num=$i
-echo "param file created"
-
-if [ $stage -ge 9 ]; then
-echo "starting pretraining"
-python pretrain_network.py ../params/$id".params"
-echo "pretraining complete"
-fi
-
 if [ $stage -le 0 ]; then
 echo "starting training"
-python main_game_conv.py ../params/$id".params"
+python main_game_conv.py $params -run_num=$i
 echo "training complete"
 fi
 
 if [ $stage -le 1 ]; then
 echo "starting training results processing"
-python process_game_experiment.py ../params/$id".params" "false"
+python process_game_experiment.py $params "false" -run_num=$i
 echo "training results processing complete"
 fi
 
 if [ $stage -le 2 ]; then
 echo "starting testing"
-python test_conv.py ../params/$id".params"
+python test_conv.py $params -run_num=$i
 echo "testing complete"
 fi
 
 if [ $stage -le 3 ]; then
 echo "starting testing results processing"
-python process_game_experiment.py ../params/$id".params" "true"
+python process_game_experiment.py $params "true" -run_num=$i
 echo "testing results processing complete"
 fi
 

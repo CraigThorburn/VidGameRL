@@ -17,6 +17,7 @@ import shutil
 ### Parse Arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("params_file", help="root directory")
+parser.add_argument("-run_num")
 args = parser.parse_args()
 
 ### Define Model Name From Arguments
@@ -25,6 +26,10 @@ with open(args.params_file, 'r') as f:
 
 for key in all_params:
     globals()[key] = all_params[key]
+
+if args.run_num:
+    RUN_NUM = args.run_num
+    TRAIN_MODELNAME = TRAIN_MODELNAME + '_run'+str(RUN_NUM)
 
 try:
     os.makedirs(ROOT + OUT_FOLDER + TRAIN_MODELNAME)
