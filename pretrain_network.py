@@ -48,7 +48,7 @@ print('parameter file moved to results location')
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print('using device ' + str(device))
 
-data = SpeechDataLoader( ROOT+PRETRAIN_SEGMENTS_FILE, ROOT+PHONES_FILE, ROOT+PRETRAIN_ALIGNMENTS_FILE,
+data = SpeechDataLoader( ROOT+PRETRAIN_SEGMENTS_FILE + '.txt', ROOT+PHONES_FILE + '.txt', ROOT+PRETRAIN_ALIGNMENTS_FILE + '.txt',
                          ROOT+WAVS_FOLDER, device, spec_window_hop=SPEC_WINDOW_HOP, spec_window_length=SPEC_WINDOW_LENGTH) #TODO: Need file names here
 print('data loader created')
 

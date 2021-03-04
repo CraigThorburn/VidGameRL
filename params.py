@@ -69,11 +69,11 @@ N_FFT = 400
 PRETRAIN_LR = 0.01
 PRETRAIN_EPOCHS = 25
 
-PRETRAIN_SEGMENTS_FILE = 'pretrain_segments.txt'
-PRETRAIN_ALIGNMENTS_FILE = 'pretrain_alignments.txt'
-VALIDATION_SEGMENTS_FILE = 'validation_segments.txt'
-VALIDATION_ALIGNMENTS_FILE = 'validation_alignments.txt'
-PHONES_FILE = 'pretrain_phones.txt'
+PRETRAIN_SEGMENTS_FILE = 'pretrain_segments'
+PRETRAIN_ALIGNMENTS_FILE = 'pretrain_alignments'
+VALIDATION_SEGMENTS_FILE = 'validation_segments'
+VALIDATION_ALIGNMENTS_FILE = 'validation_alignments'
+PHONES_FILE = 'pretrain_phones'
 WAVS_FOLDER = 'wavs/'
 
 VALIDATION_COPORA = ['GPJ']
