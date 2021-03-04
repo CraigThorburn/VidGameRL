@@ -74,7 +74,7 @@ PRETRAIN_ALIGNMENTS_FILE = 'pretrain_alignments'
 VALIDATION_SEGMENTS_FILE = 'validation_segments'
 VALIDATION_ALIGNMENTS_FILE = 'validation_alignments'
 PHONES_FILE = 'pretrain_phones'
-WAVS_FOLDER = 'wavs/'
+WAVS_FOLDER = 'wavs'
 
 VALIDATION_COPORA = ['GPJ']
 

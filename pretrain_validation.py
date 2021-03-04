@@ -69,7 +69,7 @@ for corpus in VALIDATION_COPORA:
 
 
     data = SpeechDataLoader(ROOT + VALIDATION_SEGMENTS_FILE + '_' + corpus + '.txt', ROOT + PHONES_FILE + '.txt', ROOT + VALIDATION_ALIGNMENTS_FILE+ '_' + corpus + '.txt',
-                            ROOT + WAVS_FOLDER + '_' + corpus + '.txt', device)  # TODO: Need file names here
+                            ROOT + WAVS_FOLDER + '_' + corpus  + '/', device)  # TODO: Need file names here
     print('data loader created')
 
     w, h = data.get_feature_dims()
@@ -115,10 +115,10 @@ for corpus in VALIDATION_COPORA:
             results[label_cats, predicted_cats] += 1
 
         ### Save Final Outputs
-    outfile = open(ROOT + REWARD_LIST_FILE + '_' + PRETRAIN_MODELNAME + '.txt', 'a+')
-
+    outfile = open(ROOT + REWARD_LIST_FILE + '_' + PRETRAIN_MODELNAME + '_' + corpus + '.txt', 'a+')
+    outfile.write(''.join([p + ' ' for p in data.get_phone_list()])+ '\n')
     for p in range(len(results)):
-        outfile.write(''.join([i+' ' for i in all_phones[p]]) + '\n')
+        outfile.write(''.join([str(i)+' ' for i in results[p]]) + '\n')
 
     outfile.close()
 
