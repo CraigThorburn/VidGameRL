@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --qos=shallow
+#SBATCH --qos=batch
 #SBATCH --mem=4GB
-#SBATCH --time=02-00:00:00
+#SBATCH --time=01-00:00:00
 #SBATCH --output=/fs/clip-realspeech/projects/vid_game/logs/batch_%j.txt
 #SBATCH --mail-type=all
 #SBATCH --mail-user=craigtho@umiacs.umd.edu
