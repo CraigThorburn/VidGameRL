@@ -60,7 +60,7 @@ REWARD_LIST_FILE = 'exp/reward_out'
 
 RESULTS_FILE= 'results/results_reward_out'
 
-PRETRAIN_BATCH_SIZE = 64
+PRETRAIN_BATCH_SIZE = 32
 SAMPLE_RATE = 16000
 WINDOW_SIZE = 0.2
 SPEC_WINDOW_LENGTH = 400
@@ -69,12 +69,14 @@ N_FFT = 400
 PRETRAIN_LR = 0.01
 PRETRAIN_EPOCHS = 25
 
-SEGMENTS_FILE = 'pretrain_segments.txt'
-ALIGNMENTS_FILE = 'debug_alignments.txt'
+PRETRAIN_SEGMENTS_FILE = 'pretrain_segments.txt'
+PRETRAIN_ALIGNMENTS_FILE = 'pretrain_alignments.txt'
+VALIDATION_SEGMENTS_FILE = 'validation_segments.txt'
+VALIDATION_ALIGNMENTS_FILE = 'validation_alignments.txt'
 PHONES_FILE = 'pretrain_phones.txt'
 WAVS_FOLDER = 'wavs/'
 
-
+VALIDATION_COPORA = ['GPJ']
 
 #
 #

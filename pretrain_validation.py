@@ -51,66 +51,77 @@ print('parameters loaded from '+args.params_file)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print('using device ' + str(device))
 
-data = SpeechDataLoader( ROOT+SEGMENTS_FILE, ROOT+PHONES_FILE, ROOT+ALIGNMENTS_FILE,
-                         ROOT+WAVS_FOLDER, device) #TODO: Need file names here
-print('data loader created')
-
-n_datapoints = len(data)
-print('running for',str(n_datapoints))
-
-w, h = data.get_feature_dims()
-n_outputs = int(data.get_num_phones())
-print(int(n_outputs), 'outputs |',w, 'width |', h,'height')
-
-if OVERWRITE:
-    write_method = 'w'
-else:
-    write_method = 'x'
-outfile = open(ROOT + REWARD_LIST_FILE + '_' + PRETRAIN_MODELNAME + '.txt', write_method)
-outfile.close()
-
-phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs).to(device) #TODO: Need to create classifier
-phoneme_classifier.load_state_dict(torch.load(MODEL_LOCATION, map_location=device))
-phoneme_classifier.eval()
-
-testing_batch_size = 64
-n_batches = math.floor(n_datapoints/testing_batch_size)
-
 
 ### Set Model Start
 tic = time.time()
 running=True
-for i_batch in range(n_batches):
-    print('running batch:', str(i_batch))
 
-    # Get raw waveforms from data and reshape for classifier
-    wavs, labels, phones = data.get_batch_phones(i_batch * testing_batch_size, (i_batch + 1) * testing_batch_size)
+testing_batch_size = 32
 
-    wavs = wavs.reshape(wavs.size()[0], 1, wavs.size()[1]).to(device)
-    wavs = data.transform(wavs)
-    labels =  torch.stack(labels).to(device)
+for corpus in VALIDATION_COPORA:
 
-    # Generate Predictions
-    predictions = phoneme_classifier(wavs)
+    if OVERWRITE:
+        write_method = 'w'
+    else:
+        write_method = 'x'
+    outfile = open(ROOT + REWARD_LIST_FILE + '_' + PRETRAIN_MODELNAME + '_' + corpus + '.txt', write_method)
+    outfile.close()
 
-    # Correct predictions
-    predicted_cats = predictions.max(1).indices
-    label_cats = labels.max(1).indices
-    correct_predictions = predicted_cats == label_cats
-    total_correct = sum(correct_predictions)
 
-    all_phones = data.get_phone_list()
+    data = SpeechDataLoader(ROOT + VALIDATION_SEGMENTS_FILE + '_' + corpus, ROOT + PHONES_FILE, ROOT + VALIDATION_ALIGNMENTS_FILE+ '_' + corpus,
+                            ROOT + WAVS_FOLDER + '_' + corpus, device)  # TODO: Need file names here
+    print('data loader created')
 
-    phone_results = [(sum(predicted_cats[correct_predictions] == i), sum(label_cats == i)) for i in range(data.get_num_phones())]
+    w, h = data.get_feature_dims()
+    n_outputs = int(data.get_num_phones())
+    print(int(n_outputs), 'outputs |', w, 'width |', h, 'height')
 
-    ### Save Final Outputs
+    n_datapoints = len(data)
+    print('running for', str(n_datapoints))
+
+    n_batches = math.floor(n_datapoints / testing_batch_size)
+
+    phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs).to(device)  # TODO: Need to create classifier
+    phoneme_classifier.load_state_dict(torch.load(MODEL_LOCATION, map_location=device))
+    phoneme_classifier.eval()
+
+
+
+    results = torch.zeros((n_outputs, n_outputs))
+    for i_batch in range(n_batches):
+        print('running batch:', str(i_batch))
+
+        # Get raw waveforms from data and reshape for classifier
+        wavs, labels, phones = data.get_batch_phones(i_batch * testing_batch_size, (i_batch + 1) * testing_batch_size)
+
+        wavs = wavs.reshape(wavs.size()[0], 1, wavs.size()[1]).to(device)
+        wavs = data.transform(wavs)
+        labels =  torch.stack(labels).to(device)
+
+        # Generate Predictions
+        predictions = phoneme_classifier(wavs)
+
+        # Correct predictions
+        predicted_cats = predictions.max(1).indices
+        label_cats = labels.max(1).indices
+        #correct_predictions = predicted_cats == label_cats
+        #total_correct = sum(correct_predictions)
+
+        #all_phones = data.get_phone_list()
+
+        #phone_results = [(sum(predicted_cats[correct_predictions] == i), sum(label_cats == i)) for i in range(data.get_num_phones())]
+
+        for b in range(testing_batch_size):
+            results[label_cats, predicted_cats] += 1
+
+        ### Save Final Outputs
     outfile = open(ROOT + REWARD_LIST_FILE + '_' + PRETRAIN_MODELNAME + '.txt', 'a+')
-    for p in range(len(all_phones)):
-        outfile.write(all_phones[p]+' '+str(int(phone_results[p][0]))+ ' ' + str(int(phone_results[p][1])) + '\n')
 
+    for p in range(len(results)):
+        outfile.write(''.join([i+' ' for i in all_phones[p]]) + '\n')
 
     outfile.close()
 
-print('data saved')
+    print('data saved')
 
 print('done')
