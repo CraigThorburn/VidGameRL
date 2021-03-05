@@ -158,3 +158,76 @@ class SpeechDataLoader(object):
         d2 = self.Deltas(d1)
         return torch.cat((mfcc, d1, d2), -2)
 
+
+
+class GameDataLoader(object):
+
+
+    def __init__(self, states_file, wav_folder, device, transform_type='mfcc', sr = 16000, phone_window_size = 0.2,
+                 n_fft = 400, spec_window_length = 400, spec_window_hop = 160, n_mfcc = 13, log_mels=True):
+
+        self.sr = sr
+        self.window_size = phone_window_size
+        self.sr_window_size = math.floor(self.window_size * self.sr)
+        self.states={}
+        self.load_states(states_file, wav_file, device)
+
+        if transform_type == 'spectrogram':
+            self.Spectrogram = torchaudio.transforms.Spectrogram(win_length=spec_window_length,
+                                                                 hop_length=spec_window_hop).to(device)
+            self.transform = self.transform_spectrogram
+            self.h = n_fft // 2 + 1
+        elif transform_type == 'mfcc':
+            self.Deltas = torchaudio.transforms.ComputeDeltas()
+            self.Mfccs = torchaudio.transforms.MFCC(n_mfcc=n_mfcc, log_mels=log_mels,
+                                                    melkwargs={'win_length': spec_window_length,
+                                                               'hop_length': spec_window_hop}).to(device)
+            self.transform = self.transform_mfcc
+            self.h = n_mfcc * 3
+        else:
+            raise NotImplementedError('no implementation of selected transform type')
+
+
+        self.load_states(states_file, wav_folder, device)
+
+    def load_states(self, states_file, wav_folder, device):
+
+        f = open(states_file, 'r')
+        states = [l.split('\t') for l in f.readlines()]
+
+        for s in states:
+
+            state_name, mid_time, wav_file = s
+
+            waveform, sample_rate = torchaudio.load(wav_folder + wav_file)
+
+            if sample_rate != self.sr:
+                raise(AssertionError)
+
+            window_start = torch.floor( mid_time * self.sr) - (self.sr_window_size // 2)
+
+
+            cut_wav = waveform[window_start:window_start+self.sr_window_size]
+            cut_wav = cut_wav.reshape(self.sr_window_size).to(device)
+
+            self.states[state_name] = cut_wav
+
+
+    def get_states(self):
+        return self.states
+
+    def get_transformed_states(self):
+        transformed_states={}
+        for k in self.states.keys():
+            transformed_states[k] = self.transform(self.states[k])
+        return transformed_states
+
+
+    def transform_spectrogram(self, x):
+        return self.Spectrogram(x)
+
+    def transform_mfcc(self, x):
+        mfcc = self.Mfccs(x)
+        d1 = self.Deltas(mfcc)
+        d2 = self.Deltas(d1)
+        return torch.cat((mfcc, d1, d2), -2)
