@@ -139,6 +139,6 @@ print('data saved')
 
 ### Save Final Model
 print('saving model')
-torch.save(phoneme_classifier.state_dict(), ROOT + OUT_FOLDER + MODEL_FOLDER + PRETRAIN_MODELNAME + '_final.pt')
+torch.save(phoneme_classifier.state_dict(), ROOT + OUT_FOLDER + 'model_' + PRETRAIN_MODELNAME + '_final.pt')
 print('model saved')
 print('done')
