@@ -22,7 +22,7 @@ if args.run_num:
     RUN_NUM = args.run_num
     PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run' + str(RUN_NUM)
 
-OUT_FOLDER = OUT_FOLDER + TRAIN_MODELNAME + '\''
+OUT_FOLDER = OUT_FOLDER + PRETRAIN_MODELNAME + '/'
 
 print('parameters loaded from '+args.params_file)
 
@@ -47,12 +47,12 @@ for corpus in VALIDATION_COPORA:
         write_method = 'w'
     else:
         write_method = 'x'
-    outfile = open(ROOT + OUT_FOLDER + RESULTS_FILE + '_' +  TRAIN_MODELNAME + '_' + corpus + '.txt', write_method)
+    outfile = open(ROOT + OUT_FOLDER + RESULTS_FILE + '_' +  PRETRAIN_MODELNAME + '_' + corpus + '.txt', write_method)
     outfile.close()
 
 
     data = SpeechDataLoader(ROOT + VALIDATION_SEGMENTS_FILE + '_' + corpus + '.txt', ROOT + PHONES_FILE + '.txt', ROOT + VALIDATION_ALIGNMENTS_FILE+ '_' + corpus + '.txt',
-                            ROOT + WAVS_FOLDER + '_' + corpus  + '/', device)  # TODO: Need file names here
+                            ROOT + WAVS_FOLDER , device)  # TODO: Need file names here
     print('data loader created')
 
     w, h = data.get_feature_dims()
@@ -98,7 +98,7 @@ for corpus in VALIDATION_COPORA:
             results[label_cats, predicted_cats] += 1
 
         ### Save Final Outputs
-    outfile = open(ROOT + OUT_FOLDER + RESULTS_FILE + '_' +  TRAIN_MODELNAME + '_' + corpus + '.txt', 'a+')
+    outfile = open(ROOT + OUT_FOLDER + RESULTS_FILE + '_' +  PRETRAIN_MODELNAME + '_' + corpus + '.txt', 'a+')
     outfile.write(''.join([p + ' ' for p in data.get_phone_list()])+ '\n')
     for p in range(len(results)):
         outfile.write(''.join([str(int(i))+' ' for i in results[p]]) + '\n')
