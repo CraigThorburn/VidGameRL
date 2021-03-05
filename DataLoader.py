@@ -170,7 +170,7 @@ class GameDataLoader(object):
         self.window_size = phone_window_size
         self.sr_window_size = math.floor(self.window_size * self.sr)
         self.states={}
-        self.load_states(states_file, wav_file, device)
+        self.load_states(states_file, wav_folder, device)
 
         if transform_type == 'spectrogram':
             self.Spectrogram = torchaudio.transforms.Spectrogram(win_length=spec_window_length,
@@ -193,10 +193,9 @@ class GameDataLoader(object):
     def load_states(self, states_file, wav_folder, device):
 
         f = open(states_file, 'r')
-        states = [l.split('\t') for l in f.readlines()]
+        states = [l.strip('\n').split('\t') for l in f.readlines()]
 
         for s in states:
-
             state_name, mid_time, wav_file = s
 
             waveform, sample_rate = torchaudio.load(wav_folder + wav_file)
@@ -204,10 +203,9 @@ class GameDataLoader(object):
             if sample_rate != self.sr:
                 raise(AssertionError)
 
-            window_start = torch.floor( mid_time * self.sr) - (self.sr_window_size // 2)
+            window_start = math.floor( float(mid_time) * self.sr) - (self.sr_window_size // 2)
 
-
-            cut_wav = waveform[window_start:window_start+self.sr_window_size]
+            cut_wav = waveform[:, window_start:window_start+self.sr_window_size]
             cut_wav = cut_wav.reshape(self.sr_window_size).to(device)
 
             self.states[state_name] = cut_wav

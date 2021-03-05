@@ -200,7 +200,7 @@ class DQN_NN_conv_pretrain(nn.Module):
             x_aud = F.relu(self.bn2(self.conv2(x_aud)))
             x_aud = F.relu(self.bn2(self.conv3(x_aud)))
 
-            x = x.reshape(1, x_aud.size()[1] * x_aud.size()[2] * x_aud.size()[3])
+            x = x_aud.reshape(1, x_aud.size()[1] * x_aud.size()[2] * x_aud.size()[3])
             x_aud = F.relu(self.lin1(x_aud))
             x = torch.cat((x_aud, x_loc))
         else:

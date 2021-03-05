@@ -13,7 +13,7 @@ PARAMS_FOLDER = 'params'
 PHONES_FILE = 'pretrain_phones'
 PRETRAIN_SEGMENTS_FILE = 'pretrain_segments'
 PRETRAIN_ALIGNMENTS_FILE = 'pretrain_alignments'
-WAVS_FOLDER = 'wavs'
+WAVS_FOLDER = 'wavs/'
 
 ### For Validation
 VALIDATION_SEGMENTS_FILE = 'validation_segments'
@@ -28,6 +28,7 @@ TRANSITION_FILE = 'transitions'
 ACTION_FILE = 'actions'
 LOCATION_FILE = 'locations'
 SIMPLE_STATE_FILE='states_simple'
+GAME_WAVS_FOLDER = 'wavs_game/'
 
 MODEL_FOLDER = 'models/'
 OUT_FOLDER = 'exp/'

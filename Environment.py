@@ -484,16 +484,15 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
         print( 'reward memory:',str(self.reward_memory))
 
 
-class AcousticsGame2DConvFromFile(AcousticsGame1D):
+class AcousticsGame2DConvFromFile(AcousticsGame2DConv):
 
-    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time,
-                 mode, total_reps, device=None, acoustic_params =('mfcc', 16000, 0.2, 400, 400, 160, 13, True), wav_file ='wavs_game'):
+    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, wav_file, non_move_gap, wait_time,
+                 mode, total_reps, device=None, acoustic_params =('mfcc', 16000, 0.2, 400, 400, 160, 13, True), ):
 
 
         self.acoustic_params=acoustic_params
         self.wav_file = wav_file
-
-        super().__init__(reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time, mode, device)
+        super().__init__(reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time, mode, total_reps, device)
 
     def load_states(self, STATE_FILE):
 
@@ -503,5 +502,6 @@ class AcousticsGame2DConvFromFile(AcousticsGame1D):
                  n_fft = n_fft, spec_window_length = spec_window_length, spec_window_hop = spec_window_hop, n_mfcc = n_mfcc, log_mels=log_mels)
 
         self.states = data.get_transformed_states()
+        self.n_timepoints, _ = self.states[list(self.states.keys())[0]].size()
 
 

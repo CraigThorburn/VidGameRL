@@ -30,6 +30,7 @@ for key in all_params:
 if args.run_num:
     RUN_NUM = args.run_num
     TRAIN_MODELNAME = TRAIN_MODELNAME + '_run'+str(RUN_NUM)
+    PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run'+str(RUN_NUM)
 
 try:
     os.makedirs(ROOT + OUT_FOLDER + TRAIN_MODELNAME)
@@ -37,7 +38,9 @@ try:
 except OSError:
     print('experiment output folder exists')
 
+MODEL_FOLDER = OUT_FOLDER + PRETRAIN_MODELNAME + '/'
 OUT_FOLDER = OUT_FOLDER + TRAIN_MODELNAME + '/'
+
 
 print('parameters loaded from '+args.params_file)
 shutil.copyfile(args.params_file, ROOT + OUT_FOLDER + 'params_'+TRAIN_MODELNAME + '.params')
@@ -142,7 +145,7 @@ LOCATION_OUT_PATH = ROOT + OUT_FOLDER + 'train_' +LOCATION_OUT_FILE + '_' + TRAI
 
 ### Create Environment and Set Other File Locations
 if GAME_TYPE == 'convmovement':
-    env = AcousticsGame2DConvFromFile(ROOT + REWARD_FILE + '.txt', ROOT +STATE_FILE + '.txt', ROOT +EPISODE_FILE + '.txt', ROOT +LOCATION_FILE + '.txt', ROOT +TRANSITION_FILE + '.txt', MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device)
+    env = AcousticsGame2DConvFromFile(ROOT + REWARD_FILE + '.txt', ROOT +STATE_FILE + '.txt', ROOT +EPISODE_FILE + '.txt', ROOT +LOCATION_FILE + '.txt', ROOT +TRANSITION_FILE + '.txt',  ROOT +  GAME_WAVS_FOLDER, MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device)
     OUTPUTS = [REWARD_OUT_PATH, ACTION_OUT_PATH, STATE_OUT_PATH, LOCATION_OUT_PATH]
     to_output = ['', '', '', '']
 
@@ -170,8 +173,8 @@ w,h = env.get_aud_dims()
 policy_net = DQN_NN_conv_pretrain(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE).to(device)
 target_net = DQN_NN_conv_pretrain(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE).to(device)
 
-MODEL_LOCATION= ROOT + OUT_FOLDER + 'model_' + PRETRAIN_MODELNAME + '_final.pt'
-policy_net.load_state_dict(torch.load(MODEL_LOCATION, map_location=device))
+MODEL_LOCATION= ROOT + MODEL_FOLDER + 'model_' + PRETRAIN_MODELNAME + '_final.pt'
+policy_net.load_state_dict(torch.load(MODEL_LOCATION, map_location=device), strict=False)
 target_net.load_state_dict(policy_net.state_dict())
 
 target_net.eval()
