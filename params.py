@@ -3,7 +3,7 @@ MODELNAME_ADITIONS = ''
 
 ### General
 OVERWRITE = False
-EXPERIMENT = 'experimental_convolution_continuous/'
+EXPERIMENT = 'supervised_pretraining_WSJ/'
 ROOT = '/mnt/c/files/research/projects/vid_game/data/'
 ROOT = '/fs/clip-realspeech/projects/vid_game/data/'
 PARAMS_FOLDER = 'params'
@@ -18,7 +18,7 @@ WAVS_FOLDER = 'wavs/'
 ### For Validation
 VALIDATION_SEGMENTS_FILE = 'validation_segments'
 VALIDATION_ALIGNMENTS_FILE = 'validation_alignments'
-VALIDATION_COPORA = ['GPJ']
+VALIDATION_COPORA = ['WSJ']
 
 ### For Train
 STATE_FILE = 'states'
@@ -51,12 +51,12 @@ BATCH_SIZE = 32
 UPDATES = 250
 CONV_SIZE = 10
 KERNEL = 5
-STRIDE = 2
+STRIDE = 1
 CONV1CHANNELS = 32
 CONV2CHANNELS = 32
 CONV3CHANNELS = 32
 MIDSIZE = 20
-CONV_FREEZE = False
+CONV_FREEZE = True
 LAYERS = [CONV1CHANNELS, CONV2CHANNELS, CONV3CHANNELS, MIDSIZE]
 
 
