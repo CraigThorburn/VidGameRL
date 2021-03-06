@@ -39,7 +39,7 @@ class SpeechDataLoader(object):
             self.h = n_fft // 2 + 1
         elif transform_type=='mfcc':
             self.Deltas = torchaudio.transforms.ComputeDeltas()
-            self.Mfccs = torchaudio.transforms.MFCC(n_mfcc =n_mfcc, log_mels =log_mels, melkwargs = {'win_length':spec_window_length, 'hop_length':spec_window_hop}).to(device)
+            self.Mfccs = torchaudio.transforms.MFCC(n_mfcc =n_mfcc, log_mels =log_mels, melkwargs = {'win_length':spec_window_length, 'normalized':True, 'hop_length':spec_window_hop}).to(device)
             self.transform = self.transform_mfcc
             self.h = n_mfcc*3
         else:
