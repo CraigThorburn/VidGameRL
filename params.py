@@ -1,8 +1,8 @@
 ### FILE VARIABLES
-MODELNAME_ADITIONS = ''
+MODELNAME_ADITIONS = 'no_pretrain'
 
 ### General
-OVERWRITE = False
+OVERWRITE = True
 EXPERIMENT = 'supervised_pretraining_WSJ/'
 ROOT = '/mnt/c/files/research/projects/vid_game/data/'
 ROOT = '/fs/clip-realspeech/projects/vid_game/data/'
@@ -48,7 +48,7 @@ SIMPLE_STATE_TEST_FILE='test_states_simple'
 ### MODEL PARAMETERS
 ### General
 BATCH_SIZE = 32
-UPDATES = 250
+UPDATES = 25
 CONV_SIZE = 10
 KERNEL = 5
 STRIDE = 1
@@ -56,7 +56,7 @@ CONV1CHANNELS = 32
 CONV2CHANNELS = 32
 CONV3CHANNELS = 32
 MIDSIZE = 20
-CONV_FREEZE = True
+CONV_FREEZE = False
 LAYERS = [CONV1CHANNELS, CONV2CHANNELS, CONV3CHANNELS, MIDSIZE]
 
 
@@ -77,8 +77,8 @@ PRETRAIN_EPOCHS = 25
 ### For Train
 GAMMA = 0.9
 EPS_START = 0.99
-EPS_END = 0.05
-EPS_DECAY = 150
+EPS_END = 0.01
+EPS_DECAY = 500
 TARGET_UPDATE = 5
 TRAIN_LR = 0.05
 MEM_SIZE = 1000

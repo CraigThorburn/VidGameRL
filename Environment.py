@@ -389,7 +389,6 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
         self.current_state = self.current_episode[self.current_state_num]
 
         self.new_state = True
-        self.accumulated_reward=0
 
         self.reward_memory=[]
 
@@ -398,21 +397,41 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
 
         self.is_finished=False
 
+        self.change = False
+        self.correct_headturn = None
+        self.accumulated_reward = 0
+
     def advance_episode(self):
         # need to check if section threholds have been reached
+        if self.change:
+            if self.accumulated_reward >= self.section_threshold:
+                success = True
+            else:
+                success = False
+        else:
+            if self. accumulated_reward >= 10:
+                success = True
+            else:
+                success = False
+
+
         if len(self.reward_memory) < self.section_of:
-            self.reward_memory.append(self.accumulated_reward)
+            self.reward_memory.append(success)
 
             #continue
 
         else:
             self.reward_memory.pop(0)
-            self.reward_memory.append(self.accumulated_reward)
-            successes = sum([x >= self.section_threshold for x in self.reward_memory])
+            self.reward_memory.append(success)
+            successes = sum(self.reward_memory)
 
             if successes >= self.section_need or self.time_in_section >= self.section_max:
                 self.debug()
-                print('successes')
+                print('success')
+                print(self.reward_memory)
+                print(self.change)
+                print(self.correct_headturn)
+                print(success)
                 if self.current_section_num != self.n_sections -1:
                     print('moving to new section')
                     self.current_section_num +=1
@@ -425,25 +444,27 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
                     self.is_finished=True
 
         # continuing in this section
-        self.accumulated_reward = 0
         self.current_episode_num = random.randint(0, self.current_section_length - 1)
         self.current_state_num = 0
         self.current_episode = self.current_section[self.current_episode_num]
         self.current_state = self.current_episode[self.current_state_num]
         self.time_in_section +=1
+        self.change = False
+        self.correct_headturn = None
+        self.accumulated_reward = 0
 
 
 
     def get_state(self):
 
         if self.current_state is not None:
-            return self.states[self.current_state].float(), self.locations[self.current_location].float()
+            return self.states[self.current_state[1:]].float(), self.locations[self.current_location].float()
         else:
             return None, None
 
     def get_aud_dims(self):
-        h = self.states[self.episodes[0][0][0]].size()[0]
-        w = self.states[self.episodes[0][0][0]].size()[1]
+        h = self.states[self.episodes[0][0][0][1:]].size()[0]
+        w = self.states[self.episodes[0][0][0][1:]].size()[1]
 
         return w, h
 
@@ -464,10 +485,14 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
 
     def cht_step(self, action):
         if self.rep >= self.n_waittime:
-            reward = self.rewards[self.current_state+'_'+self.current_location][action]
+            reward = self.rewards[self.current_state[1:]+'_'+self.current_location][action]
         else:
             reward = 0
-        self.accumulated_reward += reward
+
+        if self.current_state[1] == 'i':
+            self.change = True
+
+        self.accumulated_reward +=reward
         self.advance_state(action)
         return reward
 
@@ -477,7 +502,6 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
     def debug(self):
         print('-------')
         print('section parameters: ', str(self.section_max), str(self.section_need), str(self.section_of), str(self.section_threshold))
-        print('accumulated reward:', str(self.accumulated_reward))
         print('episode number:',str(self.current_episode_num))
         print('time in section:',str(self.time_in_section))
         print('current_section:',str(self.current_section))

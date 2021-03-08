@@ -315,7 +315,7 @@ print('data saved')
 
 ### Save Final Model
 print('saving model')
-torch.save(policy_net.state_dict(), ROOT + OUTFOLDER + 'model_' + TRAIN_MODELNAME + '_final.pt')
+torch.save(policy_net.state_dict(), ROOT + OUT_FOLDER + 'model_' + TRAIN_MODELNAME + '_final.pt')
 print('model saved')
 print('done')
 

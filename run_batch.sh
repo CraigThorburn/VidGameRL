@@ -26,7 +26,7 @@ then
     cd /fs/clip-realspeech/projects/vid_game/software/VidGameRL || exit
     param_name=../params/$id".params"
     echo "paramfile:"
-    echo param_name
+    echo $param_name
 
     python create_params_file.py $param_name || exit
     echo "param file created"
