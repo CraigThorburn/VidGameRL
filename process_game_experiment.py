@@ -18,10 +18,7 @@ parser.add_argument("-overwrite", help="overwrite any existing output files")
 parser.add_argument("-batch", help="process over batch. will treat results and out as folders")
 args = parser.parse_args()
 
-if args.batch.lower() == 'true':
-    args.batch = True
-else:
-    args.batch=False
+
 
 
 if args.params_file != 'NA':
@@ -65,6 +62,12 @@ if args.params_file != 'NA':
 
 
 else:
+
+    if args.batch.lower() == 'true':
+        args.batch = True
+    else:
+        args.batch = False
+
     state_inp = args.root + '/' + args.state
     overwrite = args.overwrite
 
