@@ -1,10 +1,10 @@
 ### FILE VARIABLES
 PRETRAIN_MODELNAME_ADITIONS = ''
-TRAIN_MODELNAME_ADITIONS
+TRAIN_MODELNAME_ADITIONS = '_convfreeze'
 
 ### General
 OVERWRITE = True
-EXPERIMENT = 'supervised_pretraining_WSJ/'
+EXPERIMENT = 'supervised_pretraining_GPJ/'
 ROOT = '/mnt/c/files/research/projects/vid_game/data/'
 ROOT = '/fs/clip-realspeech/projects/vid_game/data/'
 PARAMS_FOLDER = 'params'
@@ -19,7 +19,7 @@ WAVS_FOLDER = 'wavs/'
 ### For Validation
 VALIDATION_SEGMENTS_FILE = 'validation_segments'
 VALIDATION_ALIGNMENTS_FILE = 'validation_alignments'
-VALIDATION_COPORA = ['WSJ']
+VALIDATION_COPORA = ['GPJ']
 
 ### For Train
 STATE_FILE = 'states_new_realspeech'
@@ -29,7 +29,7 @@ TRANSITION_FILE = 'transitions'
 ACTION_FILE = 'actions'
 LOCATION_FILE = 'locations'
 SIMPLE_STATE_FILE='states_simple'
-GAME_WAVS_FOLDER = 'wavs/'
+GAME_WAVS_FOLDER = 'wavs_WSJ/'
 
 MODEL_FOLDER = 'models/'
 OUT_FOLDER = 'exp/'
@@ -57,7 +57,7 @@ CONV1CHANNELS = 32
 CONV2CHANNELS = 32
 CONV3CHANNELS = 32
 MIDSIZE = 40
-CONV_FREEZE = False
+CONV_FREEZE = True
 LAYERS = [CONV1CHANNELS, CONV2CHANNELS, CONV3CHANNELS, MIDSIZE]
 
 
@@ -83,6 +83,7 @@ EPS_DECAY = 300
 TARGET_UPDATE = 5
 TRAIN_LR = 0.05
 MEM_SIZE = 10000
+NUM_PHONES = 36
 
 STIMULUS_REPS = 8
 MOVE_SEPERATION = 1

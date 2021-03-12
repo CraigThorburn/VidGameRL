@@ -172,8 +172,8 @@ print('num actions: ' + str(n_actions))
 w,h = env.get_aud_dims()
 
 ### Create Model Networks
-policy_net = DQN_NN_conv_pretrain(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE).to(device)
-target_net = DQN_NN_conv_pretrain(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE).to(device)
+policy_net = DQN_NN_conv_pretrain(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES).to(device)
+target_net = DQN_NN_conv_pretrain(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES).to(device)
 
 MODEL_LOCATION= ROOT + MODEL_FOLDER + 'model_' + PRETRAIN_MODELNAME + '_final.pt'
 policy_net.load_state_dict(torch.load(MODEL_LOCATION, map_location=device), strict=False)
