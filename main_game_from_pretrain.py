@@ -78,7 +78,8 @@ def optimize_model():
     # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
     # columns of actions taken. These are the actions which would've been taken
     # for each batch state according to policy_net
-    state_action_values = policy_net(state_batch, locs_batch)
+    batch_size, dim1, dim2 = state_batch.size()
+    state_action_values = policy_net(state_batch.reshape(batch_size, 1, dim1, dim2), locs_batch)
     state_action_values = state_action_values.reshape(BATCH_SIZE, n_actions).gather(1, action_batch)
 
     # Compute V(s_{t+1}) for all next states.
@@ -87,7 +88,8 @@ def optimize_model():
     # This is merged based on the mask, such that we'll have either the expected
     # state value or 0 in case the state was final.
     next_state_values = torch.zeros(BATCH_SIZE, device=device)
-    next_state_values_network = target_net(non_final_next_states, non_final_next_locs)
+    batch_size, dim1, dim2 = non_final_next_states.size()
+    next_state_values_network = target_net(non_final_next_states.reshape(batch_size, 1, dim1, dim2), non_final_next_locs)
     # TODO: Update policy_net
     next_state_values[non_final_mask] = next_state_values_network.max(-1)[0]
 
@@ -121,7 +123,7 @@ def select_action(state, loc):
         # t.max(1) will return largest column value of each row.
         # second column on max result is index of where max element was
         # found, so we pick action with the larger expected reward.
-        network_return = policy_net(state, loc)
+        network_return = policy_net(state.reshape(1,1,state.size()[0], state.size()[1]), loc.reshape(1,loc.size()[0]))
         network_return = network_return.max(-1)[1].view(1, 1)
     if sample > eps_threshold:
         action = network_return

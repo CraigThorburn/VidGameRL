@@ -181,7 +181,7 @@ class GameDataLoader(object):
             self.Deltas = torchaudio.transforms.ComputeDeltas()
             self.Mfccs = torchaudio.transforms.MFCC(n_mfcc=n_mfcc, log_mels=log_mels,
                                                     melkwargs={'win_length': spec_window_length,
-                                                               'hop_length': spec_window_hop}).to(device)
+                                                               'hop_length': spec_window_hop, 'normalized':True}).to(device)
             self.transform = self.transform_mfcc
             self.h = n_mfcc * 3
         else:

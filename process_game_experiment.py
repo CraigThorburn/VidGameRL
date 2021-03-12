@@ -18,6 +18,11 @@ parser.add_argument("-overwrite", help="overwrite any existing output files")
 parser.add_argument("-batch", help="process over batch. will treat results and out as folders")
 args = parser.parse_args()
 
+if args.batch.lower() == 'true':
+    args.batch = True
+else:
+    args.batch=False
+
 
 if args.params_file != 'NA':
     ### Define Model Name From Arguments
@@ -34,7 +39,7 @@ if args.params_file != 'NA':
         RUN_NUM = args.run_num
         TRAIN_MODELNAME = TRAIN_MODELNAME + '_run' + str(RUN_NUM)
 
-    OUT_FOLDER = OUT_FOLDER + TRAIN_MODELNAME + '\''
+    OUT_FOLDER = OUT_FOLDER + TRAIN_MODELNAME + '/'
 
     ep_inp = ROOT + EPISODE_FILE + '.txt'
     if args.is_test.lower() =='true':
@@ -78,6 +83,7 @@ with open(state_inp) as f:
     header = state_data[0].split('\t')
 state_list = [s.split('\t')[0] for s in state_data[1:]]
 
+print(state_list)
 
 iters = len(outfiles)
 

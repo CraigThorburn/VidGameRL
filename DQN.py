@@ -161,19 +161,6 @@ class DQN_NN_conv_pretrain(nn.Module):
         self.conv3 = nn.Conv2d(self.conv2channels, self.conv3channels, kernel_size=kernel, stride=sstride)
         self.bn3 = nn.BatchNorm2d(self.conv3channels)
 
-        if freeze_convolution:
-            self.conv1.bias.requires_grad=False
-            self.conv1.weight.requires_grad = False
-            self.bn1.bias.requires_grad=False
-            self.bn1.weight.requires_grad=False
-            self.conv2.bias.requires_grad = False
-            self.conv2.weight.requires_grad = False
-            self.bn2.bias.requires_grad=False
-            self.bn2.weight.requires_grad=False
-            self.conv3.bias.requires_grad = False
-            self.conv3.weight.requires_grad = False
-            self.bn3.bias.requires_grad=False
-            self.bn3.weight.requires_grad=False
 
         # Number of Linear input connections depends on output of conv2d layers
         # and therefore the input image size, so compute it.
@@ -189,10 +176,45 @@ class DQN_NN_conv_pretrain(nn.Module):
         self.head1 = nn.Linear(n_phone_layer + inputs,self.mid_size)
         self.head2 = nn.Linear(self.mid_size, outputs)
 
+        if freeze_convolution:
+            self.conv1.bias.requires_grad=False
+            self.conv1.weight.requires_grad = False
+            self.bn1.bias.requires_grad=False
+            self.bn1.weight.requires_grad=False
+            self.conv2.bias.requires_grad = False
+            self.conv2.weight.requires_grad = False
+            self.bn2.bias.requires_grad=False
+            self.bn2.weight.requires_grad=False
+            self.conv3.bias.requires_grad = False
+            self.conv3.weight.requires_grad = False
+            self.bn3.bias.requires_grad=False
+            self.bn3.weight.requires_grad=False
+            self.lin1.weight.requires_grad=False
+            self.lin1.bias.requires_grad=False
+
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
     def forward(self, x_aud, x_loc):
 
+        x_aud = F.relu(self.bn1(self.conv1(x_aud)))
+        x_aud = F.relu(self.bn2(self.conv2(x_aud)))
+        x_aud = F.relu(self.bn3(self.conv3(x_aud)))
+
+        x_aud = x_aud.reshape(x_aud.size()[0], x_aud.size()[1] * x_aud.size()[2] * x_aud.size()[3])
+
+        x_aud = F.softplus(self.lin1(x_aud))
+
+        x = torch.cat((x_aud, x_loc), 1)
+
+        x = F.softplus(self.head1(x))
+        x = F.softplus(self.head2(x))
+
+
+        return x
+
+    # noinspection DuplicatedCode,PyUnreachableCode
+    def forward_old(self, x_aud, x_loc):
+        raise NotImplementedError
         if len(x_aud.size()) == 2:
             # not batch
             x_aud = x_aud.reshape(1,1,x_aud.size()[0], x_aud.size()[1])
@@ -201,7 +223,7 @@ class DQN_NN_conv_pretrain(nn.Module):
             x_aud = F.relu(self.bn2(self.conv3(x_aud)))
 
             x_aud = x_aud.reshape(x_aud.size()[1] * x_aud.size()[2] * x_aud.size()[3])
-            x_aud = F.relu(self.lin1(x_aud))
+            x_aud = F.softplus(self.lin1(x_aud))
             x = torch.cat((x_aud, x_loc))
         else:
             # batch
@@ -211,7 +233,7 @@ class DQN_NN_conv_pretrain(nn.Module):
             x_aud = F.relu(self.bn2(self.conv3(x_aud)))
 
             x_aud = x_aud.reshape(x_aud.size()[0], x_aud.size()[1] * x_aud.size()[2] * x_aud.size()[3])
-            x_aud = F.relu(self.lin1(x_aud))
+            x_aud = F.softplus(self.lin1(x_aud))
             x = torch.cat((x_aud , x_loc), 1)
 
         x = F.softplus(self.head1(x))
@@ -219,6 +241,47 @@ class DQN_NN_conv_pretrain(nn.Module):
 
 
         return x
+
+    def phone_class(self, x, relu):
+
+        # x = self.spectrogram(x)
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = F.relu(self.bn2(self.conv2(x)))
+        x = F.relu(self.bn3(self.conv3(x)))
+
+        x = x.reshape(x.size()[0], x.size()[1] * x.size()[2] * x.size()[3])
+
+        x = F.softplus(self.lin1(x))
+
+        return x
+
+        # if len(x_aud.size()) == 2:
+        #     # not batch
+        #     #x_aud = x_aud.reshape(1,1,x_aud.size()[0], x_aud.size()[1])
+        #     x_aud = F.relu(self.bn1(self.conv1(x_aud)))
+        #     x_aud = F.relu(self.bn2(self.conv2(x_aud)))
+        #     x_aud = F.relu(self.bn2(self.conv3(x_aud)))
+        #
+        #     x_aud = x_aud.reshape(x_aud.size()[1] * x_aud.size()[2] * x_aud.size()[3])
+        #     if relu:
+        #         x_aud = F.relu(self.lin1(x_aud))
+        #     else:
+        #         x_aud = F.softplus(self.lin1(x_aud))
+        # else:
+        #     # batch
+        #     #x_aud = x_aud.reshape(x_aud.size()[0],1,x_aud.size()[1], x_aud.size()[2])
+        #     x_aud = F.relu(self.bn1(self.conv1(x_aud)))
+        #     x_aud = F.relu(self.bn2(self.conv2(x_aud)))
+        #     x_aud = F.relu(self.bn2(self.conv3(x_aud)))
+        #
+        #     x_aud = x_aud.reshape(x_aud.size()[0], x_aud.size()[1] * x_aud.size()[2] * x_aud.size()[3])
+        #     if relu:
+        #         x_aud = F.relu(self.lin1(x_aud))
+        #     else:
+        #         x_aud = F.softplus(self.lin1(x_aud))
+        #
+        # return x_aud
+
 
 
 class DQN_convLSTM(nn.Module):

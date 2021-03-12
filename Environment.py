@@ -428,7 +428,7 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
             if successes >= self.section_need or self.time_in_section >= self.section_max:
                 self.debug()
                 print('success')
-                print(self.reward_memory)
+                print(sum(self.reward_memory))
                 print(self.change)
                 print(self.correct_headturn)
                 print(success)
