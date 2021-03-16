@@ -44,3 +44,20 @@ class PhonemeConvNN(nn.Module):
         x = F.softplus(self.lin1(x))
 
         return x
+
+    def get_out_from_layer(self, x, layer):
+
+        if layer >= -4:
+            x = F.relu(self.bn1(self.conv1(x)))
+
+        if layer >= -3:
+            x = F.relu(self.bn2(self.conv2(x)))
+
+        if layer >= -2:
+            x = F.relu(self.bn3(self.conv3(x)))
+            x = x.reshape(x.size()[0], x.size()[1]*x.size()[2]*x.size()[3])
+
+        if layer >= -1:
+            x = F.softplus(self.lin1(x))
+
+        return x

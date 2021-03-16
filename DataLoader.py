@@ -171,6 +171,8 @@ class GameDataLoader(object):
         self.sr_window_size = math.floor(self.window_size * self.sr)
         self.states={}
         self.load_states(states_file, wav_folder, device)
+        self.w = int((sr * phone_window_size /spec_window_hop ) + 1)
+
 
         if transform_type == 'spectrogram':
             self.Spectrogram = torchaudio.transforms.Spectrogram(win_length=spec_window_length,
@@ -229,3 +231,15 @@ class GameDataLoader(object):
         d1 = self.Deltas(mfcc)
         d2 = self.Deltas(d1)
         return torch.cat((mfcc, d1, d2), -2)
+
+    def get_batch(self, start, end):
+
+        return [self.transform(self.states.keys()[d]) for d in list(self.states.keys())[start:end]]
+
+    def get_random_batch(self, start, end):
+        states = list(self.states.keys())
+        random.shuffle(states)
+        return [self.transform(self.states[d]) for d in states[start:end]]
+
+    def get_feature_dims(self):
+        return self.w, self.h
