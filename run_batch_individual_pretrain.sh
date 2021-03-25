@@ -42,13 +42,21 @@ python process_game_experiment.py $params "false" -run_num=$i
 echo "training results processing complete"
 fi
 
+
 if [ $stage -le 4 ]; then
+echo "starting abx for both of last two layers"
+python run_abx.py $params -run_num=$i -layer=-1 -pretrain=false
+python run_abx.py $params -run_num=$i -layer=-2 -pretrain=false
+echo "abx complete"
+fi
+
+if [ $stage -le 5 ]; then
 echo "starting testing from pretrained model"
 python test_conv_from_pretrain.py $params -run_num=$i
 echo "testing complete"
 fi
 
-if [ $stage -le 5 ]; then
+if [ $stage -le 6 ]; then
 echo "starting testing results processing"
 python process_game_experiment.py $params "true" -run_num=$i
 echo "testing results processing complete"

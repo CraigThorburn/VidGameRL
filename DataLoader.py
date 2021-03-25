@@ -190,7 +190,7 @@ class GameDataLoader(object):
             raise NotImplementedError('no implementation of selected transform type')
 
 
-        self.load_states(states_file, wav_folder, device)
+        #self.load_states(states_file, wav_folder, device)
 
     def load_states(self, states_file, wav_folder, device):
 
@@ -234,7 +234,7 @@ class GameDataLoader(object):
 
     def get_batch(self, start, end):
 
-        return [self.transform(self.states.keys()[d]) for d in list(self.states.keys())[start:end]]
+        return [self.transform(self.states[d]) for d in list(self.states.keys())[start:end]]
 
     def get_random_batch(self, start, end):
         states = list(self.states.keys())
