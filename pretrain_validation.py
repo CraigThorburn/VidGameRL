@@ -95,7 +95,7 @@ for corpus in VALIDATION_COPORA:
         #phone_results = [(sum(predicted_cats[correct_predictions] == i), sum(label_cats == i)) for i in range(data.get_num_phones())]
 
         for b in range(testing_batch_size):
-            results[label_cats, predicted_cats] += 1
+            results[label_cats[b], predicted_cats[b]] += 1
 
         ### Save Final Outputs
     outfile = open(ROOT + OUT_FOLDER + RESULTS_FILE + '_' +  PRETRAIN_MODELNAME + '_' + corpus + '.txt', 'a+')
