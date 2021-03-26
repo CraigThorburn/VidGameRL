@@ -12,10 +12,10 @@ args = parser.parse_args()
 
 ROOT = ROOT + EXPERIMENT
 PRETRAIN_MODELNAME = 'pretrain_lr' + str(PRETRAIN_LR)+ '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_batchsize' + \
-                     str(BATCH_SIZE) + '_epochs' + str(PRETRAIN_EPOCHS) + PRETRAIN_MODELNAME_ADITIONS
+                     str(BATCH_SIZE) + '_epochs' + str(PRETRAIN_EPOCHS)+ PRETRAIN_MODELNAME_ADITIONS
 
 TRAIN_MODELNAME = 'experiment_' + GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay' + str(EPS_DECAY) + '_targetupdate' + str(TARGET_UPDATE) \
-                + '_waittime' + str(WAITTIME) + '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_lr'+str(TRAIN_LR) + \
+                + '_waittime' + str(WAITTIME) + '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_lr'+str(TRAIN_LR) + 'freeze'+ str(CONV_FREEZE_LAYER)+\
                  TRAIN_MODELNAME_ADITIONS
 
 

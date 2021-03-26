@@ -122,10 +122,10 @@ for trial in [1, 2]:
 
         if trial == 1:
             batchx = torch.stack(
-                data1.get_random_batch(i_batch * testing_batch_size, (i_batch + 1) * testing_batch_size))
+                data1.get_batch(i_batch * testing_batch_size, (i_batch + 1) * testing_batch_size))
         if trial == 2:
             batchx = torch.stack(
-                data2.get_random_batch(i_batch * testing_batch_size, (i_batch + 1) * testing_batch_size))
+                data2.get_batch(i_batch * testing_batch_size, (i_batch + 1) * testing_batch_size))
 
         # Generate Predictions
         predictionsa = phoneme_classifier.get_out_from_layer(
