@@ -177,22 +177,22 @@ class DQN_NN_conv_pretrain(nn.Module):
         self.head2 = nn.Linear(self.mid_size, outputs)
 
         if freeze_convolution:
-            if freeze_layer >= -4:
+            if freeze_layer <= -4:
                 self.conv1.bias.requires_grad=False
                 self.conv1.weight.requires_grad = False
                 self.bn1.bias.requires_grad=False
                 self.bn1.weight.requires_grad=False
-            if freeze_layer >= -3:
+            if freeze_layer <= -3:
                 self.conv2.bias.requires_grad = False
                 self.conv2.weight.requires_grad = False
                 self.bn2.bias.requires_grad=False
                 self.bn2.weight.requires_grad=False
-            if freeze_layer >= -2:
+            if freeze_layer <= -2:
                 self.conv3.bias.requires_grad = False
                 self.conv3.weight.requires_grad = False
                 self.bn3.bias.requires_grad=False
                 self.bn3.weight.requires_grad=False
-            if freeze_layer >= -1:
+            if freeze_layer <= -1:
                 self.lin1.weight.requires_grad=False
                 self.lin1.bias.requires_grad=False
 
