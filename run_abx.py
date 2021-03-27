@@ -136,8 +136,8 @@ for trial in [1, 2]:
         predictionsx = phoneme_classifier.get_out_from_layer(
             batchx.reshape(batchx.size()[0], 1, batchx.size()[1], batchx.size()[2]), OUT_LAYER)
 
-        axdis = pdist(predictionsx.flatten(), predictionsa.flatten())
-        bxdis = pdist(predictionsx.flatten(), predictionsb.flatten())
+        axdis = pdist(predictionsx, predictionsa)
+        bxdis = pdist(predictionsx, predictionsb)
 
         a_answer = sum(axdis < bxdis)
         b_answer = sum(bxdis < axdis)
