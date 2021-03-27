@@ -1,6 +1,6 @@
 ### FILE VARIABLES
 PRETRAIN_MODELNAME_ADITIONS = ''
-TRAIN_MODELNAME_ADITIONS = '_synthesized_freeze'
+TRAIN_MODELNAME_ADITIONS = '_realspeech'
 
 ### General
 OVERWRITE = True
@@ -22,14 +22,14 @@ VALIDATION_ALIGNMENTS_FILE = 'validation_alignments'
 VALIDATION_COPORA = ['GPJ']
 
 ### For Train
-STATE_FILE = 'states'
+STATE_FILE = 'states_new_realspeech'
 REWARD_FILE = 'rewards'
 EPISODE_FILE = 'episodes'
 TRANSITION_FILE = 'transitions'
 ACTION_FILE = 'actions'
 LOCATION_FILE = 'locations'
 SIMPLE_STATE_FILE='states_simple'
-GAME_WAVS_FOLDER = 'wavs_game/'
+GAME_WAVS_FOLDER = 'wavs_WSJ/'
 
 MODEL_FOLDER = 'models/'
 OUT_FOLDER = 'exp/'
@@ -42,7 +42,7 @@ RESULTS_FILE = 'results'
 
 ### For Test
 SIMPLE_STATE_TEST_FILE='test_states_simple'
-ABX_WAVS_FOLDER = 'wavs_WSJ/'
+ABX_WAVS_FOLDER = 'wavs/'
 
 
 
@@ -59,7 +59,7 @@ CONV2CHANNELS = 32
 CONV3CHANNELS = 32
 MIDSIZE = 40
 CONV_FREEZE = True
-CONV_FREEZE_LAYER = 0
+CONV_FREEZE_LAYER = -4
 LAYERS = [CONV1CHANNELS, CONV2CHANNELS, CONV3CHANNELS, MIDSIZE]
 
 

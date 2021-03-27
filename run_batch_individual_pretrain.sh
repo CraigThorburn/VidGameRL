@@ -47,6 +47,8 @@ if [ $stage -le 4 ]; then
 echo "starting abx for both of last two layers"
 python run_abx.py $params -run_num=$i -layer=-1 -pretrain=false
 python run_abx.py $params -run_num=$i -layer=-2 -pretrain=false
+python run_abx.py $params -run_num=$i -layer=-3 -pretrain=false
+python run_abx.py $params -run_num=$i -layer=-4 -pretrain=false
 echo "abx complete"
 fi
 
