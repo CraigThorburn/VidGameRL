@@ -1,6 +1,6 @@
 ### Set Imports
 
-N_TRIALS = 8000
+N_TRIALS = 6000
 OUT_LAYER = -2
 # NUM_PHONES = 36
 pretrain_model = True
