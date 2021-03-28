@@ -136,6 +136,21 @@ for trial in [1, 2]:
         predictionsx = phoneme_classifier.get_out_from_layer(
             batchx.reshape(batchx.size()[0], 1, batchx.size()[1], batchx.size()[2]), OUT_LAYER)
 
+        if len(predictionsx.size())==2:
+            pass
+
+        elif len(predictionsx.size()) ==3:
+            predictionsx = predictionsx.reshape(testing_batch_size, predictionsx.size()[1] * predictionsx.size()[2])
+            predictionsa = predictionsa.reshape(testing_batch_size, predictionsa.size()[1] * predictionsa.size()[2])
+            predictionsa = predictionsa.reshape(testing_batch_size, predictionsa.size()[1] * predictionsa.size()[2])
+        elif len(predictionsx.size()) ==4:
+            predictionsx = predictionsx.reshape(testing_batch_size, predictionsx.size()[1] * predictionsx.size()[2] * predictionsx.size()[3])
+            predictionsa = predictionsa.reshape(testing_batch_size, predictionsa.size()[1] * predictionsa.size()[2] * predictionsa.size()[3])
+            predictionsa = predictionsa.reshape(testing_batch_size, predictionsa.size()[1] * predictionsa.size()[2] * predictionsb.size()[3])
+
+        else:
+            raise RuntimeError
+
         axdis = pdist(predictionsx, predictionsa)
         bxdis = pdist(predictionsx, predictionsb)
 
