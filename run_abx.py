@@ -146,7 +146,7 @@ for trial in [1, 2]:
         elif len(predictionsx.size()) ==4:
             predictionsx = predictionsx.reshape(testing_batch_size, predictionsx.size()[1] * predictionsx.size()[2] * predictionsx.size()[3])
             predictionsa = predictionsa.reshape(testing_batch_size, predictionsa.size()[1] * predictionsa.size()[2] * predictionsa.size()[3])
-            predictionsa = predictionsa.reshape(testing_batch_size, predictionsa.size()[1] * predictionsa.size()[2] * predictionsb.size()[3])
+            predictionsb = predictionsb.reshape(testing_batch_size, predictionsb.size()[1] * predictionsb.size()[2] * predictionsb.size()[3])
 
         else:
             raise RuntimeError
