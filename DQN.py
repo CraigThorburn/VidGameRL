@@ -250,6 +250,29 @@ class DQN_NN_conv_pretrain_phonelayer(nn.Module):
             self.lin1.weight.requires_grad = False
             self.lin1.bias.requires_grad = False
 
+
+    def unfreeze_layers(self, freeze_layer):
+        if freeze_layer >= 1:
+            self.conv1.bias.requires_grad = True
+            self.conv1.weight.requires_grad = True
+            self.bn1.bias.requires_grad = True
+            self.bn1.weight.requires_grad = True
+        if freeze_layer >= 2:
+            self.conv2.bias.requires_grad = True
+            self.conv2.weight.requires_grad = True
+            self.bn2.bias.requires_grad = True
+            self.bn2.weight.requires_grad = True
+        if freeze_layer >= 3:
+            self.conv3.bias.requires_grad = True
+            self.conv3.weight.requires_grad = True
+            self.bn3.bias.requires_grad = True
+            self.bn3.weight.requires_grad = True
+        if freeze_layer >= 4:
+            self.lin1.weight.requires_grad = True
+            self.lin1.bias.requires_grad = True
+
+
+
 class DQN_NN_conv_pretrain_convlayer(nn.Module):
 
     def __init__(self, h, w, inputs, outputs, kernel = 5, sstride = 2, layers = [16, 32, 32, 20], freeze_convolution=False, n_phone_layer=39, freeze_layer = 0):
@@ -329,6 +352,24 @@ class DQN_NN_conv_pretrain_convlayer(nn.Module):
             self.conv3.weight.requires_grad = False
             self.bn3.bias.requires_grad = False
             self.bn3.weight.requires_grad = False
+
+    def unfreeze_layers(self, freeze_layer):
+        if freeze_layer >= 1:
+            self.conv1.bias.requires_grad = True
+            self.conv1.weight.requires_grad = True
+            self.bn1.bias.requires_grad = True
+            self.bn1.weight.requires_grad = True
+        if freeze_layer >= 2:
+            self.conv2.bias.requires_grad = True
+            self.conv2.weight.requires_grad = True
+            self.bn2.bias.requires_grad = True
+            self.bn2.weight.requires_grad = True
+        if freeze_layer >= 3:
+            self.conv3.bias.requires_grad = True
+            self.conv3.weight.requires_grad = True
+            self.bn3.bias.requires_grad = True
+            self.bn3.weight.requires_grad = True
+
 
 
 
