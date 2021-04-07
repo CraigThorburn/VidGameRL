@@ -178,11 +178,11 @@ w,h = env.get_aud_dims()
 #     freeze_layer_end = CONV_FREEZE_LAYER
 
 if CONNECTION_LAYER == 'phone':
-    policy_net = DQN_NN_conv_pretrain_phonelayer(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=freeze_layer_end).to(device)
-    target_net = DQN_NN_conv_pretrain_phonelayer(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=freeze_layer_end).to(device)
+    policy_net = DQN_NN_conv_pretrain_phonelayer(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
+    target_net = DQN_NN_conv_pretrain_phonelayer(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
 elif CONNECTION_LAYER == 'conv':
-    policy_net = DQN_NN_conv_pretrain_convlayer(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=freeze_layer_end).to(device)
-    target_net = DQN_NN_conv_pretrain_convlayer(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=freeze_layer_end).to(device)
+    policy_net = DQN_NN_conv_pretrain_convlayer(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
+    target_net = DQN_NN_conv_pretrain_convlayer(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
 else:
     raise NotImplementedError
 
