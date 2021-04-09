@@ -196,7 +196,7 @@ policy_net.train()
 
 
 ### Define Optimizer
-optimizer = optim.SGD(policy_net.parameters(), lr = TRAIN_LR) ## TODO: Changed from RMSprop
+optimizer = optim.RMSprop(policy_net.parameters(), lr = TRAIN_LR) ## TODO: Changed from RMSprop
 torch.backends.cudnn.enabled = False
 # TODO: Check what exactly this is doing ^^^
 # CHANGE: from RMSprop to SGD
