@@ -33,7 +33,7 @@ then
 
     echo "comencing slurm batch parallel across " $num_runs " machines"
 
-    $train_cmd --mem 16GB --time 01-00:00:00 JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual_nopretrain.sh $stage $param_name || exit 1;
+    $train_cmd --mem 16GB JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual_nopretrain.sh $stage $param_name || exit 1;
     wait
     echo "finished"
 
@@ -49,7 +49,7 @@ then
 
     echo "comencing slurm batch parallel across " $num_runs " machines"
 
-    $train_cmd --mem 16GB --time 01-00:00:00 JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual_pretrain.sh $stage $param_name || exit 1;
+    $train_cmd JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual_pretrain.sh $stage $param_name || exit 1;
     wait
     echo "finished"
 
