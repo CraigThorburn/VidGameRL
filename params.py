@@ -77,6 +77,9 @@ GAME_MODE = 'oneshot'
 PRETRAIN_EPOCHS = 25
 
 ### For Validation
+LOSS_TYPE = 'ewc' # insted of 'norm'
+FISCHER_CORPUS='WSJ'
+FISCHER_FILE = 'fischercoeffs'
 
 ### For Train
 GAMMA = 0.9

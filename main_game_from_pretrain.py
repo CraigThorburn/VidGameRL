@@ -12,8 +12,15 @@ import time
 import argparse
 import os
 import shutil
+import Loss
 
-
+FISCHER_FILE = 'fischercoeffs'
+CONNECTION_LAYER='phone'
+NUM_PHONES = 39
+CONV_FREEZE_LAYER = 0
+FREEZE_LAYER_TIME = 0
+LOSS_TYPE = 'ewc'
+EWC_IMPORTANCE = 0.009
 ### Parse Arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("params_file", help="root directory")
@@ -100,9 +107,10 @@ def optimize_model():
     # TODO: Optimization change
     policy_net.train()
 
-    # Compute Huber loss
-    loss = F.smooth_l1_loss(state_action_values.double(), expected_state_action_values.unsqueeze(1).double())
+    # Compute loss
+    loss = loss_func(state_action_values.double(), expected_state_action_values.unsqueeze(1).double(), policy_net.named_parameters())
     loss = loss.double()
+
     # Optimize the model
     optimizer.zero_grad()
     # print(policy_net.training)
@@ -193,10 +201,28 @@ target_net.load_state_dict(policy_net.state_dict())
 target_net.eval()
 policy_net.train()
 
+if LOSS_TYPE == 'ewc':
+    precision_matrices,means = torch.load(ROOT + MODEL_FOLDER + FISCHER_FILE + '_' +  PRETRAIN_MODELNAME + '.txt', map_location=device)
 
+    for p, n in policy_net.named_parameters():
+        if p not in precision_matrices.keys():
+            precision_matrices[p] = torch.zeros(n.size())
+            means[p] = torch.zeros(n.size())
+
+
+
+    loss_class = Loss.EWCLoss(means, precision_matrices, EWC_IMPORTANCE)
+
+elif LOSS_TYPE == 'standard':
+    loss_class = Loss.StandardLoss()
+
+else:
+    raise NotImplementedError
+
+loss_func = loss_class.calculate_loss
 
 ### Define Optimizer
-optimizer = optim.RMSprop(policy_net.parameters(), lr = TRAIN_LR) ## TODO: Changed from RMSprop
+optimizer = optim.SGD(policy_net.parameters(), lr = TRAIN_LR) ## TODO: Changed from RMSprop
 torch.backends.cudnn.enabled = False
 # TODO: Check what exactly this is doing ^^^
 # CHANGE: from RMSprop to SGD
