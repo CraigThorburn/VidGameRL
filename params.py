@@ -78,6 +78,7 @@ PRETRAIN_EPOCHS = 25
 
 ### For Validation
 LOSS_TYPE = 'ewc' # insted of 'norm'
+EWC_IMPORTANCE = 0.009
 FISCHER_CORPUS='WSJ'
 FISCHER_FILE = 'fischercoeffs'
 

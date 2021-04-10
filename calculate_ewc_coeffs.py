@@ -6,9 +6,7 @@ import json
 import time
 import argparse
 from copy import deepcopy
-from torch.autograd import Variable
-FISCHER_CORPUS = 'WSJ'
-FISCHER_FILE = 'fischercoeffs'
+
 
 ### Parse Arguments
 parser = argparse.ArgumentParser()

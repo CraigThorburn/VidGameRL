@@ -14,13 +14,7 @@ import os
 import shutil
 import Loss
 
-FISCHER_FILE = 'fischercoeffs'
-CONNECTION_LAYER='phone'
-NUM_PHONES = 39
-CONV_FREEZE_LAYER = 0
-FREEZE_LAYER_TIME = 0
-LOSS_TYPE = 'ewc'
-EWC_IMPORTANCE = 0.009
+
 ### Parse Arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("params_file", help="root directory")
