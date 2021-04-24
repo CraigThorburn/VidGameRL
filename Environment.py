@@ -343,16 +343,34 @@ class AcousticsGame2DConv(AcousticsGame1D):
 
 class AcousticsGame2DConvCHT(AcousticsGame2DConv):
 
-    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time,
-                 mode,  total_reps, device=None, max_episodes = 50000):
 
+
+    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, wav_file, non_move_gap, wait_time,
+                 mode, total_reps, device=None, acoustic_params =('mfcc', 16000, 0.2, 400, 400, 160, 13, True),max_episodes = 50000 ):
         self.rep = 0
         self.total_reps = total_reps-1
         self.current_section_num = 0
+
+        self.acoustic_params=acoustic_params
+        self.wav_file = wav_file
         super().__init__(reward_file, state_file, episode_file, location_file, transition_file, non_move_gap, wait_time, mode, total_reps, device)
 
         self.step=self.cht_step
         self.n_episodes = max_episodes
+
+
+
+    def load_states(self, STATE_FILE):
+
+        transform_type, sr, phone_window_size, n_fft, spec_window_length, spec_window_hop, n_mfcc, log_mels = self.acoustic_params
+
+        data = GameDataLoader(STATE_FILE, self.wav_file, self.device, transform_type=transform_type, sr = sr, phone_window_size = phone_window_size,
+                 n_fft = n_fft, spec_window_length = spec_window_length, spec_window_hop = spec_window_hop, n_mfcc = n_mfcc, log_mels=log_mels)
+
+        self.states = data.get_transformed_states()
+        self.n_timepoints, _ = self.states[list(self.states.keys())[0]].size()
+
+
 
     def load_episodes(self, EPISODE_FILE):
         with open(EPISODE_FILE, 'r') as f:
@@ -391,6 +409,7 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
         self.new_state = True
 
         self.reward_memory=[]
+        self.d_memory = [0,0,0,0] # hit, false alarm, miss, correct negative
 
         self.section_max, self.section_need, self.section_of, self.section_threshold = self.sections[self.current_section_num]
         self.time_in_section=0
@@ -406,29 +425,38 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
         if self.change:
             if self.accumulated_reward >= self.section_threshold:
                 success = True
+                d_ind = 0
             else:
                 success = False
+                d_ind = 2
         else:
-            if self. accumulated_reward >= 10:
+            if self. accumulated_reward == 10:
                 success = True
+                d_ind = 3
             else:
                 success = False
+                d_ind = 1
+
+
 
 
         if len(self.reward_memory) < self.section_of:
             self.reward_memory.append(success)
+            self.d_memory[d_ind]+=1
 
             #continue
 
         else:
             self.reward_memory.pop(0)
             self.reward_memory.append(success)
+            self.d_memory[d_ind] += 1
             successes = sum(self.reward_memory)
 
             if successes >= self.section_need or self.time_in_section >= self.section_max:
                 self.debug()
                 print('success')
                 print(sum(self.reward_memory))
+                print('hit:', self.d_memory[0], 'alarm:', self.d_memory[1], 'miss:', self.d_memory[2], 'correct negative:', self.d_memory[3])
                 print(self.change)
                 print(self.correct_headturn)
                 print(success)
@@ -440,6 +468,7 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
                     self.section_max, self.section_need, self.section_of, self.section_threshold = self.sections[self.current_section_num]
                     self.time_in_section = 0
                     self.reward_memory = []
+                    self.d_memory = [0, 0, 0, 0]
                 else:
                     self.is_finished=True
 
