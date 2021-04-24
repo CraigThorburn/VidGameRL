@@ -216,10 +216,10 @@ if LOSS_TYPE == 'ewc':
 
 
 
-    loss_class = Loss.EWCLoss(means, precision_matrices, EWC_IMPORTANCE)
+    loss_class = Loss.EWCLoss(means, precision_matrices, EWC_IMPORTANCE, device)
 
 elif LOSS_TYPE == 'standard':
-    loss_class = Loss.StandardLoss()
+    loss_class = Loss.StandardLoss(device)
 
 else:
     raise NotImplementedError
