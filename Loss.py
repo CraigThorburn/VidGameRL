@@ -2,15 +2,15 @@ import torch.nn.functional as F
 
 class StandardLoss(object):
 
-    def __init__(self):
+    def __init__(self, device):
         pass
 
     def calculate_loss(self, output, target, params=None):
-        return F.smooth_l1_loss(output, target)
+        return F.smooth_l1_loss(output, target).to(device)
 
 class EWCLoss(object):
 
-    def __init__(self, means, precision_matrices, importance):
+    def __init__(self, means, precision_matrices, importance, device):
         self.means = means
         self.precision_matrices = precision_matrices
         self.importance = importance
