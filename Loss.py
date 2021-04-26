@@ -3,10 +3,10 @@ import torch.nn.functional as F
 class StandardLoss(object):
 
     def __init__(self, device):
-        pass
+        self.device = device
 
     def calculate_loss(self, output, target, params=None):
-        return F.smooth_l1_loss(output, target).to(device)
+        return F.smooth_l1_loss(output, target).to(self.device)
 
 class EWCLoss(object):
 

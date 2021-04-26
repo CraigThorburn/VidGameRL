@@ -430,7 +430,7 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
                 success = False
                 d_ind = 2
         else:
-            if self. accumulated_reward == 10:
+            if self.accumulated_reward == 10:
                 success = True
                 d_ind = 3
             else:
@@ -438,6 +438,7 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
                 d_ind = 1
 
 
+        print(str(self.change), str(self.accumulated_reward), success)
 
 
         if len(self.reward_memory) < self.section_of:

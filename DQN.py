@@ -134,7 +134,7 @@ class DQN_NN_conv(nn.Module):
             x = torch.cat((x_aud.flatten(), x_loc))
         else:
             # batch
-            x_aud = x_aud.reshape(x_aud.size()[0],1,x_aud.size()[1], x_aud.size()[2])
+           # x_aud = x_aud.reshape(x_aud.size()[0],1,x_aud.size()[1], x_aud.size()[2])
             x_aud = F.relu(self.bn1(self.conv1(x_aud)))
             x_aud = F.relu(self.bn2(self.conv2(x_aud)))
             x = torch.cat((x_aud.reshape(x_aud.size()[0],x_aud.size()[1]*x_aud.size()[2]*x_aud.size()[3]) , x_loc), 1)
@@ -145,6 +145,11 @@ class DQN_NN_conv(nn.Module):
 
         return x
 
+    def freeze_layers(self, freeze_layer):
+        pass
+
+    def unfreeze_layers(self, freeze_layer):
+        pass
 
 
 class DQN_NN_conv_pretrain_phonelayer(nn.Module):
