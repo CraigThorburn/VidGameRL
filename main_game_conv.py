@@ -204,6 +204,7 @@ for name in OUTPUTS:
 tic = time.time()
 steps_done = 0
 
+
 print('starting simulation')
 for i_episode in range(num_episodes):
 

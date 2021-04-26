@@ -260,6 +260,9 @@ class AcousticsGame1D(Environment):
     def is_action_timepoint(self):
         return  self.current_timepoint in self.action_timepoints
 
+    def is_eps_update(self):
+        return False
+
 
 class AcousticsGame2DConv(AcousticsGame1D):
 
@@ -381,12 +384,12 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
 
             for l in input_data:
                 if l[0:3] == '###':
-                    _, _, section_max, _, section_need, _, section_of, _, section_threshold = l.split(' ')
+                    _, _, section_max, _, section_need, _, section_of, _, section_threshold, _, eps_update = l.split(' ')
                     section_max = int(section_max)
                     section_need = int(section_need)
                     section_of = int(section_of)
                     section_threshold = int(section_threshold)
-                    self.sections.append([section_max, section_need, section_of, section_threshold])
+                    self.sections.append([section_max, section_need, section_of, section_threshold, eps_update])
                     self.episodes.append([])
                     ### max 100 need 3 of 3 threshold 10
                 #this is the start of a section
@@ -401,6 +404,7 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
         self.current_section_length = self.section_lengths[self.current_section_num]
         self.current_episode_num = random.randint(0, self.current_section_length-1)
         self.current_section = self.episodes[self.current_section_num]
+        self.eps_update_num = 0
 
         self.current_location = random.choice(list(self.locations.keys()))
         self.current_episode = self.current_section[self.current_episode_num]
@@ -411,7 +415,12 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
         self.reward_memory=[]
         self.d_memory = [0,0,0,0] # hit, false alarm, miss, correct negative
 
-        self.section_max, self.section_need, self.section_of, self.section_threshold = self.sections[self.current_section_num]
+        self.section_max, self.section_need, self.section_of, self.section_threshold, eps_update = self.sections[self.current_section_num]
+        if eps_update == 'na':
+            self.should_eps_update = False
+        else:
+            self.should_eps_update = True
+            self.eps_update_num = int(eps_update)
         self.time_in_section=0
 
         self.is_finished=False
@@ -466,7 +475,12 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
                     self.current_section_num +=1
                     self.current_section_length = self.section_lengths[self.current_section_num]
                     self.current_section = self.episodes[self.current_section_num]
-                    self.section_max, self.section_need, self.section_of, self.section_threshold = self.sections[self.current_section_num]
+                    self.section_max, self.section_need, self.section_of, self.section_threshold, eps_update = self.sections[self.current_section_num]
+                    if eps_update =='na':
+                        self.should_eps_update = False
+                    else:
+                        self.should_eps_update = True
+                        self.eps_update_num = int(eps_update)
                     self.time_in_section = 0
                     self.reward_memory = []
                     self.d_memory = [0, 0, 0, 0]
@@ -483,6 +497,8 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
         self.correct_headturn = None
         self.accumulated_reward = 0
 
+    def is_eps_update(self):
+        return False
 
 
     def get_state(self):
@@ -536,6 +552,12 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
         print('time in section:',str(self.time_in_section))
         print('current_section:',str(self.current_section))
         print( 'reward memory:',str(self.reward_memory))
+
+    def is_eps_update(self):
+        return self.should_eps_update
+
+    def get_eps_update_num(self):
+        return self.eps_update_num
 
 
 class AcousticsGame2DConvFromFile(AcousticsGame2DConv):

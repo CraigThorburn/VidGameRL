@@ -119,7 +119,7 @@ def select_action(state, loc):
     global steps_done
     sample = random.random()
     eps_threshold = EPS_END + (EPS_START - EPS_END) * \
-                    math.exp(-1. * i_episode / EPS_DECAY)
+                    math.exp(-1. * eps_episode / EPS_DECAY)
     steps_done += 1
     with torch.no_grad():
         # t.max(1) will return largest column value of each row.
@@ -253,8 +253,10 @@ for name in OUTPUTS:
 tic = time.time()
 steps_done = 0
 
+eps_episode = 0
 print('starting simulation')
 for i_episode in range(num_episodes):
+    eps_episode+=1
 
     ### Set Episode For Output
     for i in range(len(to_output)):
@@ -354,6 +356,9 @@ for i_episode in range(num_episodes):
 
     if env.simulation_finished():
         break
+
+    if env.is_eps_update():
+        eps_episode = env.get_eps_update_num()
 
 print('model complete')
 print('saving data')
