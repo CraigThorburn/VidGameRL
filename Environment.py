@@ -447,7 +447,7 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
                 d_ind = 1
 
 
-        print(str(self.change), str(self.accumulated_reward), success)
+        #print(str(self.change), str(self.accumulated_reward), success)
 
 
         if len(self.reward_memory) < self.section_of:

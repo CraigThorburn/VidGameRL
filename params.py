@@ -1,10 +1,10 @@
 ### FILE VARIABLES
-PRETRAIN_MODELNAME_ADITIONS = ''
-TRAIN_MODELNAME_ADITIONS = '_test'
+PRETRAIN_MODELNAME_ADITIONS = 'EWC'
+TRAIN_MODELNAME_ADITIONS = '_EWC0.01'
 
 ### General
 OVERWRITE = True
-EXPERIMENT = 'cht/'
+EXPERIMENT = 'supervised_pretraining_GPJ/'
 ROOT = '/mnt/c/files/research/projects/vid_game/data/'
 ROOT = '/fs/clip-realspeech/projects/vid_game/data/'
 PARAMS_FOLDER = 'params'
@@ -19,12 +19,12 @@ WAVS_FOLDER = 'wavs/'
 ### For Validation
 VALIDATION_SEGMENTS_FILE = 'validation_segments'
 VALIDATION_ALIGNMENTS_FILE = 'validation_alignments'
-VALIDATION_COPORA = ['WSJ']
+VALIDATION_COPORA = ['GPJ']
 
 ### For Train
 STATE_FILE = 'states'
 REWARD_FILE = 'rewards'
-EPISODE_FILE = 'episodes_test'
+EPISODE_FILE = 'episodes'
 TRANSITION_FILE = 'transitions'
 ACTION_FILE = 'actions'
 LOCATION_FILE = 'locations'
@@ -42,7 +42,7 @@ RESULTS_FILE = 'results'
 
 ### For Test
 SIMPLE_STATE_TEST_FILE='test_states_simple'
-ABX_WAVS_FOLDER = 'wavs/'
+ABX_WAVS_FOLDER = 'wavs_WSJ/'
 
 
 
@@ -58,7 +58,7 @@ CONV1CHANNELS = 32
 CONV2CHANNELS = 32
 CONV3CHANNELS = 32
 MIDSIZE = 40
-CONV_FREEZE = False
+CONV_FREEZE = True
 CONV_FREEZE_LAYER = 0
 FREEZE_LAYER_TIME = 0
 LAYERS = [CONV1CHANNELS, CONV2CHANNELS, CONV3CHANNELS, MIDSIZE]
@@ -72,13 +72,13 @@ N_FFT = 400
 
 ### For Pretrain
 PRETRAIN_LR = 0.09
-GAME_TYPE = 'cht'
+GAME_TYPE = 'convmovement'
 GAME_MODE = 'oneshot'
 PRETRAIN_EPOCHS = 25
 
 ### For Validation
-LOSS_TYPE = 'standard' # insted of 'norm'
-FISCHER_CORPUS='WSJ'
+LOSS_TYPE = 'ewc' # insted of 'standard'
+FISCHER_CORPUS='GPJ'
 FISCHER_FILE = 'fischercoeffs'
 EWC_IMPORTANCE = 0.01
 
@@ -86,14 +86,14 @@ EWC_IMPORTANCE = 0.01
 GAMMA = 0.9
 EPS_START = 0.99
 EPS_END = 0.01
-EPS_DECAY = 2000
+EPS_DECAY = 300
 TARGET_UPDATE = 5
-TRAIN_LR = 0.09
+TRAIN_LR = 0.05
 MEM_SIZE = 10000
-NUM_PHONES = 39
-CONNECTION_LAYER = 'none'
+NUM_PHONES = 36
+CONNECTION_LAYER = 'phone'
 
-STIMULUS_REPS = 1
+STIMULUS_REPS = 8
 MOVE_SEPERATION = 1
 WAITTIME = 0
 

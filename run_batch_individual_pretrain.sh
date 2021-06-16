@@ -30,19 +30,25 @@ echo "pretrain validation complete"
 fi
 
 if [ $stage -le 2 ]; then
+echo "calculating fischer coefficients"
+python calculate_ewc_coeffs.py $params -run_num=$i
+fi
+
+
+if [ $stage -le 3 ]; then
 echo "starting training from pretrained model"
 python main_game_from_pretrain.py $params -run_num=$i
 echo "training complete"
 fi
 
-if [ $stage -le 3 ]; then
+if [ $stage -le 4 ]; then
 echo "starting training results processing"
 python process_game_experiment.py $params "false" -run_num=$i
 echo "training results processing complete"
 fi
 
 
-if [ $stage -le 4 ]; then
+if [ $stage -le 5 ]; then
 echo "starting abx for both of last two layers"
 python run_abx.py $params -run_num=$i -layer=-1 -pretrain=false
 python run_abx.py $params -run_num=$i -layer=-2 -pretrain=false
@@ -51,13 +57,13 @@ python run_abx.py $params -run_num=$i -layer=-4 -pretrain=false
 echo "abx complete"
 fi
 
-if [ $stage -le 5 ]; then
+if [ $stage -le 6 ]; then
 echo "starting testing from pretrained model"
 python test_conv_from_pretrain.py $params -run_num=$i
 echo "testing complete"
 fi
 
-if [ $stage -le 6 ]; then
+if [ $stage -le 7 ]; then
 echo "starting testing results processing"
 python process_game_experiment.py $params "true" -run_num=$i
 echo "testing results processing complete"

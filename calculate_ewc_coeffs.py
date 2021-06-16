@@ -41,7 +41,7 @@ print('using device ' + str(device))
 tic = time.time()
 running=True
 
-fischer_calculation_batch_size = 200
+fischer_calculation_batch_size = 32
 
 
 
