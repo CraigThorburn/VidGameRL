@@ -146,7 +146,7 @@ if GAME_TYPE == 'convmovement':
     OUTPUTS = [REWARD_OUT_PATH, ACTION_OUT_PATH, STATE_OUT_PATH, LOCATION_OUT_PATH]
     to_output = ['', '', '', '']
 elif GAME_TYPE == 'cht':
-    env = AcousticsGame2DConvCHT(ROOT + REWARD_FILE + '.txt', ROOT +STATE_FILE + '.txt', ROOT +EPISODE_FILE + '.txt', ROOT +LOCATION_FILE + '.txt', ROOT +TRANSITION_FILE + '.txt', MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device)
+    env = AcousticsGame2DConvCHT(ROOT + REWARD_FILE + '.txt', ROOT +STATE_FILE + '.txt', ROOT +EPISODE_FILE + '.txt', ROOT +LOCATION_FILE + '.txt', ROOT +TRANSITION_FILE + '.txt',  ROOT +  GAME_WAVS_FOLDER,MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device)
     OUTPUTS = [REWARD_OUT_PATH, ACTION_OUT_PATH, STATE_OUT_PATH, LOCATION_OUT_PATH]
     to_output = ['', '', '', '']
 
