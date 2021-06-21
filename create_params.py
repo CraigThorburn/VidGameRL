@@ -1,13 +1,23 @@
 
-from params import *
+
 import argparse
 import json
 
 parser = argparse.ArgumentParser()
 
 parser.add_argument("param_save_file")
+parser.add_argument("param_type")
 parser.add_argument("-run_num")
 args = parser.parse_args()
+
+if args.param_type == 'cht':
+    from cht_params import *
+elif args.param_type == 'game':
+    from game_params import *
+elif args.param_type == 'acousticgame':
+    from acousticgame_params import *
+else:
+    raise NotImplementedError
 
 
 ROOT = ROOT + EXPERIMENT

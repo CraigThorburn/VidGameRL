@@ -20,25 +20,25 @@ echo "launching run "$i
 
 if [ $stage -le 0 ]; then
 echo "starting training"
-python main_game_conv.py $params -run_num=$i
+python game_train.py $params -run_num=$i
 echo "training complete"
 fi
 
 if [ $stage -le 1 ]; then
 echo "starting training results processing"
-python process_game_experiment.py $params "false" -run_num=$i
+python game_process_experiment.py $params "false" -run_num=$i
 echo "training results processing complete"
 fi
 
 if [ $stage -le 2 ]; then
 echo "starting testing"
-python test_conv.py $params -run_num=$i
+python game_test.py $params -run_num=$i
 echo "testing complete"
 fi
 
 if [ $stage -le 3 ]; then
 echo "starting testing results processing"
-python process_game_experiment.py $params "true" -run_num=$i
+python game_process_experiment.py $params "true" -run_num=$i
 echo "testing results processing complete"
 fi
 

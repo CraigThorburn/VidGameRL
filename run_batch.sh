@@ -7,7 +7,7 @@
 #SBATCH --mail-user=craigtho@umiacs.umd.edu
 
 
-pretrain=$1
+type=$1
 experiment=$2
 num_runs=$3
 gpu=$4
@@ -21,35 +21,39 @@ export train_cmd="slurm.pl --config conf/slurm.conf"
 
 source activate audneurorl
 
-if [[ "$pretrain" == "false" ]]
-then
-    cd /fs/clip-realspeech/projects/vid_game/software/VidGameRL || exit
-    param_name=../params/$id".params"
-    echo "paramfile:"
-    echo $param_name
+cd /fs/clip-realspeech/projects/vid_game/software/VidGameRL || exit
+param_name=../params/$id".params"
+echo "paramfile:"
+echo $param_name
 
-    python create_params_file.py $param_name || exit
-    echo "param file created"
+python create_params_file.py $param_name $type|| exit
+echo "param file created"
+
+if [[ "$type" == "cht" ]]
+then
+
 
     echo "comencing slurm batch parallel across " $num_runs " machines"
 
-    $train_cmd --mem 16GB JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual_nopretrain.sh $stage $param_name || exit 1;
+    $train_cmd --mem 16GB JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual_cht.sh $stage $param_name || exit 1;
     wait
     echo "finished"
 
-elif [[ "$pretrain" == "true" ]]
+elif [[ "$type" == "game" ]]
 then
-    cd /fs/clip-realspeech/projects/vid_game/software/VidGameRL || exit
-    param_name=../params/$id".params"
-    echo "paramfile:"
-    echo param_name
-
-    python create_params_file.py $param_name || exit
-    echo "param file created"
 
     echo "comencing slurm batch parallel across " $num_runs " machines"
 
-    $train_cmd JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual_pretrain.sh $stage $param_name || exit 1;
+    $train_cmd JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual_game.sh $stage $param_name || exit 1;
+    wait
+    echo "finished"
+
+elif [[ "$type" == "acousticgame" ]]
+then
+
+    echo "comencing slurm batch parallel across " $num_runs " machines"
+
+    $train_cmd JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual_acousticgame.sh $stage $param_name || exit 1;
     wait
     echo "finished"
 

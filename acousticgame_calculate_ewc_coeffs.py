@@ -1,7 +1,7 @@
 ### Set Imports
 import torch
-from DataLoader import *
-from NN import *
+from libs.DataLoader import *
+from libs.NN import *
 import json
 import time
 import argparse

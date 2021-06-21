@@ -4,9 +4,9 @@ from itertools import count
 import torch
 import torch.optim as optim
 import torch.nn.functional as F
-from ReplayMemory import *
-from DQN import *
-from Environment import *
+from libs.ReplayMemory import *
+from libs.DQN import *
+from libs.Environment import *
 import json
 import time
 import argparse

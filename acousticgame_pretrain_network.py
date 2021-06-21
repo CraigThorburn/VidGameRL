@@ -2,8 +2,8 @@
 import torch
 import torch.optim as optim
 import torch.nn.functional as F
-from DataLoader import *
-from NN import *
+from libs.DataLoader import *
+from libs.NN import *
 import json
 import time
 import argparse

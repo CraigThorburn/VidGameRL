@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from DataLoader import *
+from libs.DataLoader import *
 import torch
 
 class Environment(object):

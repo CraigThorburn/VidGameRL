@@ -3,8 +3,8 @@
 
 from itertools import count
 import torch
-from DQN import *
-from Environment import *
+from libs.DQN import *
+from libs.Environment import *
 import json
 import time
 import argparse
