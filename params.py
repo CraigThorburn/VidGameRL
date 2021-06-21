@@ -1,12 +1,12 @@
 ### FILE VARIABLES
-PRETRAIN_MODELNAME_ADITIONS = 'EWC'
-TRAIN_MODELNAME_ADITIONS = '_EWC0.01'
+PRETRAIN_MODELNAME_ADITIONS = ''
+TRAIN_MODELNAME_ADITIONS = ''
 
 ### General
 OVERWRITE = True
-EXPERIMENT = 'supervised_pretraining_GPJ/'
+EXPERIMENT = 'CHT/'
 ROOT = '/mnt/c/files/research/projects/vid_game/data/'
-ROOT = '/fs/clip-realspeech/projects/vid_game/data/'
+#ROOT = '/fs/clip-realspeech/projects/vid_game/data/'
 PARAMS_FOLDER = 'params'
 
 
@@ -24,12 +24,12 @@ VALIDATION_COPORA = ['GPJ']
 ### For Train
 STATE_FILE = 'states'
 REWARD_FILE = 'rewards'
-EPISODE_FILE = 'episodes'
+EPISODE_FILE = 'episodes_experiment1'
 TRANSITION_FILE = 'transitions'
 ACTION_FILE = 'actions'
 LOCATION_FILE = 'locations'
 SIMPLE_STATE_FILE='states_simple'
-GAME_WAVS_FOLDER = 'wavs_game/'
+GAME_WAVS_FOLDER = 'wavs/'
 
 MODEL_FOLDER = 'models/'
 OUT_FOLDER = 'exp/'

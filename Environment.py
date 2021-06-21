@@ -535,7 +535,7 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
         else:
             reward = 0
 
-        if self.current_state[1] == 'i':
+        if self.current_state[3] == 'r': #TODO: Update this as variable
             self.change = True
 
         self.accumulated_reward +=reward
