@@ -4,9 +4,9 @@ TRAIN_MODELNAME_ADITIONS = ''
 
 ### General
 OVERWRITE = True
-EXPERIMENT = 'CHT/'
+EXPERIMENT = 'cht_intonation/'
 ROOT = '/mnt/c/files/research/projects/vid_game/data/'
-#ROOT = '/fs/clip-realspeech/projects/vid_game/data/'
+ROOT = '/fs/clip-realspeech/projects/vid_game/data/'
 PARAMS_FOLDER = 'params'
 
 
@@ -29,7 +29,7 @@ TRANSITION_FILE = 'transitions'
 ACTION_FILE = 'actions'
 LOCATION_FILE = 'locations'
 SIMPLE_STATE_FILE='states_simple'
-GAME_WAVS_FOLDER = 'wavs/'
+GAME_WAVS_FOLDER = 'wavs_game/'
 
 MODEL_FOLDER = 'models/'
 OUT_FOLDER = 'exp/'
@@ -39,11 +39,6 @@ LOCATION_OUT_FILE = 'location'
 ACTION_OUT_FILE = 'action'
 LOSS_OUT_FILE = 'loss'
 RESULTS_FILE = 'results'
-
-### For Test
-SIMPLE_STATE_TEST_FILE='test_states_simple'
-ABX_WAVS_FOLDER = 'wavs_WSJ/'
-
 
 
 #########################################
@@ -96,5 +91,3 @@ CONNECTION_LAYER = 'phone'
 STIMULUS_REPS = 8
 MOVE_SEPERATION = 1
 WAITTIME = 0
-
-### For Test

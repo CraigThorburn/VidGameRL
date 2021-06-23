@@ -12,7 +12,7 @@ import time
 import argparse
 import os
 import shutil
-import Loss
+import libs.Loss
 
 
 ### Parse Arguments
@@ -212,10 +212,10 @@ if LOSS_TYPE == 'ewc':
 
 
 
-    loss_class = Loss.EWCLoss(means, precision_matrices, EWC_IMPORTANCE, device)
+    loss_class = libs.Loss.EWCLoss(means, precision_matrices, EWC_IMPORTANCE, device)
 
 elif LOSS_TYPE == 'standard':
-    loss_class = Loss.StandardLoss(device)
+    loss_class = libs.Loss.StandardLoss(device)
 
 else:
     raise NotImplementedError

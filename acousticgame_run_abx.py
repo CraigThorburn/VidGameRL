@@ -18,7 +18,7 @@ import time
 import argparse
 import os
 import shutil
-from NN import *
+from libs.NN import *
 
 ### Parse Arguments
 parser = argparse.ArgumentParser()
