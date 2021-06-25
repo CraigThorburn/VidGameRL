@@ -349,7 +349,8 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
 
 
     def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, wav_file, non_move_gap, wait_time,
-                 mode, total_reps, device=None, acoustic_params =('mfcc', 16000, 0.2, 400, 400, 160, 13, True),max_episodes = 50000 ):
+                 mode, total_reps, device=None, change_trial=(0, 'i'), acoustic_params =('mfcc', 16000, 0.2, 400, 400, 160, 13, True), max_episodes = 50000):
+
         self.rep = 0
         self.total_reps = total_reps-1
         self.current_section_num = 0
@@ -360,6 +361,9 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
 
         self.step=self.cht_step
         self.n_episodes = max_episodes
+
+        self.change_trial_position = int(change_trial[0])
+        self.change_trial_marker = change_trial[1]
 
 
 
@@ -463,15 +467,16 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
             successes = sum(self.reward_memory)
 
             if successes >= self.section_need or self.time_in_section >= self.section_max:
-                self.debug()
-                print('success')
-                print(sum(self.reward_memory))
-                print('hit:', self.d_memory[0], 'alarm:', self.d_memory[1], 'miss:', self.d_memory[2], 'correct negative:', self.d_memory[3])
-                print(self.change)
-                print(self.correct_headturn)
-                print(success)
+                #self.debug()
+                #print('success')
+                #print(sum(self.reward_memory))
+                print('hit:', self.d_memory[0], 'alarm:', self.d_memory[1], 'miss:', self.d_memory[2], 'correct negative:', self.d_memory[3], 'time in section: ', str(self.time_in_section))
+
+                #print(self.change)
+                #print(self.correct_headturn)
+                #print(success)
                 if self.current_section_num != self.n_sections -1:
-                    print('moving to new section')
+                    #print('moving to new section')
                     self.current_section_num +=1
                     self.current_section_length = self.section_lengths[self.current_section_num]
                     self.current_section = self.episodes[self.current_section_num]
@@ -535,7 +540,7 @@ class AcousticsGame2DConvCHT(AcousticsGame2DConv):
         else:
             reward = 0
 
-        if self.current_state[3] == 'r': #TODO: Update this as variable
+        if self.current_state[self.change_trial_position] == self.change_trial_marker: #TODO: Update this as variable
             self.change = True
 
         self.accumulated_reward +=reward

@@ -6,7 +6,7 @@ TRAIN_MODELNAME_ADITIONS = ''
 OVERWRITE = True
 EXPERIMENT = 'cht_intonation/'
 ROOT = '/mnt/c/files/research/projects/vid_game/data/'
-ROOT = '/fs/clip-realspeech/projects/vid_game/data/'
+#ROOT = '/fs/clip-realspeech/projects/vid_game/data/'
 PARAMS_FOLDER = 'params'
 
 
@@ -87,6 +87,8 @@ TRAIN_LR = 0.05
 MEM_SIZE = 10000
 NUM_PHONES = 36
 CONNECTION_LAYER = 'phone'
+
+CHANGE_TRIAL = (0, 'i')
 
 STIMULUS_REPS = 8
 MOVE_SEPERATION = 1
