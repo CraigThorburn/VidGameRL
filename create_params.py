@@ -21,7 +21,8 @@ else:
 
 
 ROOT = ROOT + EXPERIMENT
-PRETRAIN_MODELNAME = 'pretrain_lr' + str(PRETRAIN_LR)+ '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_batchsize' + \
+if args.param_type == 'acousticgame':
+    PRETRAIN_MODELNAME = 'pretrain_lr' + str(PRETRAIN_LR)+ '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_batchsize' + \
                      str(BATCH_SIZE) + '_epochs' + str(PRETRAIN_EPOCHS)+ PRETRAIN_MODELNAME_ADITIONS
 
 TRAIN_MODELNAME = 'experiment_' + GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay' + str(EPS_DECAY) + '_targetupdate' + str(TARGET_UPDATE) \
@@ -32,7 +33,9 @@ TRAIN_MODELNAME = 'experiment_' + GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay
 if args.run_num:
     RUN_NUM = args.run_num
     TRAIN_MODELNAME = TRAIN_MODELNAME + '_run'+str(RUN_NUM)
-    PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run' + str(RUN_NUM)
+
+    if args.param_type == 'acousticgame':
+        PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run' + str(RUN_NUM)
 
 
 filename = args.param_save_file

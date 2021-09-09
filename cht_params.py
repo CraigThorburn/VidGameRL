@@ -1,6 +1,5 @@
 ### FILE VARIABLES
-PRETRAIN_MODELNAME_ADITIONS = ''
-TRAIN_MODELNAME_ADITIONS = ''
+TRAIN_MODELNAME_ADITIONS = '_1500_exp1'
 
 ### General
 OVERWRITE = True
@@ -10,18 +9,10 @@ ROOT = '/mnt/c/files/research/projects/vid_game/data/'
 PARAMS_FOLDER = 'params'
 
 
-### For Pretrain
-PHONES_FILE = 'pretrain_phones'
-PRETRAIN_SEGMENTS_FILE = 'pretrain_segments'
-PRETRAIN_ALIGNMENTS_FILE = 'pretrain_alignments'
-WAVS_FOLDER = 'wavs/'
-
-### For Validation
-VALIDATION_SEGMENTS_FILE = 'validation_segments'
-VALIDATION_ALIGNMENTS_FILE = 'validation_alignments'
-VALIDATION_COPORA = ['GPJ']
 
 ### For Train
+GAME_TYPE = 'cht'
+GAME_MODE = 'oneshot'
 STATE_FILE = 'states'
 REWARD_FILE = 'rewards'
 EPISODE_FILE = 'episodes_experiment1'
@@ -47,8 +38,8 @@ RESULTS_FILE = 'results'
 BATCH_SIZE = 32
 UPDATES = 25
 CONV_SIZE = 10
-KERNEL = 5
-STRIDE = 1
+KERNEL = 10
+STRIDE = 2
 CONV1CHANNELS = 32
 CONV2CHANNELS = 32
 CONV3CHANNELS = 32
@@ -65,31 +56,18 @@ SPEC_WINDOW_LENGTH = 400
 SPEC_WINDOW_HOP = 160
 N_FFT = 400
 
-### For Pretrain
-PRETRAIN_LR = 0.09
-GAME_TYPE = 'cht'
-GAME_MODE = 'oneshot'
-PRETRAIN_EPOCHS = 25
-
-### For Validation
-LOSS_TYPE = 'ewc' # insted of 'standard'
-FISCHER_CORPUS='GPJ'
-FISCHER_FILE = 'fischercoeffs'
-EWC_IMPORTANCE = 0.01
 
 ### For Train
 GAMMA = 0.9
 EPS_START = 0.99
 EPS_END = 0.01
-EPS_DECAY = 300
+EPS_DECAY = 1000
 TARGET_UPDATE = 5
 TRAIN_LR = 0.05
 MEM_SIZE = 10000
-NUM_PHONES = 36
-CONNECTION_LAYER = 'phone'
 
-CHANGE_TRIAL = (0, 'i')
+CHANGE_TRIAL = (3, 'r')
 
-STIMULUS_REPS = 8
+STIMULUS_REPS = 1
 MOVE_SEPERATION = 1
 WAITTIME = 0
