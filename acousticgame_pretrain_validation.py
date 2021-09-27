@@ -76,7 +76,7 @@ for corpus in VALIDATION_COPORA:
 
         # Get raw waveforms from data and reshape for classifier
         wavs, labels, phones = data.get_batch_phones(i_batch * testing_batch_size, (i_batch + 1) * testing_batch_size)
-
+        #print(wavs.size(), len(labels))
         wavs = wavs.reshape(wavs.size()[0], 1, wavs.size()[1]).to(device)
         wavs = data.transform(wavs)
         labels =  torch.stack(labels).to(device)
@@ -87,6 +87,7 @@ for corpus in VALIDATION_COPORA:
         # Correct predictions
         predicted_cats = predictions.max(1).indices
         label_cats = labels.max(1).indices
+        #print(label_cats.size(), predicted_cats.size())
         #correct_predictions = predicted_cats == label_cats
         #total_correct = sum(correct_predictions)
 
@@ -94,7 +95,7 @@ for corpus in VALIDATION_COPORA:
 
         #phone_results = [(sum(predicted_cats[correct_predictions] == i), sum(label_cats == i)) for i in range(data.get_num_phones())]
 
-        for b in range(testing_batch_size):
+        for b in range(label_cats.size()[0]):
             results[label_cats[b], predicted_cats[b]] += 1
 
         ### Save Final Outputs

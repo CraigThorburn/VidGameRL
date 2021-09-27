@@ -281,12 +281,12 @@ for i_episode in range(num_episodes):
 
         ### Set Remaining Outputs
 
-        if reward>=1:
-            to_output[0] = to_output[0] + ' ' + str(float(reward))
-            to_output[1] = to_output[1] + ' ' + str(float(action))
-            to_output[2] = to_output[2] + ' ' + out_str
-            if GAME_TYPE != 'simplegame':
-                to_output[3] = to_output[3] + ' ' + env.get_location_str()
+        #if reward>=1:
+        to_output[0] = to_output[0] + ' ' + str(float(reward))
+        to_output[1] = to_output[1] + ' ' + str(float(action))
+        to_output[2] = to_output[2] + ' ' + out_str
+        if GAME_TYPE != 'simplegame':
+            to_output[3] = to_output[3] + ' ' + env.get_location_str()
 
 
 

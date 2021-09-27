@@ -15,7 +15,7 @@ import shutil
 import libs.Loss
 
 
-### Parse Arguments
+## Parse Arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("params_file", help="root directory")
 parser.add_argument("-run_num")

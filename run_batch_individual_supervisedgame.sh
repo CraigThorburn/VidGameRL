@@ -37,7 +37,7 @@ fi
 
 if [ $stage -le 3 ]; then
 echo "starting training from pretrained model"
-python acousticgame_train.py $params -run_num=$i || exit
+python acousticgame_supervisedtrain.py $params -run_num=$i || exit
 echo "training complete"
 fi
 
