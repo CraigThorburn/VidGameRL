@@ -18,6 +18,8 @@ elif args.param_type == 'acousticgame':
     from acousticgame_params import *
 elif args.param_type == 'supervisedgame':
     from acousticgame_params import *
+elif args.param_type == 'smartgame':
+    from smartgame_params import *
 else:
     raise NotImplementedError
 

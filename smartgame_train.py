@@ -31,7 +31,7 @@ for key in all_params:
 if args.run_num:
     RUN_NUM = args.run_num
     TRAIN_MODELNAME = TRAIN_MODELNAME + '_run'+str(RUN_NUM)
-    PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run'+str(RUN_NUM)
+    #PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run'+str(RUN_NUM)
 
 try:
     os.makedirs(ROOT + OUT_FOLDER + TRAIN_MODELNAME)
@@ -39,7 +39,6 @@ try:
 except OSError:
     print('experiment output folder exists')
 
-MODEL_FOLDER = OUT_FOLDER + PRETRAIN_MODELNAME + '/'
 OUT_FOLDER = OUT_FOLDER + TRAIN_MODELNAME + '/'
 
 
@@ -119,7 +118,7 @@ def select_action(state, loc):
     global steps_done
     sample = random.random()
     eps_threshold = EPS_END + (EPS_START - EPS_END) * \
-                    math.exp(-1. * i_episode / EPS_DECAY)
+                    math.exp(-1. * eps_episode / EPS_DECAY)
     steps_done += 1
     with torch.no_grad():
         # t.max(1) will return largest column value of each row.
@@ -149,7 +148,9 @@ LOCATION_OUT_PATH = ROOT + OUT_FOLDER + 'train_' +LOCATION_OUT_FILE + '_' + TRAI
 
 ### Create Environment and Set Other File Locations
 if GAME_TYPE == 'convmovement':
-    env = AcousticsGame2DConvFromFile(ROOT + REWARD_FILE + '.txt', ROOT +STATE_FILE + '.txt', ROOT +EPISODE_FILE + '.txt', ROOT +LOCATION_FILE + '.txt', ROOT +TRANSITION_FILE + '.txt',  ROOT +  GAME_WAVS_FOLDER, MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device)
+
+    env = AcousticsGame2DConvVisualFromFile(ROOT + REWARD_FILE + '.txt', ROOT +STATE_FILE + '.txt', ROOT +EPISODE_FILE + '.txt', ROOT +LOCATION_FILE + '.txt', ROOT +TRANSITION_FILE + '.txt',  ROOT +  GAME_WAVS_FOLDER, ROOT +VISUAL_FILE + '.txt', MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device,
+                                            acoustic_params =('mfcc', 22050, 0.2, 400, 400, 160, 13, True))
     OUTPUTS = [REWARD_OUT_PATH, ACTION_OUT_PATH, STATE_OUT_PATH, LOCATION_OUT_PATH]
     to_output = ['', '', '', '']
 else:
@@ -164,7 +165,7 @@ env.validate_environment()
 print('environment valid')
 
 ### Report Model Parameters
-num_inputs = env.get_n_location_dims()  # len(phones2vectors.keys())
+num_inputs = env.get_n_visual_dims()  # len(phones2vectors.keys())
 print('num inputs: ' + str(num_inputs))
 num_episodes = env.get_n_episodes()  # len(input_data)
 print('num episodes: ' + str(num_episodes))
@@ -191,8 +192,8 @@ elif CONNECTION_LAYER == 'conv':
     policy_net.load_state_dict(torch.load(MODEL_LOCATION, map_location=device), strict=False)
     target_net.load_state_dict(policy_net.state_dict())
 elif CONNECTION_LAYER == 'none':
-    policy_net = DQN_NN_conv(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE).to(device)
-    target_net = DQN_NN_conv(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE).to(device)
+    policy_net = DQN_NN_conv_pretrain_convlayer(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE).to(device)
+    target_net = DQN_NN_conv_pretrain_convlayer(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE).to(device)
     target_net.load_state_dict(policy_net.state_dict())
 else:
     raise NotImplementedError
@@ -207,8 +208,6 @@ if LOSS_TYPE == 'ewc':
 
     for p, n in policy_net.named_parameters():
         if p not in precision_matrices.keys():
-            print('parameters without fischer coeffs:')
-            print(p)
             precision_matrices[p] = torch.zeros(n.size())
             means[p] = torch.zeros(n.size())
 
@@ -264,8 +263,7 @@ for i_episode in range(num_episodes):
     total_reward = 0
     episode_length = env.get_current_episode_length()
     state, loc = env.get_state()
-    state = state.to(device)
-    loc = loc.to(device)
+
     done = False
 
     ### Iterate Over Episode

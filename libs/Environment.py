@@ -585,6 +585,54 @@ class AcousticsGame2DConvFromFile(AcousticsGame2DConv):
         self.states = data.get_transformed_states()
         self.n_timepoints, _ = self.states[list(self.states.keys())[0]].size()
 
+class AcousticsGame2DConvVisualFromFile(AcousticsGame2DConvFromFile):
+
+    def __init__(self, reward_file, state_file, episode_file, location_file, transition_file, wav_file, visual_file, non_move_gap, wait_time,
+                 mode, total_reps, device=None, acoustic_params =('mfcc', 16000, 0.2, 400, 400, 160, 13, True), ):
+
+        self.visual_state_file = visual_file
+
+        super().__init__(reward_file, state_file, episode_file, location_file, transition_file, wav_file, non_move_gap, wait_time,
+                 mode, total_reps, device, acoustic_params)
+
+    def load_states(self, STATE_FILE):
+        transform_type, sr, phone_window_size, n_fft, spec_window_length, spec_window_hop, n_mfcc, log_mels = self.acoustic_params
+
+        data = GameVisualDataLoader(STATE_FILE, self.wav_file, self.visual_state_file, self.device, transform_type=transform_type, sr = sr, phone_window_size = phone_window_size,
+                 n_fft = n_fft, spec_window_length = spec_window_length, spec_window_hop = spec_window_hop, n_mfcc = n_mfcc, log_mels=log_mels)
+
+        self.states = data.get_transformed_states()
+        self.visual = data.get_visual()
+        self.n_visual_dims = data.get_n_visual_dims()
+        #self.states = [(self.aud_states[k], self.visual[k]) for k in self.aud_states.keys()]
+        self.n_timepoints, _ = self.states[list(self.states.keys())[0]].size()
+        self.current_visual=''
+
+    def get_n_visual_dims(self):
+        return self.n_visual_dims
+
+    def initiate_environment(self):
+        self.current_location = random.choice(list(self.locations.keys()))
+        self.current_episode = self.episodes[self.current_episode_num]
+        self.current_state= self.current_episode[self.current_state_num]
+
+        self.new_state = True
+
+    def advance_episode(self):
+        self.current_episode_num += 1
+        self.current_episode = self.episodes[self.current_episode_num]
+        self.current_state_num = 0
+        self.current_state= self.current_episode[self.current_state_num]
+        self.current_location = random.choice(list(self.locations.keys()))
+
+    def get_state(self):
+
+        if self.current_state is not None:
+            return self.states[self.current_state].float(), self.visual[self.current_state].float()
+        else:
+            return None, None
+
+
 
 
 

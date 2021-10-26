@@ -2,6 +2,7 @@ import random
 import torch
 import torchaudio
 import math
+import numpy as np
 from collections import namedtuple
 Instance = namedtuple('Instance',
                                 ('file', 'start', 'end','label', 'phone'))
@@ -203,6 +204,7 @@ class GameDataLoader(object):
             waveform, sample_rate = torchaudio.load(wav_folder + wav_file)
 
             if sample_rate != self.sr:
+                print(str(sample_rate), '!=', str(self.sr))
                 raise(AssertionError)
 
             window_start = math.floor( float(mid_time) * self.sr) - (self.sr_window_size // 2)
@@ -243,3 +245,34 @@ class GameDataLoader(object):
 
     def get_feature_dims(self):
         return self.w, self.h
+
+class GameVisualDataLoader(GameDataLoader):
+
+    def __init__(self, states_file, wav_folder, visual_file, device, transform_type='mfcc', sr = 16000, phone_window_size = 0.2,
+                 n_fft = 400, spec_window_length = 400, spec_window_hop = 160, n_mfcc = 13, log_mels=True):
+
+        super().__init__(states_file, wav_folder, device, transform_type, sr, phone_window_size,
+                 n_fft, spec_window_length, spec_window_hop, n_mfcc, log_mels)
+        self.visuals = {}
+        self.n_visual_dims=0
+        self.load_visual(visual_file, device)
+
+    def load_visual(self, VISUAL_FILE, device):
+        with open(VISUAL_FILE, 'r') as f:
+            input_data = f.read().splitlines()
+            header = input_data[0].split('\t')
+            assert header[0] == 'visual'
+            self.n_visual_dims = len(header)-1
+
+            for line in input_data[1:]:
+                assert line.split('\t')[0] not in self.visuals.keys()
+                self.visuals[line.split('\t')[0]] = torch.tensor(np.array(line.split('\t')[1:], dtype=np.double),device = device)
+
+
+    def get_visual(self):
+        return self.visuals
+
+
+    def get_n_visual_dims(self):
+        return self.n_visual_dims
+
