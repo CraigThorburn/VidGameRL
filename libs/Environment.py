@@ -632,8 +632,3 @@ class AcousticsGame2DConvVisualFromFile(AcousticsGame2DConvFromFile):
         else:
             return None, None
 
-
-
-
-
-

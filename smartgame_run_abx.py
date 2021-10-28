@@ -180,5 +180,3 @@ for l in results:
     outfile.write(str(l[0]) + '\t' + str(l[1]) + '\n')
 outfile.close()
 print('done')
-
-

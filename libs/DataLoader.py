@@ -275,4 +275,3 @@ class GameVisualDataLoader(GameDataLoader):
 
     def get_n_visual_dims(self):
         return self.n_visual_dims
-

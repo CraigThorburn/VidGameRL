@@ -107,5 +107,3 @@ for corpus in VALIDATION_COPORA:
     outfile.close()
 
     print('data saved')
-
-print('done')
