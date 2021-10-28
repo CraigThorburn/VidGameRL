@@ -37,7 +37,7 @@ echo "launching run "$i
 
 if [ $stage -le 3 ]; then
 echo "starting training from pretrained model"
-python acousticgame_train.py $params -run_num=$i || exit
+python smartgame_train.py $params -run_num=$i || exit
 echo "training complete"
 fi
 
@@ -48,14 +48,17 @@ echo "training results processing complete"
 fi
 
 
-#if [ $stage -le 5 ]; then
-#echo "starting abx for both of last two layers"
-#python acousticgame_run_abx.py $params -run_num=$i -layer=-1 -pretrain=false || exit
-#python acousticgame_run_abx.py $params -run_num=$i -layer=-2 -pretrain=false || exit
-#python acousticgame_run_abx.py $params -run_num=$i -layer=-3 -pretrain=false || exit
-#python acousticgame_run_abx.py $params -run_num=$i -layer=-4 -pretrain=false || exit
-#echo "abx complete"
-#fi
+if [ $stage -le 5 ]; then
+echo "starting abx for last layers"
+python smartgame_run_abx.py $params -run_num=$i -layer=-1 -pretrain=false -token1=a -token2=b  || exit
+python smartgame_run_abx.py $params -run_num=$i -layer=-1 -pretrain=false -token1=a -token2=c  || exit
+python smartgame_run_abx.py $params -run_num=$i -layer=-1 -pretrain=false -token1=a -token2=d  || exit
+python smartgame_run_abx.py $params -run_num=$i -layer=-1 -pretrain=false -token1=b -token2=c  || exit
+python smartgame_run_abx.py $params -run_num=$i -layer=-1 -pretrain=false -token1=b -token2=d  || exit
+python smartgame_run_abx.py $params -run_num=$i -layer=-1 -pretrain=false -token1=c -token2=d  || exit
+
+echo "abx complete"
+fi
 
 #if [ $stage -le 6 ]; then
 #echo "starting testing from pretrained model"

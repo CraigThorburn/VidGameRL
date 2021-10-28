@@ -34,36 +34,44 @@ echo "calculating fischer coefficients"
 python acousticgame_calculate_ewc_coeffs.py $params -run_num=$i || exit
 fi
 
-
 if [ $stage -le 3 ]; then
+echo "running pretrain abx task"
+python acousticgame_run_abx.py $params -run_num=$i -layer=-1 -pretrain=true || exit
+#python acousticgame_run_abx.py $params -run_num=$i -layer=-2 -pretrain=true || exit
+#python acousticgame_run_abx.py $params -run_num=$i -layer=-3 -pretrain=true || exit
+#python acousticgame_run_abx.py $params -run_num=$i -layer=-4 -pretrain=true || exit
+echo "abx complete"
+fi
+
+if [ $stage -le 4 ]; then
 echo "starting training from pretrained model"
 python acousticgame_train.py $params -run_num=$i || exit
 echo "training complete"
 fi
 
-if [ $stage -le 4 ]; then
+if [ $stage -le 5 ]; then
 echo "starting training results processing"
 python game_process_experiment.py $params "false" -run_num=$i || exit
 echo "training results processing complete"
 fi
 
 
-if [ $stage -le 5 ]; then
-echo "starting abx for both of last two layers"
+if [ $stage -le 6 ]; then
+echo "starting abx for both of last layers"
 python acousticgame_run_abx.py $params -run_num=$i -layer=-1 -pretrain=false || exit
-python acousticgame_run_abx.py $params -run_num=$i -layer=-2 -pretrain=false || exit
-python acousticgame_run_abx.py $params -run_num=$i -layer=-3 -pretrain=false || exit
-python acousticgame_run_abx.py $params -run_num=$i -layer=-4 -pretrain=false || exit
+#python acousticgame_run_abx.py $params -run_num=$i -layer=-2 -pretrain=false || exit
+#python acousticgame_run_abx.py $params -run_num=$i -layer=-3 -pretrain=false || exit
+#python acousticgame_run_abx.py $params -run_num=$i -layer=-4 -pretrain=false || exit
 echo "abx complete"
 fi
 
-#if [ $stage -le 6 ]; then
+#if [ $stage -le 7 ]; then
 #echo "starting testing from pretrained model"
 #python acousticgame_test.py $params -run_num=$i
 #echo "testing complete"
 #fi
 
-#if [ $stage -le 7 ]; then
+#if [ $stage -le 8 ]; then
 #echo "starting testing results processing"
 #python game_process_experiment.py $params "true" -run_num=$i
 #echo "testing results processing complete"
