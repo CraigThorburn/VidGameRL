@@ -16,12 +16,20 @@ elif args.param_type == 'game':
     from game_params import *
 elif args.param_type == 'acousticgame':
     from acousticgame_params import *
+elif args.param_type == 'supervisedgame':
+    from acousticgame_params import *
+elif args.param_type == 'smartgame':
+    from smartgame_params import *
 else:
     raise NotImplementedError
 
 
 ROOT = ROOT + EXPERIMENT
 if args.param_type == 'acousticgame':
+    PRETRAIN_MODELNAME = 'pretrain_lr' + str(PRETRAIN_LR)+ '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_batchsize' + \
+                     str(BATCH_SIZE) + '_epochs' + str(PRETRAIN_EPOCHS)+ PRETRAIN_MODELNAME_ADITIONS
+
+elif args.param_type == 'supervisedgame':
     PRETRAIN_MODELNAME = 'pretrain_lr' + str(PRETRAIN_LR)+ '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_batchsize' + \
                      str(BATCH_SIZE) + '_epochs' + str(PRETRAIN_EPOCHS)+ PRETRAIN_MODELNAME_ADITIONS
 
@@ -36,6 +44,10 @@ if args.run_num:
 
     if args.param_type == 'acousticgame':
         PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run' + str(RUN_NUM)
+
+    elif args.param_type == 'supervisedgame':
+        PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run' + str(RUN_NUM)
+
 
 
 filename = args.param_save_file

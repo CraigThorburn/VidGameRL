@@ -119,7 +119,7 @@ def select_action(state, loc):
     global steps_done
     sample = random.random()
     eps_threshold = EPS_END + (EPS_START - EPS_END) * \
-                    math.exp(-1. * eps_episode / EPS_DECAY)
+                    math.exp(-1. * i_episode / EPS_DECAY)
     steps_done += 1
     with torch.no_grad():
         # t.max(1) will return largest column value of each row.
@@ -207,6 +207,8 @@ if LOSS_TYPE == 'ewc':
 
     for p, n in policy_net.named_parameters():
         if p not in precision_matrices.keys():
+            print('parameters without fischer coeffs:')
+            print(p)
             precision_matrices[p] = torch.zeros(n.size())
             means[p] = torch.zeros(n.size())
 
@@ -281,12 +283,12 @@ for i_episode in range(num_episodes):
 
         ### Set Remaining Outputs
 
-        if reward>=1:
-            to_output[0] = to_output[0] + ' ' + str(float(reward))
-            to_output[1] = to_output[1] + ' ' + str(float(action))
-            to_output[2] = to_output[2] + ' ' + out_str
-            if GAME_TYPE != 'simplegame':
-                to_output[3] = to_output[3] + ' ' + env.get_location_str()
+        #if reward>=1:
+        to_output[0] = to_output[0] + ' ' + str(float(reward))
+        to_output[1] = to_output[1] + ' ' + str(float(action))
+        to_output[2] = to_output[2] + ' ' + out_str
+        if GAME_TYPE != 'simplegame':
+            to_output[3] = to_output[3] + ' ' + env.get_location_str()
 
 
 

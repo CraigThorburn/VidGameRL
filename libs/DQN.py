@@ -125,7 +125,9 @@ class DQN_NN_conv(nn.Module):
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
     def forward(self, x_aud, x_loc):
-
+        print(x_aud.size())
+        print(x_loc.size())
+        print()
         if len(x_aud.size()) == 2:
             # not batch
             x_aud = x_aud.reshape(1,1,x_aud.size()[0], x_aud.size()[1])

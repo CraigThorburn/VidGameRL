@@ -49,7 +49,7 @@ if OVERWRITE:
     write_method = 'w'
 else:
     write_method = 'x'
-outfile = open(ROOT + OUT_FOLDER + RESULTS_FILE + '_' +  PRETRAIN_MODELNAME + '_' + FISCHER_CORPUS + '.txt', write_method)
+outfile = open(ROOT + OUT_FOLDER + FISCHER_FILE + '_' +  PRETRAIN_MODELNAME + '.txt', write_method)
 outfile.close()
 
 
@@ -111,4 +111,5 @@ for n, p in deepcopy(model_params).items():
 print('fetched means')
 
 torch.save([precision_matrices,means],ROOT + OUT_FOLDER + FISCHER_FILE + '_' +  PRETRAIN_MODELNAME + '.txt')
+
 print('data saved')

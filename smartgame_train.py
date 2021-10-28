@@ -15,7 +15,7 @@ import shutil
 import libs.Loss
 
 
-## Parse Arguments
+### Parse Arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("params_file", help="root directory")
 parser.add_argument("-run_num")
@@ -31,7 +31,7 @@ for key in all_params:
 if args.run_num:
     RUN_NUM = args.run_num
     TRAIN_MODELNAME = TRAIN_MODELNAME + '_run'+str(RUN_NUM)
-    PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run'+str(RUN_NUM)
+    #PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run'+str(RUN_NUM)
 
 try:
     os.makedirs(ROOT + OUT_FOLDER + TRAIN_MODELNAME)
@@ -39,7 +39,6 @@ try:
 except OSError:
     print('experiment output folder exists')
 
-MODEL_FOLDER = OUT_FOLDER + PRETRAIN_MODELNAME + '/'
 OUT_FOLDER = OUT_FOLDER + TRAIN_MODELNAME + '/'
 
 
@@ -83,10 +82,19 @@ def optimize_model():
     state_action_values = policy_net(state_batch.reshape(batch_size, 1, dim1, dim2), locs_batch)
     state_action_values = state_action_values.reshape(BATCH_SIZE, n_actions).gather(1, action_batch)
 
-
+    # Compute V(s_{t+1}) for all next states.
+    # Expected values of actions for non_final_next_states are computed based
+    # on the "older" target_net; selecting their best reward with max(1)[0].
+    # This is merged based on the mask, such that we'll have either the expected
+    # state value or 0 in case the state was final.
+    next_state_values = torch.zeros(BATCH_SIZE, device=device)
+    batch_size, dim1, dim2 = non_final_next_states.size()
+    next_state_values_network = target_net(non_final_next_states.reshape(batch_size, 1, dim1, dim2), non_final_next_locs)
+    # TODO: Update policy_net
+    next_state_values[non_final_mask] = next_state_values_network.max(-1)[0]
 
     # Compute the expected Q values
-    expected_state_action_values = reward_batch
+    expected_state_action_values = reward_batch + (next_state_values * GAMMA)
     # TODO: Make sure loss is functioning correctly
     # TODO: sort Cuda Movement
     # TODO: Optimization change
@@ -140,7 +148,9 @@ LOCATION_OUT_PATH = ROOT + OUT_FOLDER + 'train_' +LOCATION_OUT_FILE + '_' + TRAI
 
 ### Create Environment and Set Other File Locations
 if GAME_TYPE == 'convmovement':
-    env = AcousticsGame2DConvFromFile(ROOT + REWARD_FILE + '.txt', ROOT +STATE_FILE + '.txt', ROOT +EPISODE_FILE + '.txt', ROOT +LOCATION_FILE + '.txt', ROOT +TRANSITION_FILE + '.txt',  ROOT +  GAME_WAVS_FOLDER, MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device)
+
+    env = AcousticsGame2DConvVisualFromFile(ROOT + REWARD_FILE + '.txt', ROOT +STATE_FILE + '.txt', ROOT +EPISODE_FILE + '.txt', ROOT +LOCATION_FILE + '.txt', ROOT +TRANSITION_FILE + '.txt',  ROOT +  GAME_WAVS_FOLDER, ROOT +VISUAL_FILE + '.txt', MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device,
+                                            acoustic_params =('mfcc', 22050, 0.2, 400, 400, 160, 13, True))
     OUTPUTS = [REWARD_OUT_PATH, ACTION_OUT_PATH, STATE_OUT_PATH, LOCATION_OUT_PATH]
     to_output = ['', '', '', '']
 else:
@@ -155,7 +165,7 @@ env.validate_environment()
 print('environment valid')
 
 ### Report Model Parameters
-num_inputs = env.get_n_location_dims()  # len(phones2vectors.keys())
+num_inputs = env.get_n_visual_dims()  # len(phones2vectors.keys())
 print('num inputs: ' + str(num_inputs))
 num_episodes = env.get_n_episodes()  # len(input_data)
 print('num episodes: ' + str(num_episodes))
@@ -182,8 +192,8 @@ elif CONNECTION_LAYER == 'conv':
     policy_net.load_state_dict(torch.load(MODEL_LOCATION, map_location=device), strict=False)
     target_net.load_state_dict(policy_net.state_dict())
 elif CONNECTION_LAYER == 'none':
-    policy_net = DQN_NN_conv(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE).to(device)
-    target_net = DQN_NN_conv(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE).to(device)
+    policy_net = DQN_NN_conv_pretrain_convlayer(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE).to(device)
+    target_net = DQN_NN_conv_pretrain_convlayer(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE).to(device)
     target_net.load_state_dict(policy_net.state_dict())
 else:
     raise NotImplementedError
@@ -253,8 +263,7 @@ for i_episode in range(num_episodes):
     total_reward = 0
     episode_length = env.get_current_episode_length()
     state, loc = env.get_state()
-    state = state.to(device)
-    loc = loc.to(device)
+
     done = False
 
     ### Iterate Over Episode
@@ -272,12 +281,12 @@ for i_episode in range(num_episodes):
 
         ### Set Remaining Outputs
 
-        if reward>=1:
-            to_output[0] = to_output[0] + ' ' + str(float(reward))
-            to_output[1] = to_output[1] + ' ' + str(float(action))
-            to_output[2] = to_output[2] + ' ' + out_str
-            if GAME_TYPE != 'simplegame':
-                to_output[3] = to_output[3] + ' ' + env.get_location_str()
+        #if reward>=1:
+        to_output[0] = to_output[0] + ' ' + str(float(reward))
+        to_output[1] = to_output[1] + ' ' + str(float(action))
+        to_output[2] = to_output[2] + ' ' + out_str
+        if GAME_TYPE != 'simplegame':
+            to_output[3] = to_output[3] + ' ' + env.get_location_str()
 
 
 
