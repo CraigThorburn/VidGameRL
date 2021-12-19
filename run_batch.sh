@@ -57,7 +57,16 @@ then
     wait
     echo "finished"
 
-  elif [[ "$type" == "smartgame" ]]
+elif [[ "$type" == "acousticgame_craig" ]]
+then
+
+    echo "comencing slurm batch parallel across " $num_runs " machines"
+
+    $train_cmd JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual_acousticgame_craig.sh $stage $param_name || exit 1;
+    wait
+    echo "finished"
+
+elif [[ "$type" == "smartgame" ]]
 then
 
     echo "comencing slurm batch parallel across " $num_runs " machines"
@@ -72,6 +81,15 @@ then
     echo "comencing slurm batch parallel across " $num_runs " machines"
 
     $train_cmd JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual_supervisedgame.sh $stage $param_name || exit 1;
+    wait
+    echo "finished"
+
+elif [[ "$type" == "fullsupervision" ]]
+then
+
+    echo "comencing slurm batch parallel across " $num_runs " machines"
+
+    $train_cmd JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual_fullsupervision.sh $stage $param_name || exit 1;
     wait
     echo "finished"
 else

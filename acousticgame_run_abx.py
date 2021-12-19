@@ -1,6 +1,6 @@
 ### Set Imports
 
-N_TRIALS = 6000
+N_TRIALS = 4000 #TODO: Update
 OUT_LAYER = -2
 # NUM_PHONES = 36
 pretrain_model = True
@@ -48,8 +48,8 @@ if args.run_num:
     PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run' + str(RUN_NUM)
 
 DATAFILE = ROOT + 'states_new_realspeech.txt'
-DATAFILE1 = ROOT + 'rs_new_short.txt'
-DATAFILE2 = ROOT + 'ls_new_short.txt'
+DATAFILE1 = ROOT + 'rs_BUC.txt'
+DATAFILE2 = ROOT + 'ls_BUC.txt'
 
 if pretrain_model:
     MODEL_FOLDER = OUT_FOLDER + PRETRAIN_MODELNAME + '/'
@@ -115,6 +115,10 @@ print('starting calculations')
 for trial in [1, 2]:
     for i_batch in range(n_batches):
         print('running batch:', str(i_batch))
+
+
+        #print(data1.states.keys())
+        #print(data2.states.keys())
 
         # Get raw waveforms from data and reshape for classifier
         batcha = torch.stack(data1.get_batch(i_batch * testing_batch_size, (i_batch + 1) * testing_batch_size))

@@ -1,9 +1,9 @@
 ### FILE VARIABLES
 PRETRAIN_MODELNAME_ADITIONS = '' #extra suffix for the pretraining folder
-TRAIN_MODELNAME_ADITIONS = 'trainWSJ_EWC50' #extra suffix for the training folder
+TRAIN_MODELNAME_ADITIONS = '' #extra suffix for the training folder
 ### General
 OVERWRITE = False #Default: False | whether any files should be overwritten
-EXPERIMENT = 'supervised_pretraining_BUC/' #Default: supervised_pretraining_<CORPUS> | experiment folder
+EXPERIMENT = 'supervised_pretraining_GPJ/' #Default: supervised_pretraining_<CORPUS> | experiment folder
 #ROOT = '/mnt/c/files/research/projects/vid_game/data/'
 ROOT = '/fs/clip-realspeech/projects/vid_game/data/' #Default: /fs/clip-realspeech/projects/vid_game/data | root folder on clip cluster
 PARAMS_FOLDER = 'params' #Default: params | folder to store intermediate parameter files
@@ -12,12 +12,12 @@ PARAMS_FOLDER = 'params' #Default: params | folder to store intermediate paramet
 PHONES_FILE = 'pretrain_phones' #Default: pretrain_phones | file containing phone list for pretraining
 PRETRAIN_SEGMENTS_FILE = 'pretrain_segments' #Default: pretrain_segments | file containing segments list for pretraining
 PRETRAIN_ALIGNMENTS_FILE = 'pretrain_alignments' #Default: pretrain_alignments | file containing alignments list for pretraining
-WAVS_FOLDER = 'wavs_BUC/' #Default: wavs_<CORPUS>/ | folder containing pretraining wavs
+WAVS_FOLDER = 'wavs_GPJ/' #Default: wavs_<CORPUS>/ | folder containing pretraining wavs
 
 ### For Validation
 VALIDATION_SEGMENTS_FILE = 'validation_segments' #Default: validation_segments | file containing segments list for pretraining validation
 VALIDATION_ALIGNMENTS_FILE = 'validation_alignments' #Default: validation_alignments | file containing alignments list for pretraining validation
-VALIDATION_COPORA = ['BUC'] #Default: Same as pretraining corpus | name of corpus to use for validation
+VALIDATION_COPORA = ['GPJ'] #Default: Same as pretraining corpus | name of corpus to use for validation
 
 ### For Train
 STATE_FILE = 'states_WSJ_correct' #Default: states_WDJ_correct (was states_new_realspeech) | states file to use for training
@@ -40,7 +40,7 @@ RESULTS_FILE = 'results' #Default: results | name of result output file
 
 ### For Test
 SIMPLE_STATE_TEST_FILE='test_states_simple' #Default: test_states_simple | NOTE CURRENTLY REQUIED Simple list of files to use during test results processing
-ABX_WAVS_FOLDER = 'wavs_BUC/'    #Default: wavs_WSJ/ (was wavs for English) | Folder storing audio samples for ABX
+ABX_WAVS_FOLDER = 'wavs_WSJ/'    #Default: wavs_WSJ/ (was wavs for English) | Folder storing audio samples for ABX
 
 #########################################cd /fs/clip
 ### MODEL PARAMETERS
@@ -72,10 +72,10 @@ GAME_MODE = 'oneshot' #Default: oneshot | Training game type
 PRETRAIN_EPOCHS = 25 #Default: 25 | Number of epochs during pretraining
 
 ### For Validation
-LOSS_TYPE = 'ewc' #Default: ewc | (or standard) Type of loss function to use during training
-FISCHER_CORPUS='BUC' #Default: Same as pretraining corpus | Corpus for which to calculate fischer coefficients
+LOSS_TYPE = 'standard' #Default: ewc | (or standard) Type of loss function to use during training
+FISCHER_CORPUS='GPJ' #Default: Same as pretraining corpus | Corpus for which to calculate fischer coefficients
 FISCHER_FILE = 'fischercoeffs' #Default: fischercoeffs | Name of fischer coefficient filer
-EWC_IMPORTANCE = 50 #Default: ??? | EWC Importance Weighting Coefficient
+EWC_IMPORTANCE = 0.05 #Default: ??? | EWC Importance Weighting Coefficient
 
 ### For Train
 GAMMA = 0.9 #Default: 0.9 | Future reward decay parameter Gamma
@@ -85,7 +85,7 @@ EPS_DECAY = 300 #Default: 300 | Epsilon decay factor
 TARGET_UPDATE = 5 #Default: 5 | How often to update target network to policy network
 TRAIN_LR = 0.05 #Default: 0.05 | Learning rate during training
 MEM_SIZE = 10000 #Default: 10000 | Size of RL replay memory
-NUM_PHONES = 39   #Default: 36 (Japanese), 39 (English) | Number of phones in pretrained corpus
+NUM_PHONES = 36   #Default: 36 (Japanese), 39 (English) | Number of phones in pretrained corpus
 CONNECTION_LAYER = 'phone' #Default: phone | Layer at which to connect video game layers to pretrained layers
 STIMULUS_REPS = 8 #Default: 8 | Number of times to repeat stimulus before moving to next trial
 MOVE_SEPERATION = 1 #Deprecated

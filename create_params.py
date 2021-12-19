@@ -1,3 +1,5 @@
+
+
 import argparse
 import json
 
@@ -14,10 +16,14 @@ elif args.param_type == 'game':
     from game_params import *
 elif args.param_type == 'acousticgame':
     from acousticgame_params import *
+elif args.param_type == 'acousticgame_craig':
+    from acousticgame_params_craig import *
 elif args.param_type == 'supervisedgame':
     from acousticgame_params import *
 elif args.param_type == 'smartgame':
     from smartgame_params import *
+elif args.param_type == 'fullsupervision':
+    from fullsupervision_params import *
 else:
     raise NotImplementedError
 
@@ -27,13 +33,28 @@ if args.param_type == 'acousticgame':
     PRETRAIN_MODELNAME = 'pretrain_lr' + str(PRETRAIN_LR)+ '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_batchsize' + \
                      str(BATCH_SIZE) + '_epochs' + str(PRETRAIN_EPOCHS)+ PRETRAIN_MODELNAME_ADITIONS
 
+elif args.param_type == 'acousticgame_craig':
+    PRETRAIN_MODELNAME = 'pretrain_lr' + str(PRETRAIN_LR)+ '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_batchsize' + \
+                     str(BATCH_SIZE) + '_epochs' + str(PRETRAIN_EPOCHS)+ PRETRAIN_MODELNAME_ADITIONS
+
 elif args.param_type == 'supervisedgame':
     PRETRAIN_MODELNAME = 'pretrain_lr' + str(PRETRAIN_LR)+ '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_batchsize' + \
                      str(BATCH_SIZE) + '_epochs' + str(PRETRAIN_EPOCHS)+ PRETRAIN_MODELNAME_ADITIONS
 
-TRAIN_MODELNAME = 'experiment_' + GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay' + str(EPS_DECAY) + '_targetupdate' + str(TARGET_UPDATE) \
+elif args.param_type == 'fullsupervision':
+    PRETRAIN_MODELNAME = 'pretrain_lr' + str(PRETRAIN_LR)+ '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_batchsize' + \
+                     str(BATCH_SIZE) + '_epochs' + str(PRETRAIN_EPOCHS)+ PRETRAIN_MODELNAME_ADITIONS
+
+if args.param_type == 'fullsupervision':
+    TRAIN_MODELNAME = 'experiment_' + GAME_TYPE + \
+                       '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_lr' + str(
+        TRAIN_LR) + '_freeze' + str(CONV_FREEZE_LAYER) + '_freezetime' + str(FREEZE_LAYER_TIME) + \
+                      TRAIN_MODELNAME_ADITIONS
+else:
+    TRAIN_MODELNAME = 'experiment_' + GAME_TYPE + '_gamma' + str(GAMMA) + '_epsdecay' + str(EPS_DECAY) + '_targetupdate' + str(TARGET_UPDATE) \
                 + '_waittime' + str(WAITTIME) + '_kernel' + str(KERNEL) + '_stride' + str(STRIDE) + '_lr'+str(TRAIN_LR) + '_freeze'+ str(CONV_FREEZE_LAYER)+'_freezetime' + str(FREEZE_LAYER_TIME) + \
                  TRAIN_MODELNAME_ADITIONS
+
 
 
 if args.run_num:
@@ -42,8 +63,13 @@ if args.run_num:
 
     if args.param_type == 'acousticgame':
         PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run' + str(RUN_NUM)
+    elif args.param_type == 'acousticgame_craig':
+        PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run' + str(RUN_NUM)
 
     elif args.param_type == 'supervisedgame':
+        PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run' + str(RUN_NUM)
+
+    elif args.param_type == 'fullsupervision':
         PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run' + str(RUN_NUM)
 
 

@@ -1,9 +1,15 @@
+N_TRIALS = 6000 #TODO: Update
+testing_batch_size = 32
+DATAFILE1 =  'rs_WSJ_filtered.txt'
+DATAFILE2 =  'ls_WSJ_filtered.txt'
+PRETRAIN_EPOCHS = 50
+
 ### FILE VARIABLES
 PRETRAIN_MODELNAME_ADITIONS = '' #extra suffix for the pretraining folder
-TRAIN_MODELNAME_ADITIONS = 'trainWSJ_EWC50' #extra suffix for the training folder
+TRAIN_MODELNAME_ADITIONS = 'fullsupervision_short' #extra suffix for the training folder
 ### General
 OVERWRITE = False #Default: False | whether any files should be overwritten
-EXPERIMENT = 'supervised_pretraining_BUC/' #Default: supervised_pretraining_<CORPUS> | experiment folder
+EXPERIMENT = 'supervised_pretraining_GPJ/' #Default: supervised_pretraining_<CORPUS> | experiment folder
 #ROOT = '/mnt/c/files/research/projects/vid_game/data/'
 ROOT = '/fs/clip-realspeech/projects/vid_game/data/' #Default: /fs/clip-realspeech/projects/vid_game/data | root folder on clip cluster
 PARAMS_FOLDER = 'params' #Default: params | folder to store intermediate parameter files
@@ -12,35 +18,18 @@ PARAMS_FOLDER = 'params' #Default: params | folder to store intermediate paramet
 PHONES_FILE = 'pretrain_phones' #Default: pretrain_phones | file containing phone list for pretraining
 PRETRAIN_SEGMENTS_FILE = 'pretrain_segments' #Default: pretrain_segments | file containing segments list for pretraining
 PRETRAIN_ALIGNMENTS_FILE = 'pretrain_alignments' #Default: pretrain_alignments | file containing alignments list for pretraining
-WAVS_FOLDER = 'wavs_BUC/' #Default: wavs_<CORPUS>/ | folder containing pretraining wavs
-
-### For Validation
-VALIDATION_SEGMENTS_FILE = 'validation_segments' #Default: validation_segments | file containing segments list for pretraining validation
-VALIDATION_ALIGNMENTS_FILE = 'validation_alignments' #Default: validation_alignments | file containing alignments list for pretraining validation
-VALIDATION_COPORA = ['BUC'] #Default: Same as pretraining corpus | name of corpus to use for validation
+WAVS_FOLDER = 'wavs_GPJ/' #Default: wavs_<CORPUS>/ | folder containing pretraining wavs
 
 ### For Train
-STATE_FILE = 'states_WSJ_correct' #Default: states_WDJ_correct (was states_new_realspeech) | states file to use for training
-REWARD_FILE = 'rewards' #Default: rewards | rewards file to use for training
-EPISODE_FILE = 'episodes_full' #Default: episodes_full | episodes file to use for training
-TRANSITION_FILE = 'transitions' #Default: transitions | transitions file to use for training
-ACTION_FILE = 'actions' #Default: actions | actions file to use for training
-LOCATION_FILE = 'locations' #Default: locations | locations file to use for training
-SIMPLE_STATE_FILE = 'states_synthesized' #Default: states_synthesized (was states_simple) | Simple list of files to use during results processing
 GAME_WAVS_FOLDER = 'wavs_WSJ/' #Default: wavs_WSJ/ (was wavs for English) | Folder storing audio files for training
-
 MODEL_FOLDER = 'models/' #Default: models/  | name of model output folder
 OUT_FOLDER = 'exp/'  #Default: exp/ | name of experiment run folder
-LOCATION_OUT_FILE = 'location' #Default: location  | name of location output file
-ACTION_OUT_FILE = 'action' #Default: action | name of action output file
 LOSS_OUT_FILE = 'loss' #Default: loss | name of loss ouptut file
-STATE_OUT_FILE = 'state' #Default: state | name of state output file
-REWARD_OUT_FILE = 'reward' #Default: reward | name of reward output file
 RESULTS_FILE = 'results' #Default: results | name of result output file
 
 ### For Test
 SIMPLE_STATE_TEST_FILE='test_states_simple' #Default: test_states_simple | NOTE CURRENTLY REQUIED Simple list of files to use during test results processing
-ABX_WAVS_FOLDER = 'wavs_BUC/'    #Default: wavs_WSJ/ (was wavs for English) | Folder storing audio samples for ABX
+ABX_WAVS_FOLDER = 'wavs_WSJ/'    #Default: wavs_WSJ/ (was wavs for English) | Folder storing audio samples for ABX
 
 #########################################cd /fs/clip
 ### MODEL PARAMETERS
@@ -72,21 +61,12 @@ GAME_MODE = 'oneshot' #Default: oneshot | Training game type
 PRETRAIN_EPOCHS = 25 #Default: 25 | Number of epochs during pretraining
 
 ### For Validation
-LOSS_TYPE = 'ewc' #Default: ewc | (or standard) Type of loss function to use during training
-FISCHER_CORPUS='BUC' #Default: Same as pretraining corpus | Corpus for which to calculate fischer coefficients
-FISCHER_FILE = 'fischercoeffs' #Default: fischercoeffs | Name of fischer coefficient filer
-EWC_IMPORTANCE = 50 #Default: ??? | EWC Importance Weighting Coefficient
+LOSS_TYPE = 'standard' #Default: ewc | (or standard) Type of loss function to use during training
+FISCHER_CORPUS='GPJ' #Default: Same as pretraining corpus | Corpus for which to calculate fischer coefficients
+FISCHER_FILE = 'fischercoeffs' #Default: fischercoeffs | Name of fischer coefficient file
+EWC_IMPORTANCE = 0.0001 #Default: ??? | EWC Importance Weighting Coefficient
 
 ### For Train
-GAMMA = 0.9 #Default: 0.9 | Future reward decay parameter Gamma
-EPS_START = 0.99 #Default: 0.99 | Starting Epsilon Value
-EPS_END = 0.05 #Default: 0.05 | Final Epsilon value
-EPS_DECAY = 300 #Default: 300 | Epsilon decay factor
-TARGET_UPDATE = 5 #Default: 5 | How often to update target network to policy network
+TRAIN_EPOCHS = 20
 TRAIN_LR = 0.05 #Default: 0.05 | Learning rate during training
-MEM_SIZE = 10000 #Default: 10000 | Size of RL replay memory
-NUM_PHONES = 39   #Default: 36 (Japanese), 39 (English) | Number of phones in pretrained corpus
-CONNECTION_LAYER = 'phone' #Default: phone | Layer at which to connect video game layers to pretrained layers
-STIMULUS_REPS = 8 #Default: 8 | Number of times to repeat stimulus before moving to next trial
-MOVE_SEPERATION = 1 #Deprecated
-WAITTIME = 0 #Default: 0 | How long to wait before taking action
+NUM_PHONES = 36   #Default: 36 (Japanese), 39 (English) | Number of phones in pretrained corpus

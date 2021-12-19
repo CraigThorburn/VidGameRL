@@ -83,8 +83,8 @@ else:
 
 with open(state_inp) as f:
     state_data = f.read().splitlines()
-    header = state_data[0].split('\t')
-state_list = [s.split('\t')[0] for s in state_data[1:]]
+    #header = state_data[0].split('\t')
+state_list = [s.split('\t')[0] for s in state_data]
 
 print(state_list)
 

@@ -21,7 +21,7 @@ parser.add_argument("params_file", help="root directory")
 parser.add_argument("-run_num")
 args = parser.parse_args()
 
-### Define Model Name From Arguments
+### Load in parameters file and set variables in global workspace
 with open(args.params_file, 'r') as f:
     all_params = json.load(f)
 
@@ -33,6 +33,7 @@ if args.run_num:
     TRAIN_MODELNAME = TRAIN_MODELNAME + '_run'+str(RUN_NUM)
     PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run'+str(RUN_NUM)
 
+### Create the experiment output folder if it does not alread exist
 try:
     os.makedirs(ROOT + OUT_FOLDER + TRAIN_MODELNAME)
     print('created experiment output folder')
@@ -49,6 +50,7 @@ shutil.copyfile(args.params_file, ROOT + OUT_FOLDER + 'params_'+TRAIN_MODELNAME 
 print('parameter file moved to results location')
 
 ### Define Optimization Function
+# This is run on each timestep to sample transitions, calculate loss function and update the parameters
 def optimize_model():
     if len(memory) < BATCH_SIZE:
         return
@@ -115,6 +117,8 @@ def optimize_model():
     to_output[-1] = to_output[-1] + ' ' + str(round(float(loss), 4))
 
 ### Define Action Selection Function
+# This function takes a state and location and selects an action.  It selects a random action with epsilon probability or
+# the most optimal action otherwise
 def select_action(state, loc):
     global steps_done
     sample = random.random()
@@ -147,7 +151,8 @@ REWARD_OUT_PATH = ROOT + OUT_FOLDER +  'train_' +REWARD_OUT_FILE + '_' + TRAIN_M
 STATE_OUT_PATH = ROOT + OUT_FOLDER +  'train_' +STATE_OUT_FILE + '_' + TRAIN_MODELNAME + '.txt'
 LOCATION_OUT_PATH = ROOT + OUT_FOLDER + 'train_' +LOCATION_OUT_FILE + '_' + TRAIN_MODELNAME + '.txt'
 
-### Create Environment and Set Other File Locations
+### Create Game Environment and Set Other File Locations
+# This variable stores all states, transitions and controls the game
 if GAME_TYPE == 'convmovement':
     env = AcousticsGame2DConvFromFile(ROOT + REWARD_FILE + '.txt', ROOT +STATE_FILE + '.txt', ROOT +EPISODE_FILE + '.txt', ROOT +LOCATION_FILE + '.txt', ROOT +TRANSITION_FILE + '.txt',  ROOT +  GAME_WAVS_FOLDER, MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device)
     OUTPUTS = [REWARD_OUT_PATH, ACTION_OUT_PATH, STATE_OUT_PATH, LOCATION_OUT_PATH]
@@ -156,6 +161,7 @@ else:
     raise(TypeError, 'Game type on implemented in this script')
 print("environment created")
 
+# Define loss file name
 to_output.append('')
 OUTPUTS.append(ROOT + OUT_FOLDER + LOSS_OUT_FILE + '_' + TRAIN_MODELNAME + '.txt')
 
@@ -178,6 +184,7 @@ w,h = env.get_aud_dims()
 # else:
 #     freeze_layer_end = CONV_FREEZE_LAYER
 
+###  Define how the pretrained model is being connected to the DQN and create a policy and target network (Q and Q*)
 if CONNECTION_LAYER == 'phone':
     policy_net = DQN_NN_conv_pretrain_phonelayer(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
     target_net = DQN_NN_conv_pretrain_phonelayer(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
@@ -198,10 +205,11 @@ else:
     raise NotImplementedError
 
 
-
+### Set target network to evaluation mode and policy network to training mode
 target_net.eval()
 policy_net.train()
 
+### Define loss function through Loss.py package.  If ewc, load Fischer coefficients from saved file
 if LOSS_TYPE == 'ewc':
     precision_matrices,means = torch.load(ROOT + MODEL_FOLDER + FISCHER_FILE + '_' +  PRETRAIN_MODELNAME + '.txt', map_location=device)
 
@@ -211,17 +219,14 @@ if LOSS_TYPE == 'ewc':
             print(p)
             precision_matrices[p] = torch.zeros(n.size())
             means[p] = torch.zeros(n.size())
-
-
-
     loss_class = libs.Loss.EWCLoss(means, precision_matrices, EWC_IMPORTANCE, device)
 
 elif LOSS_TYPE == 'standard':
     loss_class = libs.Loss.StandardLoss(device)
-
 else:
     raise NotImplementedError
 
+### Define loss function from package
 loss_func = loss_class.calculate_loss
 
 ### Define Optimizer
@@ -251,6 +256,7 @@ for name in OUTPUTS:
 tic = time.time()
 steps_done = 0
 
+### Start training
 eps_episode = 0
 print('starting simulation')
 for i_episode in range(num_episodes):
@@ -282,17 +288,12 @@ for i_episode in range(num_episodes):
         total_reward += reward
 
         ### Set Remaining Outputs
-
         #if reward>=1:
         to_output[0] = to_output[0] + ' ' + str(float(reward))
         to_output[1] = to_output[1] + ' ' + str(float(action))
         to_output[2] = to_output[2] + ' ' + out_str
         if GAME_TYPE != 'simplegame':
             to_output[3] = to_output[3] + ' ' + env.get_location_str()
-
-
-
-
 
         ### Get State Tensor
         reward = torch.tensor([reward], device=device, dtype=torch.float64)
@@ -325,7 +326,7 @@ for i_episode in range(num_episodes):
                 env.advance_episode()
             break
 
-    ### Update Target Network
+    ### Update Target Network every TARGET_UPDATE episodes
     if i_episode % TARGET_UPDATE == 0:
         target_net.load_state_dict(policy_net.state_dict())
 

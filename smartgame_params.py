@@ -3,7 +3,7 @@ PRETRAIN_MODELNAME_ADITIONS = 'pretraining03'
 TRAIN_MODELNAME_ADITIONS = '_updatedparams'
 ### General
 OVERWRITE = True
-EXPERIMENT = 'SMART_incoherent/' ######################
+EXPERIMENT = 'SMART_coherent_onedimension/' ######################
 ROOT = '/mnt/c/files/research/projects/vid_game/data/'
 ROOT = '/fs/clip-realspeech/projects/vid_game/data/'
 PARAMS_FOLDER = 'params'
