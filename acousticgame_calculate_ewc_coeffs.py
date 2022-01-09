@@ -41,7 +41,7 @@ print('using device ' + str(device))
 tic = time.time()
 running=True
 
-fischer_calculation_batch_size = 32
+fischer_calculation_batch_size = 200
 
 
 
@@ -91,12 +91,12 @@ phoneme_classifier.eval()
 for inp in range(fischer_calculation_batch_size):
     phoneme_classifier.zero_grad()
     input = wavs[inp,:,:].reshape(1,1,wavs.size()[2], wavs.size()[3])
-    output = phoneme_classifier(input)#.flatten()
-    label = output.max(1)[1].view(-1)
-    #label = labels[inp]
+    output = phoneme_classifier(input).flatten().to(device)
+    #label = output.max(1)[1].view(-1)
+    label = labels[inp].flatten().to(device)
 
-    loss = F.nll_loss(output,label)
-    #loss = F.smooth_l1_loss(output, label)
+    #loss = F.nll_loss(output,label)
+    loss = F.smooth_l1_loss(output, label)
     loss.backward()
 
     for n, p in phoneme_classifier.named_parameters():
