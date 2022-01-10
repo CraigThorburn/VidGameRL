@@ -42,9 +42,6 @@ tic = time.time()
 running=True
 
 fischer_calculation_batch_size = 200
-fischer_calculation_total_data = 20000
-n_batches = math.floor(fischer_calculation_total_data/fischer_calculation_batch_size)
-print('n_batches', str(n_batches))
 
 
 
@@ -67,9 +64,6 @@ print(int(n_outputs), 'outputs |', w, 'width |', h, 'height')
 n_datapoints = len(data)
 print('running for', str(n_datapoints))
 
-if n_datapoints < fischer_calculation_total_data:
-    raise AssertionError
-
 
 phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs).to(device)  # TODO: Need to create classifier
 phoneme_classifier.load_state_dict(torch.load(MODEL_LOCATION, map_location=device))
@@ -78,37 +72,40 @@ phoneme_classifier.load_state_dict(torch.load(MODEL_LOCATION, map_location=devic
 
 print('calculating Fischer coefficients')
 
-
 model_params = {n: p for n, p in phoneme_classifier.named_parameters() if p.requires_grad}
 precision_matrices = {}
 for n, p in deepcopy(model_params).items():
     p.data.zero_()
     precision_matrices[n] = p.data
 
+    phoneme_classifier.eval()
+
     # Get raw waveforms from data and reshape for classifier
 #data.randomize_data()
 
+
+n_batches = math.floor(n_datapoints / fischer_calculation_batch_size)
+
 for i_batch in range(n_batches):
+
     wavs, labels, phones = data.get_batch_phones(i_batch * fischer_calculation_batch_size, (i_batch + 1) * fischer_calculation_batch_size)
 
     wavs = wavs.reshape(wavs.size()[0], 1, wavs.size()[1]).to(device)
     wavs = data.transform(wavs)
 
-    phoneme_classifier.eval()
-    print(wavs.size()[0])
-    for inp in range(wavs.size()[0]):
-        phoneme_classifier.zero_grad()
-        input = wavs[inp,:,:].reshape(1,1,wavs.size()[2], wavs.size()[3])
-        output = phoneme_classifier(input)#.flatten().to(device)
-        label = output.max(1)[1].view(-1)
-        #label = labels[inp].flatten().to(device)
+#for inp in range(fischer_calculation_batch_size):
+    phoneme_classifier.zero_grad()
+   # input = wavs[inp,:,:].reshape(1,1,wavs.size()[2], wavs.size()[3])
+    output = phoneme_classifier(input)#.flatten().to(device)
+    label = output.max(1)[1].view(-1)
+    #label = labels[inp].flatten().to(device)
+    print(output.size(), label.size())
+    loss = F.nll_loss(output,label)
+    #loss = F.smooth_l1_loss(output, label)
+    loss.backward()
 
-        loss = F.nll_loss(output,label)
-        #loss = F.smooth_l1_loss(output, label)
-        loss.backward()
-
-        for n, p in phoneme_classifier.named_parameters():
-            precision_matrices[n].data += p.grad.data ** 2 / fischer_calculation_total_data
+    for n, p in phoneme_classifier.named_parameters():
+        precision_matrices[n].data += p.grad.data ** 2 / n_batches
 
 print('calculated diagonal of fischer information matrix')
 
