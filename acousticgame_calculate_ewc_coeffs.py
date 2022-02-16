@@ -1,4 +1,3 @@
-### Set Imports
 import torch
 from libs.DataLoader import *
 from libs.NN import *
@@ -41,8 +40,8 @@ print('using device ' + str(device))
 tic = time.time()
 running=True
 
-fischer_calculation_batch_size = 32
-
+fischer_calculation_batch_size = 200
+fischer_batches = 1000
 
 
 if OVERWRITE:
@@ -64,43 +63,46 @@ print(int(n_outputs), 'outputs |', w, 'width |', h, 'height')
 n_datapoints = len(data)
 print('running for', str(n_datapoints))
 
-
 phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs).to(device)  # TODO: Need to create classifier
 phoneme_classifier.load_state_dict(torch.load(MODEL_LOCATION, map_location=device))
 
 
 
 print('calculating Fischer coefficients')
-
-    # Get raw waveforms from data and reshape for classifier
-#data.randomize_data()
-wavs, labels, phones = data.get_batch_phones(0, fischer_calculation_batch_size)
-
-wavs = wavs.reshape(wavs.size()[0], 1, wavs.size()[1]).to(device)
-wavs = data.transform(wavs)
-
-
 model_params = {n: p for n, p in phoneme_classifier.named_parameters() if p.requires_grad}
+
 precision_matrices = {}
 for n, p in deepcopy(model_params).items():
     p.data.zero_()
     precision_matrices[n] = p.data
 
-phoneme_classifier.eval()
 
-for inp in range(fischer_calculation_batch_size):
-    phoneme_classifier.zero_grad()
-    input = wavs[inp,:,:].reshape(1,1,wavs.size()[2], wavs.size()[3])
-    output = phoneme_classifier(input)#.flatten()
-    label = output.max(1)[1].view(-1)
-    #label = labels[inp]
+    # Get raw waveforms from data and reshape for classifier
+data.randomize_data()
+for i in range(fischer_batches):
+    print('batch:', str(i))
+    wavs, labels, phones = data.get_batch_phones(i*fischer_calculation_batch_size, (i+1)*fischer_calculation_batch_size)
 
-    loss = F.nll_loss(output,label)
-    #loss = F.smooth_l1_loss(output, label)
-    loss.backward()
+    wavs = wavs.reshape(wavs.size()[0], 1, wavs.size()[1]).to(device)
+    wavs = data.transform(wavs)
 
-    for n, p in phoneme_classifier.named_parameters():
-        precision_matrices[n].data += p.grad.data ** 2 / fischer_calculation_batch_size
+
+
+    phoneme_classifier.eval()
+
+    for inp in range(wavs.size()[0]):
+        phoneme_classifier.zero_grad()
+        input = wavs[inp,:,:].reshape(1,1,wavs.size()[2], wavs.size()[3])
+        output = phoneme_classifier(input)#.flatten()
+        label = output.max(1)[1].view(-1)
+        #label = labels[inp]
+
+        loss = F.nll_loss(output,label)
+        #loss = F.smooth_l1_loss(output, label)
+        loss.backward()
+
+        for n, p in phoneme_classifier.named_parameters():
+            precision_matrices[n].data += p.grad.data ** 2 / (fischer_calculation_batch_size*10)
 
 print('calculated diagonal of fischer information matrix')
 
@@ -111,5 +113,4 @@ for n, p in deepcopy(model_params).items():
 print('fetched means')
 
 torch.save([precision_matrices,means],ROOT + OUT_FOLDER + FISCHER_FILE + '_' +  PRETRAIN_MODELNAME + '.txt')
-
 print('data saved')

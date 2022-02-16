@@ -1,6 +1,6 @@
 ### Set Imports
 
-N_TRIALS = 4000 #TODO: Update
+N_TRIALS = 6000 #TODO: Update
 OUT_LAYER = -2
 # NUM_PHONES = 36
 pretrain_model = True
@@ -48,8 +48,8 @@ if args.run_num:
     PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run' + str(RUN_NUM)
 
 DATAFILE = ROOT + 'states_new_realspeech.txt'
-DATAFILE1 = ROOT + 'rs_BUC.txt'
-DATAFILE2 = ROOT + 'ls_BUC.txt'
+DATAFILE1 = ROOT + 'rs_WSJ_filtered.txt'
+DATAFILE2 = ROOT + 'ls_WSJ_filtered.txt'
 
 if pretrain_model:
     MODEL_FOLDER = OUT_FOLDER + PRETRAIN_MODELNAME + '/'

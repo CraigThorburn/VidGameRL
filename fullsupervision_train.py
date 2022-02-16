@@ -86,7 +86,7 @@ phoneme_classifier.train()
 print('classifier loaded')
 
 print('running for', str(N_TRIALS*2))
-n_batches = math.floor(N_TRIALS / testing_batch_size)*2
+n_batches = math.floor((N_TRIALS / testing_batch_size)*2)
 
 if LOSS_TYPE == 'ewc':
     precision_matrices,means = torch.load(ROOT + MODEL_FOLDER + FISCHER_FILE + '_' +  PRETRAIN_MODELNAME + '.txt', map_location=device)
