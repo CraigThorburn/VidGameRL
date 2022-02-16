@@ -58,7 +58,7 @@ fi
 
 if [ $stage -le 3 ]; then
 echo "running pretrain abx task"
-$train_cmd --mem 16GB JOB=1:$num_runs --gpu $gpu ../../data/$data_folder/log/$experiment_name/acousticgame_run_abxtest-1.$model_id.JOB.log  run_python.sh acousticgame_run_abx.py "$params -layer=-1 -pretrain=true" || exit 1;
+$train_cmd --mem 16GB JOB=1:$num_runs --gpu $gpu ../../data/$data_folder/log/$experiment_name/acousticgame_run_abxpretrain-1.$model_id.JOB.log  run_python.sh acousticgame_run_abx.py "$params -layer=-1 -pretrain=true" || exit 1;
 #../../data/$data_folder/log/$experiment_name/acousticgame_pretrain_network.$model_id.JOB.log  run_python.sh acousticgame_calculate_ewc_coeffs.py "$params -layer=-2 -pretrain=true" || exit 1;
 #../../data/$data_folder/log/$experiment_name/acousticgame_pretrain_network.$model_id.JOB.log  run_python.sh acousticgame_calculate_ewc_coeffs.py "$params -layer=-3 -pretrain=true" || exit 1;
 #../../data/$data_folder/log/$experiment_name/acousticgame_pretrain_network.$model_id.JOB.log  run_python.sh acousticgame_calculate_ewc_coeffs.py "$params -layer=-4 -pretrain=true" || exit 1;

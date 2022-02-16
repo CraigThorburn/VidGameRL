@@ -153,12 +153,9 @@ LOCATION_OUT_PATH = ROOT + OUT_FOLDER + 'train_' +LOCATION_OUT_FILE + '_' + TRAI
 
 ### Create Game Environment and Set Other File Locations
 # This variable stores all states, transitions and controls the game
-if GAME_TYPE == 'convmovement':
-    env = AcousticsGame2DConvFromFile(ROOT + REWARD_FILE + '.txt', ROOT +STATE_FILE + '.txt', ROOT +EPISODE_FILE + '.txt', ROOT +LOCATION_FILE + '.txt', ROOT +TRANSITION_FILE + '.txt',  ROOT +  GAME_WAVS_FOLDER, MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device)
-    OUTPUTS = [REWARD_OUT_PATH, ACTION_OUT_PATH, STATE_OUT_PATH, LOCATION_OUT_PATH]
-    to_output = ['', '', '', '']
-else:
-    raise(TypeError, 'Game type on implemented in this script')
+env = AcousticsGame2DConvFromFile(ROOT + REWARD_FILE + '.txt', ROOT +STATE_FILE + '.txt', ROOT +EPISODE_FILE + '.txt', ROOT +LOCATION_FILE + '.txt', ROOT +TRANSITION_FILE + '.txt',  ROOT +  GAME_WAVS_FOLDER, MOVE_SEPERATION, WAITTIME, GAME_MODE, STIMULUS_REPS, device)
+OUTPUTS = [REWARD_OUT_PATH, ACTION_OUT_PATH, STATE_OUT_PATH, LOCATION_OUT_PATH]
+to_output = ['', '', '', '']
 print("environment created")
 
 # Define loss file name
@@ -292,8 +289,7 @@ for i_episode in range(num_episodes):
         to_output[0] = to_output[0] + ' ' + str(float(reward))
         to_output[1] = to_output[1] + ' ' + str(float(action))
         to_output[2] = to_output[2] + ' ' + out_str
-        if GAME_TYPE != 'simplegame':
-            to_output[3] = to_output[3] + ' ' + env.get_location_str()
+        to_output[3] = to_output[3] + ' ' + env.get_location_str()
 
         ### Get State Tensor
         reward = torch.tensor([reward], device=device, dtype=torch.float64)

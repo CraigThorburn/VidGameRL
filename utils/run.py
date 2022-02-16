@@ -1,5 +1,6 @@
 import os
-    
+from datetime import datetime
+import time    
     
     # Saahiti Dictionary Function
    
@@ -77,6 +78,7 @@ def convert2htmlrow(run, outcomes, node, port, stage_names):
     
     data_folder = run[0]
     experiment = '<td class="tg-0lax">' + run[1] + '</td>\n'
+    date = '<td class="tg-0lax">' + datetime.utcfromtimestamp(int('1'+run[1].split('_')[-1])).strftime('%m-%d %H:%M') + '</td>\n'
     model_id = '<td class="tg-0lax">' + str(run[2]) + '</td>\n'
     stage = '<td class="tg-0lax">' + str(run[3]) + '</td>\n'
     
@@ -107,7 +109,7 @@ def convert2htmlrow(run, outcomes, node, port, stage_names):
             print(o)
             raise(KeyError)
         
-    return '<tr>\n' + experiment + model_id + stage + outcome_str + '</tr>\n' 
+    return '<tr>\n' + experiment + date + model_id + stage + outcome_str + '</tr>\n' 
 
 def generate_log_table(node, port, experiment_folder):
 
@@ -121,8 +123,8 @@ def generate_log_table(node, port, experiment_folder):
 
     stage_names = ['acousticgame_pretrain_network', 'acousticgame_pretrain_validation', 'acousticgame_calculate_ewc_coeffs', 
                    'acousticgame_run_abx', 'acousticgame_train', 'game_process_experiment', 'acousticgame_test'] #run_abxtrain-1 ADD
-    #stage_names = ['acousticgame_pretrain_network', 'acousticgame_pretrain_validation', 'acousticgame_calculate_ewc_coeffs', 
-      #             'acousticgame_run_abxtrain-1', 'acousticgame_train', 'game_process_experiment', 'acousticgame_run_abxtest-1']         
+    stage_names = ['acousticgame_pretrain_network', 'acousticgame_pretrain_validation', 'acousticgame_calculate_ewc_coeffs', 
+                   'acousticgame_run_abxpretrain-1', 'acousticgame_train', 'game_process_experiment', 'acousticgame_run_abxtrain-1']#test-1         
     log_outcomes = {}
     unix_codes = []
     for exp in experiments:
@@ -171,7 +173,7 @@ def generate_log_table(node, port, experiment_folder):
             
     experiment_title = ' '.join([e for e in experiment_folder.split('_')])   
     html_prefix = '<h1>' + experiment_title + '</h1><style type="text/css">.tg  {border-collapse:collapse;border-spacing:0;}.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;  overflow:hidden;padding:10px 5px;word-break:normal;}.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}.tg .tg-e76x{background-color:#fe996b;text-align:left;vertical-align:top}.tg .tg-0lax{text-align:left;vertical-align:top}.tg .tg-og4q{background-color:#fd6864;text-align:left;vertical-align:top}.tg .tg-fd62{background-color:#32cb00;text-align:left;vertical-align:top}</style><table class="tg"><tbody>'
-    html_firstrow = '<tr>    <td class="tg-0lax">Experiment</td>    <td class="tg-0lax">ID</td>    <td class="tg-0lax">Run</td>    <td class="tg-0lax">Pretraining</td>    <td class="tg-0lax">Validation</td>    <td class="tg-0lax">Fischer Coefficients</td>    <td class="tg-0lax">Pretrain ABX</td>    <td class="tg-0lax">Training</td>    <td class="tg-0lax">Results Processing</td>    <td class="tg-0lax">Train ABX</td>  </tr>'
+    html_firstrow = '<tr>    <td class="tg-0lax">Experiment</td><td class="tg-0lax">Date/Time</td>    <td class="tg-0lax">ID</td>    <td class="tg-0lax">Run</td>    <td class="tg-0lax">Pretraining</td>    <td class="tg-0lax">Validation</td>    <td class="tg-0lax">Fischer Coefficients</td>    <td class="tg-0lax">Pretrain ABX</td>    <td class="tg-0lax">Training</td>    <td class="tg-0lax">Results Processing</td>    <td class="tg-0lax">Train ABX</td>  </tr>'
     html_suffix = '</tbody>\n</table>'
 
     full_html = html_prefix + html_firstrow+table_str + html_suffix
