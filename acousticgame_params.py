@@ -1,10 +1,10 @@
 ### FILE VARIABLES
-PRETRAIN_MODELNAME_ADITIONS = 'gametypevariation' #extra suffix for the pretraining folder
-TRAIN_MODELNAME_ADITIONS = 'trainWSJ_EWC0.01_gtvcorrect' #extra suffix for the training folder
+PRETRAIN_MODELNAME_ADITIONS = 'duplicate2' #extra suffix for the pretraining folder
+TRAIN_MODELNAME_ADITIONS = 'ewcbatch200_trainWSJ_EWC0.01_750eps_updates6' #extra suffix for the training folder
 ### General
-OVERWRITE = False #Default: False | whether any files should be overwritten
+OVERWRITE = True #Default: False | whether any files should be overwritten
 EXPERIMENT = 'supervised_pretraining_WSJ/' #Default: supervised_pretraining_<CORPUS> | experiment folder **************************************
-#ROOT = '/mnt/c/files/research/projects/vidgame/data/'
+#ROOT = '/mnt/c/files/research/projects/vid_game/data/'
 ROOT = '/fs/clip-realspeech/projects/vid_game/data/' #Default: /fs/clip-realspeech/projects/vid_game/data | root folder on clip cluster
 PARAMS_FOLDER = 'params' #Default: params | folder to store intermediate parameter files
 
@@ -22,7 +22,7 @@ VALIDATION_COPORA = ['WSJ'] #Default: Same as pretraining corpus | name of corpu
 ### For Train
 STATE_FILE = 'states_WSJ_correct' #Default: states_WDJ_correct (was states_new_realspeech) | states file to use for training
 REWARD_FILE = 'rewards' #Default: rewards | rewards file to use for training
-EPISODE_FILE = 'episodes_full' #Default: episodes_full | episodes file to use for training
+EPISODE_FILE = 'episodes' #Default: episodes_full | episodes file to use for training
 TRANSITION_FILE = 'transitions' #Default: transitions | transitions file to use for training
 ACTION_FILE = 'actions' #Default: actions | actions file to use for training
 LOCATION_FILE = 'locations' #Default: locations | locations file to use for training
@@ -42,8 +42,7 @@ RESULTS_FILE = 'results' #Default: results | name of result output file
 SIMPLE_STATE_TEST_FILE='test_states_simple' #Default: test_states_simple | NOTE CURRENTLY REQUIED Simple list of files to use during test results processing
 ABX_WAVS_FOLDER = 'wavs_WSJ/'    #Default: wavs_WSJ/ (was wavs for English) | Folder storing audio samples for ABX
 
-#########################################cd /fs/clip
-### MODEL PARAMETERS
+############################################ MODEL PARAMETERS
 ### General
 BATCH_SIZE = 32 #Default: 32 | Size of batch to sample during training
 UPDATES = 25 #Default: 25 | How often to print updates
