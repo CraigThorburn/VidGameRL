@@ -40,8 +40,8 @@ print('using device ' + str(device))
 tic = time.time()
 running=True
 
-fischer_calculation_batch_size = 200
-fischer_batches = 1000
+fischer_calculation_batch_size = 32 #200
+fischer_batches = 6000 #1000
 
 
 if OVERWRITE:
@@ -102,7 +102,7 @@ for i in range(fischer_batches):
         loss.backward()
 
         for n, p in phoneme_classifier.named_parameters():
-            precision_matrices[n].data += p.grad.data ** 2 / (fischer_calculation_batch_size*10)
+            precision_matrices[n].data += p.grad.data ** 2 / (fischer_batches)
 
 print('calculated diagonal of fischer information matrix')
 

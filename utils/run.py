@@ -100,6 +100,8 @@ def convert2htmlrow(run, outcomes, node, port, stage_names):
             outcome_str += '<td class="tg-og4q"><a href="' + hyper + '">Fail</a></td>\n'
         elif o == 2:
             outcome_str += '<td class="tg-og4q"><a href="' + hyper + '">Fail</a></td>\n'
+        elif o == 137:
+            outcome_str += '<td class="tg-og4q"><a href="' + hyper + '">Fail (OOM Kill)</a></td>\n'
         elif o  == 0:
             outcome_str += '<td class="tg-fd62"><a href="' + hyper + '">Success</a></td>\n'
         elif o == -999:
