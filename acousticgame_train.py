@@ -69,7 +69,7 @@ def optimize_model():
         non_final_next_states = torch.stack(tuple([s for s in batch.next_state
                                                if s is not None]))
     except RuntimeError:
-        pass
+        return
     non_final_next_locs = torch.stack(tuple([s for s in batch.next_location
                                                if s is not None]))
 

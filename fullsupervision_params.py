@@ -6,7 +6,7 @@ PRETRAIN_EPOCHS = 50
 
 ### FILE VARIABLES
 PRETRAIN_MODELNAME_ADITIONS = '_originalattempt5' #extra suffix for the pretraining folder
-TRAIN_MODELNAME_ADITIONS = 'fullsupervision_originalattempt5_ewc0.0005' #extra suffix for the training folder
+TRAIN_MODELNAME_ADITIONS = 'fullsupervision_originalattempt5_standard' #extra suffix for the training folder
 ### General
 OVERWRITE = False #Default: False | whether any files should be overwritten
 EXPERIMENT = 'supervised_pretraining_GPJ/' #Default: supervised_pretraining_<CORPUS> | experiment folder
@@ -68,5 +68,5 @@ EWC_IMPORTANCE = 0.0005 #Default: ??? | EWC Importance Weighting Coefficient
 
 ### For Train
 TRAIN_EPOCHS = 96000
-TRAIN_LR = 0.05 #Default: 0.05 | Learning rate during training
+TRAIN_LR = 0.01 #Default: 0.05 | Learning rate during training
 NUM_PHONES = 36   #Default: 36 (Japanese), 39 (English) | Number of phones in pretrained corpus
