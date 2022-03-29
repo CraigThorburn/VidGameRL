@@ -54,8 +54,6 @@ $train_cmd --mem 16GB JOB=1:$num_runs --gpu $gpu ../../data/$data_folder/log/$ex
    echo "starting calculating ewc coefficients"
 fi
 
-
-
 if [ $stage -le 3 ]; then
 echo "running pretrain abx task"
 $train_cmd --mem 16GB JOB=1:$num_runs --gpu $gpu ../../data/$data_folder/log/$experiment_name/acousticgame_run_abxpretrain-1.$model_id.JOB.log  run_python.sh acousticgame_run_abx.py "$params -layer=-1 -pretrain=true" || exit 1;
@@ -66,9 +64,14 @@ echo "abx complete"
 fi
 
 
+if [ $gpu -eq 1 ]; then
+train_gpu=3
+fi
+
+
 if [ $stage -le 4 ]; then
 echo "starting training from pretrained model"
-$train_cmd --mem 16GB JOB=1:$num_runs --gpu $gpu ../../data/$data_folder/log/$experiment_name/acousticgame_train.$model_id.JOB.log  run_python.sh acousticgame_train.py $params || exit 1;
+$train_cmd --mem 16GB JOB=1:$num_runs --gpu $train_gpu ../../data/$data_folder/log/$experiment_name/acousticgame_train.$model_id.JOB.log  run_python.sh acousticgame_train.py $params || exit 1;
    echo "training complete"
 fi
 
