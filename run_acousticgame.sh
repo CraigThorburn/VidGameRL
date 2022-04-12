@@ -3,7 +3,7 @@
 #SBATCH --mem=4GB
 #SBATCH --time=01-00:00:00
 #SBATCH --output=/fs/clip-realspeech/projects/vid_game/logs/batch_%j.txt
-#SBATCH --mail-type=all
+#SBATCH --mail-type=fail
 #SBATCH --mail-user=craigtho@umiacs.umd.edu
 
 input="$@"
@@ -32,7 +32,7 @@ echo 'stage: '
 echo $stage
 echo 'num_runs: '
 echo $num_runs
-source activate audneurorl
+source activate audneurorl_test
 
 echo "---------------------"
 
@@ -66,6 +66,10 @@ fi
 
 if [ $gpu -eq 1 ]; then
 train_gpu=3
+fi
+
+if [ $gpu -eq 2 ]; then
+train_gpu=4
 fi
 
 

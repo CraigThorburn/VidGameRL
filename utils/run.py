@@ -115,7 +115,7 @@ def convert2htmlrow(run, outcomes, node, port, stage_names):
 
 def generate_log_table(node, port, experiment_folder):
 
-    log_folder = '../../data/' + experiment_folder + '/log'
+    log_folder = '../data/' + experiment_folder + '/log'
     os.listdir(log_folder)
     directory_list = os.listdir(log_folder)
     experiments = []
@@ -181,7 +181,7 @@ def generate_log_table(node, port, experiment_folder):
 
     full_html = html_prefix + html_firstrow+table_str + html_suffix
 
-    f = open('loghtml/logtable_'+experiment_folder + '.html',  'w+')
+    f = open('VidGameRL/loghtml/logtable_'+experiment_folder + '.html',  'w+')
     f.write(full_html)
     f.close()
 
