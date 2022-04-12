@@ -29,6 +29,16 @@ print('parameters loaded from '+args.params_file)
 
 MODEL_LOCATION= ROOT + OUT_FOLDER + 'model_' + PRETRAIN_MODELNAME + '_final.pt'
 
+    # Define Loss Function  /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
+if LOSS_FUNCTION == 'nll':
+    loss_function = F.nll_loss
+elif LOSS_FUNCTION == 'smooth_l1':
+    loss_function = F.smooth_l1_loss
+elif LOSS_FUNCTION == 'l2':
+    loss_function = 
+else:
+    raise NotImplementedError
+
 
 
 ### Set Computational Device
@@ -39,9 +49,6 @@ print('using device ' + str(device))
 ### Set Model Start
 tic = time.time()
 running=True
-
-fischer_calculation_batch_size = 32 #200
-fischer_batches = 6000 #1000
 
 
 if OVERWRITE:
@@ -79,9 +86,9 @@ for n, p in deepcopy(model_params).items():
 
     # Get raw waveforms from data and reshape for classifier
 data.randomize_data()
-for i in range(fischer_batches):
+for i in range(FISCHER_BATCHES):
     print('batch:', str(i))
-    wavs, labels, phones = data.get_batch_phones(i*fischer_calculation_batch_size, (i+1)*fischer_calculation_batch_size)
+    wavs, labels, phones = data.get_batch_phones(i*FISCHER_CALCULATION_BATCH_SIZE, (i+1)*FISCHER_CALCULATION_BATCH_SIZE)
 
     wavs = wavs.reshape(wavs.size()[0], 1, wavs.size()[1]).to(device)
     wavs = data.transform(wavs)
@@ -94,15 +101,20 @@ for i in range(fischer_batches):
         phoneme_classifier.zero_grad()
         input = wavs[inp,:,:].reshape(1,1,wavs.size()[2], wavs.size()[3])
         output = phoneme_classifier(input)#.flatten()
-        label = output.max(1)[1].view(-1)
-        #label = labels[inp]
-
-        loss = F.nll_loss(output,label)
+        
+        #loss = loss_function(output, label) #/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
+        if loss_function == F.nll_loss:
+            label = output.max(1)[1].view(-1)
+            loss = loss_function(output, label)
+        elif loss_function == F.smooth_l1_loss:
+            label = labels[inp]
+            loss = loss_function(output, label)
+        #loss = F.nll_loss(output,label)
         #loss = F.smooth_l1_loss(output, label)
         loss.backward()
 
         for n, p in phoneme_classifier.named_parameters():
-            precision_matrices[n].data += p.grad.data ** 2 / (fischer_batches)
+            precision_matrices[n].data += p.grad.data ** 2 / (FISCHER_BATCHES)
 
 print('calculated diagonal of fischer information matrix')
 
