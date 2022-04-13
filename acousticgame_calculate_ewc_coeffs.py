@@ -108,6 +108,10 @@ for i in range(FISCHER_BATCHES):
             loss = loss_function(output, label)
         elif loss_function == F.smooth_l1_loss:
             label = labels[inp]
+            if output.size() != label.size():
+                print('label and output vector not same size!')
+                      
+                raise AssertionError
             loss = loss_function(output, label)
         #loss = F.nll_loss(output,label)
         #loss = F.smooth_l1_loss(output, label)
