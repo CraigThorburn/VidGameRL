@@ -73,10 +73,10 @@ Auxilliary code is organized into several libraries:
 
  - ```NN.PhonemeConvNN(kernel, sstride, w, h, n_outputs, layers = [32, 32, 32, 20], window_length = 100):```
 	 - **Required Parameters**: 
-		 - `kernel` - full path to segments file
-		 - `sstride` - full path to phone file
-		 - `w` - full path to aligment file
-		 - `h` - name of wav folder (from current directory)
+		 - `kernel` - kernel size of convolutional layers
+		 - `sstride` - stride size of convolutional layers
+		 - `w` - width of input to network
+		 - `h` - height of input to network
 
 - `NN.PhonemeConvNN.forward(x)`:
 	- Runs input through neural network, can also be called simply with `NN.PhonemeConvNN(x)`
