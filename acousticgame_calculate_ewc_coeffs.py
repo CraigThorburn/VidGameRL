@@ -1,6 +1,7 @@
 import torch
 from libs.DataLoader import *
 from libs.NN import *
+import torch.linalg
 import json
 import time
 import argparse
@@ -35,7 +36,7 @@ if LOSS_FUNCTION == 'nll':
 elif LOSS_FUNCTION == 'smooth_l1':
     loss_function = F.smooth_l1_loss
 elif LOSS_FUNCTION == 'l2':
-    loss_function = 
+    loss_function = torch.linalg.norm
 else:
     raise NotImplementedError
 
@@ -106,9 +107,23 @@ for i in range(FISCHER_BATCHES):
         if loss_function == F.nll_loss:
             label = output.max(1)[1].view(-1)
             loss = loss_function(output, label)
+            
         elif loss_function == F.smooth_l1_loss:
-            label = labels[inp]
-            loss = loss_function(output, label)
+            label = labels[inp].to(device)
+            
+            if output.flatten().size() != label.size():
+                print(output.flatten().size())
+                print(label.size())
+                print('label and output vector not same size!')
+                      
+                raise AssertionError
+            loss = loss_function(output.flatten(), label)
+            
+        elif loss_function == torch.linalg.norm:
+            loss = torch.square(loss_function(output.flatten()))
+            
+            
+            
         #loss = F.nll_loss(output,label)
         #loss = F.smooth_l1_loss(output, label)
         loss.backward()

@@ -113,10 +113,22 @@ class SpeechDataLoader(object):
             self.discarded_segments += (len(labels) - len(window_starts))
             cut_wavs = cut_wavs.reshape(len(cut_wavs), self.sr_window_size)
 
-
-
-
         return cut_wavs , labels
+
+    def get_batch_wavname(self):
+        batch = self.data[start:end]
+        batch_unzipped = Instance(*zip(*batch))
+
+        return batch_unzipped.file
+
+    def get_batch_time(self):
+        batch = self.data[start:end]
+        batch_unzipped = Instance(*zip(*batch))
+
+        starts = torch.tensor(batch_unzipped.start)
+        ends= torch.tensor(batch_unzipped.end)
+        mids = (ends + starts) / 2
+        return [ float(time) for time in mids ]
 
     def get_batch_phones(self, start, end):
         batch = self.data[start:end]
