@@ -36,7 +36,7 @@ fi
 
 if [ $stage -le 3 ]; then
 echo "running pretrain abx task"
-python acousticgame_run_abx.py $params -run_num=$i -layer=-1 -pretrain=true || exit
+#python acousticgame_run_abx.py $params -run_num=$i -layer=-1 -pretrain=true || exit
 #python acousticgame_run_abx.py $params -run_num=$i -layer=-2 -pretrain=true || exit
 #python acousticgame_run_abx.py $params -run_num=$i -layer=-3 -pretrain=true || exit
 #python acousticgame_run_abx.py $params -run_num=$i -layer=-4 -pretrain=true || exit

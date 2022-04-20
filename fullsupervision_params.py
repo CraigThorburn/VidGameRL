@@ -1,12 +1,12 @@
-N_TRIALS = 6000 #TODO: Update
+N_TRIALS = 1024 #TODO: Update
 testing_batch_size = 32
-DATAFILE1 =  'rs_WSJ_filtered.txt'
-DATAFILE2 =  'ls_WSJ_filtered.txt'
+DATAFILE1 =  'states_WSJ_correct_fullsupervision_ls.txt'
+DATAFILE2 =  'states_WSJ_correct_fullsupervision_rs.txt'
 PRETRAIN_EPOCHS = 50
 
 ### FILE VARIABLES
-PRETRAIN_MODELNAME_ADITIONS = '' #extra suffix for the pretraining folder
-TRAIN_MODELNAME_ADITIONS = 'fullsupervision_short' #extra suffix for the training folder
+PRETRAIN_MODELNAME_ADITIONS = '_originalattempt5' #extra suffix for the pretraining folder
+TRAIN_MODELNAME_ADITIONS = 'fullsupervision_originalattempt5_standard' #extra suffix for the training folder
 ### General
 OVERWRITE = False #Default: False | whether any files should be overwritten
 EXPERIMENT = 'supervised_pretraining_GPJ/' #Default: supervised_pretraining_<CORPUS> | experiment folder
@@ -64,9 +64,9 @@ PRETRAIN_EPOCHS = 25 #Default: 25 | Number of epochs during pretraining
 LOSS_TYPE = 'standard' #Default: ewc | (or standard) Type of loss function to use during training
 FISCHER_CORPUS='GPJ' #Default: Same as pretraining corpus | Corpus for which to calculate fischer coefficients
 FISCHER_FILE = 'fischercoeffs' #Default: fischercoeffs | Name of fischer coefficient file
-EWC_IMPORTANCE = 0.0001 #Default: ??? | EWC Importance Weighting Coefficient
+EWC_IMPORTANCE = 0.0005 #Default: ??? | EWC Importance Weighting Coefficient
 
 ### For Train
-TRAIN_EPOCHS = 20
-TRAIN_LR = 0.05 #Default: 0.05 | Learning rate during training
+TRAIN_EPOCHS = 96000
+TRAIN_LR = 0.01 #Default: 0.05 | Learning rate during training
 NUM_PHONES = 36   #Default: 36 (Japanese), 39 (English) | Number of phones in pretrained corpus

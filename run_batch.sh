@@ -53,7 +53,7 @@ then
 
     echo "comencing slurm batch parallel across " $num_runs " machines"
 
-    $train_cmd JOB=1:$num_runs --gpu $gpu ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual_acousticgame.sh $stage $param_name || exit 1;
+    $train_cmd JOB=1:$num_runs --gpu $gpu --mem 12G ../../data/$experiment/log/main_game.$SLURM_JOBID.JOB.log  run_batch_individual_acousticgame.sh $stage $param_name || exit 1;
     wait
     echo "finished"
 

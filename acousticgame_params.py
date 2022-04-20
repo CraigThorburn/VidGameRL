@@ -42,8 +42,7 @@ RESULTS_FILE = 'results' #Default: results | name of result output file
 SIMPLE_STATE_TEST_FILE='test_states_simple' #Default: test_states_simple | NOTE CURRENTLY REQUIED Simple list of files to use during test results processing
 ABX_WAVS_FOLDER = 'wavs_WSJ/'    #Default: wavs_WSJ/ (was wavs for English) | Folder storing audio samples for ABX
 
-#########################################cd /fs/clip
-### MODEL PARAMETERS
+############################################ MODEL PARAMETERS
 ### General
 BATCH_SIZE = 32 #Default: 32 | Size of batch to sample during training
 UPDATES = 25 #Default: 25 | How often to print updates
@@ -68,7 +67,7 @@ N_FFT = 400 #Default: 400 | N_FFT parameter for spectrogram calculation
 ### For Pretrain
 PRETRAIN_LR = 0.09 #Default" 0.09 | Learning rate during training
 GAME_TYPE = 'convmovement' #Deprecated
-GAME_MODE = 'oneshot' #Default: oneshot | Training game type
+GAME_MODE = 'correct' #Default: oneshot | Training game type
 PRETRAIN_EPOCHS = 25 #Default: 25 | Number of epochs during pretraining
 
 ### For Validation

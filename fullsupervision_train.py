@@ -1,7 +1,5 @@
 ### Set Imports
 import os
-os.chdir('/fs/clip-realspeech/projects/vid_game/software/VidGameRL/')
-
 from itertools import count
 import torch
 import torch.optim as optim
@@ -80,13 +78,13 @@ model_params = torch.load(MODEL_LOCATION, map_location=device)
 #model_params.pop('lin1.bias')
 phoneme_classifier = PhonemeConvNN_extranodes(KERNEL, STRIDE, w, h, NUM_PHONES, extra_nodes=2).to(device)  # TODO: Need to create classifier
 phoneme_classifier.load_state_dict(model_params, strict=False)
-optimizer = optim.SGD(phoneme_classifier.parameters(), lr = 0.01)
+optimizer = optim.SGD(phoneme_classifier.parameters(), lr = TRAIN_LR)
 phoneme_classifier.train()
 
 print('classifier loaded')
 
-print('running for', str(N_TRIALS*2))
-n_batches = math.floor(N_TRIALS / testing_batch_size)*2
+n_batches = math.floor((N_TRIALS / testing_batch_size)*2)
+print('running for',str(TRAIN_EPOCHS),'epochs with',str(n_batches),'batches of size',str(testing_batch_size),'totaling',str(N_TRIALS*2),'trials')
 
 if LOSS_TYPE == 'ewc':
     precision_matrices,means = torch.load(ROOT + MODEL_FOLDER + FISCHER_FILE + '_' +  PRETRAIN_MODELNAME + '.txt', map_location=device)
@@ -120,6 +118,7 @@ print(len(all_data_dicts))
 BATCH_SIZE = testing_batch_size
 tic = time.time()
 for i_epoch in range(TRAIN_EPOCHS):
+    print('epoch: ', str(i_epoch))
 
     for i_batch in range(n_batches):
 
