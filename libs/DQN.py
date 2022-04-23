@@ -278,7 +278,137 @@ class DQN_NN_conv_pretrain_phonelayer(nn.Module):
             self.lin1.weight.requires_grad = True
             self.lin1.bias.requires_grad = True
 
+class DQN_NN_conv_pretrain_phonelayer_extranodes(nn.Module):
 
+    def __init__(self, h, w, inputs, outputs, extranodes = 2, kernel = 5, sstride = 2, layers = [16, 32, 32, 20], freeze_convolution=False, n_phone_layer=39, freeze_layer = 0):
+        super(DQN_NN_conv_pretrain_phonelayer_extranodes, self).__init__()
+        self.conv1channels, self.conv2channels, self.conv3channels, self.mid_size = layers
+
+
+        self.conv1 = nn.Conv2d(1, self.conv1channels, kernel_size=kernel, stride=sstride)
+        self.bn1 = nn.BatchNorm2d(self.conv1channels)
+        self.conv2 = nn.Conv2d(self.conv1channels, self.conv2channels, kernel_size=kernel, stride=sstride)
+        self.bn2 = nn.BatchNorm2d(self.conv2channels)
+        self.conv3 = nn.Conv2d(self.conv2channels, self.conv3channels, kernel_size=kernel, stride=sstride)
+        self.bn3 = nn.BatchNorm2d(self.conv3channels)
+
+
+        # Number of Linear input connections depends on output of conv2d layers
+        # and therefore the input image size, so compute it.
+        def conv2d_size_out(size, kernel_size = kernel, stride = sstride):
+            return (size - (kernel_size - 1) - 1) // stride  + 1
+
+        convw = conv2d_size_out(conv2d_size_out(conv2d_size_out(w)))
+        convh = conv2d_size_out(conv2d_size_out(conv2d_size_out(h)))
+        self.linear_input_size = convw * convh * self.conv3channels
+
+        self.lin1 = nn.Linear(self.linear_input_size, n_phone_layer)
+        self.lin1_extra = nn.Linear(self.linear_input_size, extranodes)
+
+        self.head1 = nn.Linear(n_phone_layer + extranodes + inputs,self.mid_size)
+        self.head2 = nn.Linear(self.mid_size, outputs)
+
+        if freeze_convolution:
+            if freeze_layer >= 1:
+                self.conv1.bias.requires_grad=False
+                self.conv1.weight.requires_grad = False
+                self.bn1.bias.requires_grad=False
+                self.bn1.weight.requires_grad=False
+            if freeze_layer >= 2:
+                self.conv2.bias.requires_grad = False
+                self.conv2.weight.requires_grad = False
+                self.bn2.bias.requires_grad=False
+                self.bn2.weight.requires_grad=False
+            if freeze_layer >= 3:
+                self.conv3.bias.requires_grad = False
+                self.conv3.weight.requires_grad = False
+                self.bn3.bias.requires_grad=False
+                self.bn3.weight.requires_grad=False
+            if freeze_layer >= 4:
+                self.lin1.weight.requires_grad=False
+                self.lin1.bias.requires_grad=False
+                print('freezing has not been checked for extra node capabilities')
+                raise NotImplementedError
+
+    # Called with either one element to determine next action, or a batch
+    # during optimization. Returns tensor([[left0exp,right0exp]...]).
+    def forward(self, x_aud, x_loc):
+
+        x_aud = F.relu(self.bn1(self.conv1(x_aud)))
+        x_aud = F.relu(self.bn2(self.conv2(x_aud)))
+        x_aud = F.relu(self.bn3(self.conv3(x_aud)))
+
+        x_aud = x_aud.reshape(x_aud.size()[0], x_aud.size()[1] * x_aud.size()[2] * x_aud.size()[3])
+
+        x_aud_orig = F.softplus(self.lin1(x_aud))
+        x_aud_extra = F.softplus(self.lin1_extra(x_aud))
+
+        x = torch.cat((x_aud_orig, x_aud_extra, x_loc), 1)
+
+        x = F.softplus(self.head1(x))
+        x = F.softplus(self.head2(x))
+
+
+        return x
+
+
+    def phone_class(self, x, relu):
+
+        # x = self.spectrogram(x)
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = F.relu(self.bn2(self.conv2(x)))
+        x = F.relu(self.bn3(self.conv3(x)))
+
+        x = x.reshape(x.size()[0], x.size()[1] * x.size()[2] * x.size()[3])
+
+        x_orig = F.softplus(self.lin1(x))
+        x_extra = F.softplus(self.lin1_extra(x))
+        return x
+
+    def freeze_layers(self, freeze_layer):
+        if freeze_layer >= 1:
+            self.conv1.bias.requires_grad = False
+            self.conv1.weight.requires_grad = False
+            self.bn1.bias.requires_grad = False
+            self.bn1.weight.requires_grad = False
+        if freeze_layer >= 2:
+            self.conv2.bias.requires_grad = False
+            self.conv2.weight.requires_grad = False
+            self.bn2.bias.requires_grad = False
+            self.bn2.weight.requires_grad = False
+        if freeze_layer >= 3:
+            self.conv3.bias.requires_grad = False
+            self.conv3.weight.requires_grad = False
+            self.bn3.bias.requires_grad = False
+            self.bn3.weight.requires_grad = False
+        if freeze_layer >= 4:
+            self.lin1.weight.requires_grad = False
+            self.lin1.bias.requires_grad = False
+            print('freezing has not been checked for extra node capabilities')
+            raise NotImplementedError
+
+
+    def unfreeze_layers(self, freeze_layer):
+        if freeze_layer >= 1:
+            self.conv1.bias.requires_grad = True
+            self.conv1.weight.requires_grad = True
+            self.bn1.bias.requires_grad = True
+            self.bn1.weight.requires_grad = True
+        if freeze_layer >= 2:
+            self.conv2.bias.requires_grad = True
+            self.conv2.weight.requires_grad = True
+            self.bn2.bias.requires_grad = True
+            self.bn2.weight.requires_grad = True
+        if freeze_layer >= 3:
+            self.conv3.bias.requires_grad = True
+            self.conv3.weight.requires_grad = True
+            self.bn3.bias.requires_grad = True
+            self.bn3.weight.requires_grad = True
+        if freeze_layer >= 4:
+            self.lin1.weight.requires_grad = True
+            self.lin1.bias.requires_grad = True
+            print('freezing has not been checked for extra node capabilities')
+            raise NotImplementedError
 
 class DQN_NN_conv_pretrain_convlayer(nn.Module):
 

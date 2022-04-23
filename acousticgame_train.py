@@ -188,6 +188,12 @@ if CONNECTION_LAYER == 'phone':
     MODEL_LOCATION = ROOT + MODEL_FOLDER + 'model_' + PRETRAIN_MODELNAME + '_final.pt'
     policy_net.load_state_dict(torch.load(MODEL_LOCATION, map_location=device), strict=False)
     target_net.load_state_dict(policy_net.state_dict())
+elif CONNECTION_LAYER == 'phone_extranodes':
+    policy_net = DQN_NN_conv_pretrain_phonelayer_extranodes(h, w,num_inputs, n_actions, EXTRA_NODES, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
+    target_net = DQN_NN_conv_pretrain_phonelayer_extranodes(h, w, num_inputs, n_actions, EXTRA_NODES, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
+    MODEL_LOCATION = ROOT + MODEL_FOLDER + 'model_' + PRETRAIN_MODELNAME + '_final.pt'
+    policy_net.load_state_dict(torch.load(MODEL_LOCATION, map_location=device), strict=False)
+    target_net.load_state_dict(policy_net.state_dict())
 elif CONNECTION_LAYER == 'conv':
     policy_net = DQN_NN_conv_pretrain_convlayer(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
     target_net = DQN_NN_conv_pretrain_convlayer(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
