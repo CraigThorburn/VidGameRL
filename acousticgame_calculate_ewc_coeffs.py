@@ -85,6 +85,7 @@ for n, p in deepcopy(model_params).items():
     precision_matrices[n] = p.data
 
 
+total_steps=0
     # Get raw waveforms from data and reshape for classifier
 data.randomize_data()
 for i in range(FISCHER_BATCHES):
@@ -99,6 +100,7 @@ for i in range(FISCHER_BATCHES):
     phoneme_classifier.eval()
 
     for inp in range(wavs.size()[0]):
+        total_steps+=1
         phoneme_classifier.zero_grad()
         input = wavs[inp,:,:].reshape(1,1,wavs.size()[2], wavs.size()[3])
         output = phoneme_classifier(input)#.flatten()
@@ -107,6 +109,10 @@ for i in range(FISCHER_BATCHES):
         if loss_function == F.nll_loss:
             label = output.max(1)[1].view(-1)
             loss = loss_function(output, label)
+            loss.backward()
+            for n, p in phoneme_classifier.named_parameters():
+                 precision_matrices[n].data += p.grad.data #p.grad.data ** 2 / (FISCHER_BATCHES)
+
             
         elif loss_function == F.smooth_l1_loss:
             label = labels[inp].to(device)
@@ -118,18 +124,26 @@ for i in range(FISCHER_BATCHES):
                       
                 raise AssertionError
             loss = loss_function(output.flatten(), label)
+            loss.backward()
+            for n, p in phoneme_classifier.named_parameters():
+                precision_matrices[n].data += p.grad.data ** 2 
+
             
         elif loss_function == torch.linalg.norm:
             loss = torch.square(loss_function(output.flatten()))
+            loss.backward()
+            for n, p in phoneme_classifier.named_parameters(): 
+                precision_matrices[n].data += p.grad.data #p.grad.data ** 2 / (FISCHER_BATCHES)
+
             
             
             
         #loss = F.nll_loss(output,label)
         #loss = F.smooth_l1_loss(output, label)
-        loss.backward()
 
-        for n, p in phoneme_classifier.named_parameters():
-            precision_matrices[n].data += p.grad.data ** 2 / (FISCHER_BATCHES)
+for n, p in phoneme_classifier.named_parameters():
+    precision_matrices[n].data = precision_matrices[n].data / total_steps
+
 
 print('calculated diagonal of fischer information matrix')
 
