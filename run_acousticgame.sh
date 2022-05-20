@@ -113,7 +113,7 @@ fi
 
 if [ $stage -le 9 ]; then
 echo "starting training validation"
-$train_cmd --mem 16GB JOB=1:$num_runs --gpu $gpu ../../data/$data_folder/log/$experiment_name/acousticgame_train_validation.$model_id.JOB.log  run_python.sh run_validation.py "$params -pretrain=true" || exit 1;
+$train_cmd --mem 16GB JOB=1:$num_runs --gpu $gpu ../../data/$data_folder/log/$experiment_name/acousticgame_train_validation.$model_id.JOB.log  run_python.sh run_validation.py "$params -pretrain=false" || exit 1;
    echo "training complete validation"
 fi
 

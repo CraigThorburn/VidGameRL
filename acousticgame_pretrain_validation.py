@@ -64,7 +64,7 @@ for corpus in VALIDATION_COPORA:
 
     n_batches = math.floor(n_datapoints / testing_batch_size)
 
-    phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs).to(device)  # TODO: Need to create classifier
+    phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs, LAYERS).to(device)  # TODO: Need to create classifier
     phoneme_classifier.load_state_dict(torch.load(MODEL_LOCATION, map_location=device))
     phoneme_classifier.eval()
 

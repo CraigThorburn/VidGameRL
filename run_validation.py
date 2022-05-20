@@ -23,7 +23,10 @@ else:
 with open(args.params_file, 'r') as f:
     all_params = json.load(f)
 
-OUT_LAYER = int(args.layer)
+if args.layer:
+    OUT_LAYER = int(args.layer)
+else:
+    OUT_LAYER = -1
 
 for key in all_params:
     globals()[key] = all_params[key]
@@ -31,6 +34,7 @@ for key in all_params:
 if args.run_num:
     RUN_NUM = args.run_num
     TRAIN_MODELNAME = TRAIN_MODELNAME + '_run' + str(RUN_NUM)
+    PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run' + str(RUN_NUM)
 
 if pretrain_model:
     MODEL_FOLDER = OUT_FOLDER + PRETRAIN_MODELNAME + '/'
@@ -78,16 +82,16 @@ for corpus in VALIDATION_COPORA:
 
     n_batches = math.floor(n_datapoints / testing_batch_size)
     if MODELTYPE == 'standard':
-        phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs).to(device)  # TODO: Need to create classifier
+        phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs, LAYERS).to(device)  # TODO: Need to create classifier
         phoneme_classifier.load_state_dict(torch.load(MODEL_LOCATION, map_location=device), strict=False)
         phoneme_classifier.eval()
     elif MODELTYPE == 'extranodes':
-        phoneme_classifier = PhonemeConvNN_extranodes(KERNEL, STRIDE, w, h, n_outputs, extra_nodes=EXTRA_NODES).to(
+        phoneme_classifier = PhonemeConvNN_extranodes(KERNEL, STRIDE, w, h, n_outputs, LAYERS, extra_nodes=EXTRA_NODES).to(
             device)  # TODO: Need to create classifier
         phoneme_classifier.load_state_dict(torch.load(MODEL_LOCATION, map_location=device), strict=False)
         phoneme_classifier.eval()
 
-    results = torch.zeros((n_outputs, n_outputs))
+    results = torch.zeros((n_outputs+EXTRA_NODES, n_outputs+EXTRA_NODES))
     for i_batch in range(n_batches):
         print('running batch:', str(i_batch))
 

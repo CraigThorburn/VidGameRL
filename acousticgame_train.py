@@ -104,7 +104,7 @@ def optimize_model():
     policy_net.train()
 
     # Compute loss
-    loss = loss_func(state_action_values.double(), expected_state_action_values.unsqueeze(1).double(), policy_net.named_parameters())
+    loss = loss_class.calculate_loss(state_action_values.double(), expected_state_action_values.unsqueeze(1).double(), policy_net.named_parameters())
     loss = loss.double()
 
     # Optimize the model
@@ -114,7 +114,12 @@ def optimize_model():
     #    for param in policy_net.parameters():
     #       param.grad.data.clamp_(-1, 1)
     optimizer.step()
-    to_output[-1] = to_output[-1] + ' ' + str(round(float(loss), 4))
+    print_both_loss = True
+    if print_both_loss ==True:
+        last_loss, last_penalty = loss_class.get_last_loss_strings()
+        to_output[-1] = to_output[-1] + ' ' + last_loss + '_' + last_penalty
+    else:
+        to_output[-1] = to_output[-1] + ' ' + str(round(float(loss), 4))
 
 ### Define Action Selection Function
 # This function takes a state and location and selects an action.  It selects a random action with epsilon probability or
@@ -230,7 +235,7 @@ else:
     raise NotImplementedError
 
 ### Define loss function from package
-loss_func = loss_class.calculate_loss
+#loss_func = loss_class.calculate_loss
 
 ### Define Optimizer
 optimizer = optim.SGD(policy_net.parameters(), lr = TRAIN_LR) ## TODO: Changed from RMSprop
