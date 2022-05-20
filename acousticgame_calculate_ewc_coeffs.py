@@ -71,7 +71,7 @@ print(int(n_outputs), 'outputs |', w, 'width |', h, 'height')
 n_datapoints = len(data)
 print('running for', str(n_datapoints))
 
-phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs).to(device)  # TODO: Need to create classifier
+phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs, LAYERS).to(device)  # TODO: Need to create classifier
 phoneme_classifier.load_state_dict(torch.load(MODEL_LOCATION, map_location=device))
 
 
@@ -133,7 +133,7 @@ for i in range(FISCHER_BATCHES):
             loss = torch.square(loss_function(output.flatten()))
             loss.backward()
             for n, p in phoneme_classifier.named_parameters(): 
-                precision_matrices[n].data += p.grad.data #p.grad.data ** 2 / (FISCHER_BATCHES)
+                precision_matrices[n].data += torch.abs(p.grad.data) #p.grad.data ** 2 / (FISCHER_BATCHES)
 
             
             
