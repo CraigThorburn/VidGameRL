@@ -105,12 +105,12 @@ n_batches = math.floor(N_TRIALS / testing_batch_size)
 MODEL_LOCATION = ROOT + MODEL_FOLDER + 'model_' + MODELNAME + '_final.pt'
 
 if MODELTYPE == 'standard':
-    phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs).to(device)  # TODO: Need to create classifier
+    phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs, LAYERS).to(device)  # TODO: Need to create classifier
     phoneme_classifier.load_state_dict(torch.load(MODEL_LOCATION, map_location=device), strict=False)
     phoneme_classifier.eval()
 
 elif MODELTYPE == 'extranodes':
-    phoneme_classifier = PhonemeConvNN_extranodes(KERNEL, STRIDE, w, h, n_outputs, extra_nodes=EXTRA_NODES).to(device)  # TODO: Need to create classifier
+    phoneme_classifier = PhonemeConvNN_extranodes(KERNEL, STRIDE, w, h, n_outputs, LAYERS, extra_nodes=EXTRA_NODES).to(device)  # TODO: Need to create classifier
     phoneme_classifier.load_state_dict(torch.load(MODEL_LOCATION, map_location=device), strict=False)
     phoneme_classifier.eval()
 print('classifier loaded')
@@ -137,37 +137,37 @@ for trial in [1, 2]:
                 data2.get_batch(N_TRIALS + (i_batch * testing_batch_size), (N_TRIALS + (i_batch + 1) * testing_batch_size)))
 
         # Generate Predictions
-            predictionsa = phoneme_classifier.get_out_from_layer(
-                batcha.reshape(batcha.size()[0], 1, batcha.size()[1], batcha.size()[2]), OUT_LAYER, stacked_out=True)
-            predictionsb = phoneme_classifier.get_out_from_layer(
-                batchb.reshape(batchb.size()[0], 1, batchb.size()[1], batchb.size()[2]), OUT_LAYER, stacked_out=True)
+        predictionsa = phoneme_classifier.get_out_from_layer(
+            batcha.reshape(batcha.size()[0], 1, batcha.size()[1], batcha.size()[2]), OUT_LAYER, stacked_out=True)
+        predictionsb = phoneme_classifier.get_out_from_layer(
+            batchb.reshape(batchb.size()[0], 1, batchb.size()[1], batchb.size()[2]), OUT_LAYER, stacked_out=True)
 
-            predictionsx = phoneme_classifier.get_out_from_layer(
-                batchx.reshape(batchx.size()[0], 1, batchx.size()[1], batchx.size()[2]), OUT_LAYER, stacked_out=True)
+        predictionsx = phoneme_classifier.get_out_from_layer(
+            batchx.reshape(batchx.size()[0], 1, batchx.size()[1], batchx.size()[2]), OUT_LAYER, stacked_out=True)
 
-            if len(predictionsx.size())==2:
-                pass
+        if len(predictionsx.size())==2:
+            pass
 
-            elif len(predictionsx.size()) ==3:
-                predictionsx = predictionsx.reshape(testing_batch_size, predictionsx.size()[1] * predictionsx.size()[2])
-                predictionsa = predictionsa.reshape(testing_batch_size, predictionsa.size()[1] * predictionsa.size()[2])
-                predictionsa = predictionsa.reshape(testing_batch_size, predictionsa.size()[1] * predictionsa.size()[2])
-            elif len(predictionsx.size()) ==4:
-                predictionsx = predictionsx.reshape(testing_batch_size, predictionsx.size()[1] * predictionsx.size()[2] * predictionsx.size()[3])
-                predictionsa = predictionsa.reshape(testing_batch_size, predictionsa.size()[1] * predictionsa.size()[2] * predictionsa.size()[3])
-                predictionsb = predictionsb.reshape(testing_batch_size, predictionsb.size()[1] * predictionsb.size()[2] * predictionsb.size()[3])
+        elif len(predictionsx.size()) ==3:
+            predictionsx = predictionsx.reshape(testing_batch_size, predictionsx.size()[1] * predictionsx.size()[2])
+            predictionsa = predictionsa.reshape(testing_batch_size, predictionsa.size()[1] * predictionsa.size()[2])
+            predictionsb = predictionsb.reshape(testing_batch_size, predictionsb.size()[1] * predictionsb.size()[2])
+        elif len(predictionsx.size()) ==4:
+            predictionsx = predictionsx.reshape(testing_batch_size, predictionsx.size()[1] * predictionsx.size()[2] * predictionsx.size()[3])
+            predictionsa = predictionsa.reshape(testing_batch_size, predictionsa.size()[1] * predictionsa.size()[2] * predictionsa.size()[3])
+            predictionsb = predictionsb.reshape(testing_batch_size, predictionsb.size()[1] * predictionsb.size()[2] * predictionsb.size()[3])
 
-            else:
-                raise RuntimeError
+        else:
+            raise RuntimeError
 
-            axdis = pdist(predictionsx, predictionsa)
-            bxdis = pdist(predictionsx, predictionsb)
+        axdis = pdist(predictionsx, predictionsa)
+        bxdis = pdist(predictionsx, predictionsb)
 
-            a_answer = sum(axdis < bxdis)
-            b_answer = sum(bxdis < axdis)
+        a_answer = sum(axdis < bxdis)
+        b_answer = sum(bxdis < axdis)
 
-            results[trial][0] += int(a_answer)
-            results[trial][1] += int(b_answer)
+        results[trial][0] += int(a_answer)
+        results[trial][1] += int(b_answer)
 
 print('saving')
 print(results)
