@@ -115,13 +115,13 @@ class SpeechDataLoader(object):
 
         return cut_wavs , labels
 
-    def get_batch_wavname(self):
+    def get_batch_wavname(self, start, end):
         batch = self.data[start:end]
         batch_unzipped = Instance(*zip(*batch))
 
         return batch_unzipped.file
 
-    def get_batch_time(self):
+    def get_batch_time(self, start, end):
         batch = self.data[start:end]
         batch_unzipped = Instance(*zip(*batch))
 
