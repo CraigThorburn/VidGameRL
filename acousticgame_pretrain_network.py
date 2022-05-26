@@ -56,7 +56,7 @@ w, h = data.get_feature_dims()
 n_outputs = int(data.get_num_phones())
 print(int(n_outputs), 'outputs |',w, 'width |', h,'height')
 
-phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs).to(device) #TODO: Need to create classifier
+phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs, LAYERS).to(device) #TODO: Need to create classifier
 phoneme_classifier.train()
 optimizer = optim.SGD(phoneme_classifier.parameters(), lr = PRETRAIN_LR)
 

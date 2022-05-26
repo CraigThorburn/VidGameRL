@@ -109,7 +109,7 @@ class PhonemeConvNN_extranodes(nn.Module):
 
         return x_orig, x_extra
 
-    def get_out_from_layer(self, x, layer):
+    def get_out_from_layer(self, x, layer, stacked_out=False):
 
         if layer >= -4:
             x = F.relu(self.bn1(self.conv1(x)))
@@ -122,6 +122,13 @@ class PhonemeConvNN_extranodes(nn.Module):
             x = x.reshape(x.size()[0], x.size()[1]*x.size()[2]*x.size()[3])
 
         if layer >= -1:
-            x = F.softplus(self.lin1(x))
+            x_orig = F.softplus(self.lin1(x))
+            x_extra = F.softplus(self.lin1_extra(x))
+
+            if stacked_out:
+                x = torch.cat((x_orig, x_extra), 1)
+            else:
+                return x_orig, x_extra
+
 
         return x

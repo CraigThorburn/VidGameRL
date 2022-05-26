@@ -10,30 +10,48 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("params_file", help="root directory")
 parser.add_argument("-run_num")
+parser.add_argument("-pretrain")
+parser.add_argument("-layer")
 args = parser.parse_args()
+
+if args.pretrain == 'true':
+    pretrain_model = True
+else:
+    pretrain_model = False
 
 ### Define Model Name From Arguments
 with open(args.params_file, 'r') as f:
     all_params = json.load(f)
+
+if args.layer:
+    OUT_LAYER = int(args.layer)
+else:
+    OUT_LAYER = -1
+
 for key in all_params:
     globals()[key] = all_params[key]
 
 if args.run_num:
     RUN_NUM = args.run_num
+    TRAIN_MODELNAME = TRAIN_MODELNAME + '_run' + str(RUN_NUM)
     PRETRAIN_MODELNAME = PRETRAIN_MODELNAME + '_run' + str(RUN_NUM)
 
-OUT_FOLDER = OUT_FOLDER + PRETRAIN_MODELNAME + '/'
+if pretrain_model:
+    MODEL_FOLDER = OUT_FOLDER + PRETRAIN_MODELNAME + '/'
+    OUT_FOLDER = OUT_FOLDER + PRETRAIN_MODELNAME + '/'
+    MODELNAME = PRETRAIN_MODELNAME
+else:
+    MODEL_FOLDER = OUT_FOLDER + TRAIN_MODELNAME + '/'
+    OUT_FOLDER = OUT_FOLDER + TRAIN_MODELNAME + '/'
+    MODELNAME = TRAIN_MODELNAME
 
-print('parameters loaded from '+args.params_file)
+print('parameters loaded from ' + args.params_file)
 
-MODEL_LOCATION= ROOT + OUT_FOLDER + 'model_' + PRETRAIN_MODELNAME + '_final.pt'
-
-
+MODEL_LOCATION = ROOT + OUT_FOLDER + 'model_' + MODELNAME + '_final.pt'
 
 ### Set Computational Device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print('using device ' + str(device))
-
 
 ### Set Model Start
 tic = time.time()
@@ -47,7 +65,7 @@ for corpus in VALIDATION_COPORA:
         write_method = 'w'
     else:
         write_method = 'x'
-    outfile = open(ROOT + OUT_FOLDER + RESULTS_FILE + '_' +  PRETRAIN_MODELNAME + '_' + corpus + '.txt', write_method)
+    outfile = open(ROOT + OUT_FOLDER + 'validation' + '_' +  MODELNAME + '_' + corpus + '.txt', write_method)
     outfile.close()
 
 
@@ -63,14 +81,17 @@ for corpus in VALIDATION_COPORA:
     print('running for', str(n_datapoints))
 
     n_batches = math.floor(n_datapoints / testing_batch_size)
+    if MODELTYPE == 'standard':
+        phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs, LAYERS).to(device)  # TODO: Need to create classifier
+        phoneme_classifier.load_state_dict(torch.load(MODEL_LOCATION, map_location=device), strict=False)
+        phoneme_classifier.eval()
+    elif MODELTYPE == 'extranodes':
+        phoneme_classifier = PhonemeConvNN_extranodes(KERNEL, STRIDE, w, h, n_outputs, LAYERS, extra_nodes=EXTRA_NODES).to(
+            device)  # TODO: Need to create classifier
+        phoneme_classifier.load_state_dict(torch.load(MODEL_LOCATION, map_location=device), strict=False)
+        phoneme_classifier.eval()
 
-    phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs, LAYERS).to(device)  # TODO: Need to create classifier
-    phoneme_classifier.load_state_dict(torch.load(MODEL_LOCATION, map_location=device))
-    phoneme_classifier.eval()
-
-
-
-    results = torch.zeros((n_outputs, n_outputs))
+    results = torch.zeros((n_outputs+EXTRA_NODES, n_outputs+EXTRA_NODES))
     for i_batch in range(n_batches):
         print('running batch:', str(i_batch))
 
@@ -80,9 +101,13 @@ for corpus in VALIDATION_COPORA:
         wavs = wavs.reshape(wavs.size()[0], 1, wavs.size()[1]).to(device)
         wavs = data.transform(wavs)
         labels =  torch.stack(labels).to(device)
+        if MODELTYPE =='extranodes':
+            labels = torch.cat((labels, torch.zeros((labels.size()[0], EXTRA_NODES), device=device)), 1)
+
+        assert OUT_LAYER == -1, 'Out layer not valid for classification'
 
         # Generate Predictions
-        predictions = phoneme_classifier(wavs)
+        predictions = phoneme_classifier.get_out_from_layer(wavs, OUT_LAYER, stacked_out = True )
 
         # Correct predictions
         predicted_cats = predictions.max(1).indices
@@ -99,7 +124,7 @@ for corpus in VALIDATION_COPORA:
             results[label_cats[b], predicted_cats[b]] += 1
 
         ### Save Final Outputs
-    outfile = open(ROOT + OUT_FOLDER + RESULTS_FILE + '_' +  PRETRAIN_MODELNAME + '_' + corpus + '.txt', 'a+')
+    outfile = open(ROOT + OUT_FOLDER + 'validation' + '_' +  MODELNAME + '_' + corpus + '.txt', 'a+')
     outfile.write(''.join([p + ' ' for p in data.get_phone_list()])+ '\n')
     for p in range(len(results)):
         outfile.write(''.join([str(int(i))+' ' for i in results[p]]) + '\n')

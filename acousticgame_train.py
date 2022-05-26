@@ -104,7 +104,7 @@ def optimize_model():
     policy_net.train()
 
     # Compute loss
-    loss = loss_func(state_action_values.double(), expected_state_action_values.unsqueeze(1).double(), policy_net.named_parameters())
+    loss = loss_class.calculate_loss(state_action_values.double(), expected_state_action_values.unsqueeze(1).double(), policy_net.named_parameters())
     loss = loss.double()
 
     # Optimize the model
@@ -114,7 +114,12 @@ def optimize_model():
     #    for param in policy_net.parameters():
     #       param.grad.data.clamp_(-1, 1)
     optimizer.step()
-    to_output[-1] = to_output[-1] + ' ' + str(round(float(loss), 4))
+    print_both_loss = True
+    if print_both_loss ==True:
+        last_loss, last_penalty = loss_class.get_last_loss_strings()
+        to_output[-1] = to_output[-1] + ' ' + last_loss + '_' + last_penalty
+    else:
+        to_output[-1] = to_output[-1] + ' ' + str(round(float(loss), 4))
 
 ### Define Action Selection Function
 # This function takes a state and location and selects an action.  It selects a random action with epsilon probability or
@@ -183,8 +188,14 @@ w,h = env.get_aud_dims()
 
 ###  Define how the pretrained model is being connected to the DQN and create a policy and target network (Q and Q*)
 if CONNECTION_LAYER == 'phone':
-    policy_net = DQN_NN_conv_pretrain_phonelayer(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
-    target_net = DQN_NN_conv_pretrain_phonelayer(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
+    policy_net = DQN_NN_conv_pretrain_phonelayer(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, include_midlayer=INCLUDE_MIDLAYER, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
+    target_net = DQN_NN_conv_pretrain_phonelayer(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, include_midlayer=INCLUDE_MIDLAYER, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
+    MODEL_LOCATION = ROOT + MODEL_FOLDER + 'model_' + PRETRAIN_MODELNAME + '_final.pt'
+    policy_net.load_state_dict(torch.load(MODEL_LOCATION, map_location=device), strict=False)
+    target_net.load_state_dict(policy_net.state_dict())
+elif CONNECTION_LAYER == 'phone_extranodes':
+    policy_net = DQN_NN_conv_pretrain_phonelayer_extranodes(h, w,num_inputs, n_actions, EXTRA_NODES, KERNEL, STRIDE, LAYERS, CONV_FREEZE, include_midlayer=INCLUDE_MIDLAYER, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
+    target_net = DQN_NN_conv_pretrain_phonelayer_extranodes(h, w, num_inputs, n_actions, EXTRA_NODES, KERNEL, STRIDE, LAYERS, CONV_FREEZE, include_midlayer=INCLUDE_MIDLAYER, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
     MODEL_LOCATION = ROOT + MODEL_FOLDER + 'model_' + PRETRAIN_MODELNAME + '_final.pt'
     policy_net.load_state_dict(torch.load(MODEL_LOCATION, map_location=device), strict=False)
     target_net.load_state_dict(policy_net.state_dict())
@@ -224,7 +235,7 @@ else:
     raise NotImplementedError
 
 ### Define loss function from package
-loss_func = loss_class.calculate_loss
+#loss_func = loss_class.calculate_loss
 
 ### Define Optimizer
 optimizer = optim.SGD(policy_net.parameters(), lr = TRAIN_LR) ## TODO: Changed from RMSprop
