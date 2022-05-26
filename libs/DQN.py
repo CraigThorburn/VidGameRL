@@ -156,9 +156,10 @@ class DQN_NN_conv(nn.Module):
 
 class DQN_NN_conv_pretrain_phonelayer(nn.Module):
 
-    def __init__(self, h, w, inputs, outputs, kernel = 5, sstride = 2, layers = [16, 32, 32, 20], freeze_convolution=False, n_phone_layer=39, freeze_layer = 0):
+    def __init__(self, h, w, inputs, outputs, kernel = 5, sstride = 2, layers = [16, 32, 32, 20], freeze_convolution=False,  include_midlayer=True, n_phone_layer=39, freeze_layer = 0):
         super(DQN_NN_conv_pretrain_phonelayer, self).__init__()
         self.conv1channels, self.conv2channels, self.conv3channels, self.mid_size = layers
+        self.include_midlayer = include_midlayer
 
 
         self.conv1 = nn.Conv2d(1, self.conv1channels, kernel_size=kernel, stride=sstride)
@@ -180,8 +181,11 @@ class DQN_NN_conv_pretrain_phonelayer(nn.Module):
 
         self.lin1 = nn.Linear(self.linear_input_size, n_phone_layer)
 
-        self.head1 = nn.Linear(n_phone_layer + inputs,self.mid_size)
-        self.head2 = nn.Linear(self.mid_size, outputs)
+        if self.include_midlayer:
+            self.head1 = nn.Linear(n_phone_layer  + inputs,self.mid_size)
+            self.head2 = nn.Linear(self.mid_size, outputs)
+        else:
+            self.head = nn.Linear(n_phone_layer+ inputs, outputs)
 
         if freeze_convolution:
             if freeze_layer >= 1:
@@ -217,8 +221,11 @@ class DQN_NN_conv_pretrain_phonelayer(nn.Module):
 
         x = torch.cat((x_aud, x_loc), 1)
 
-        x = F.softplus(self.head1(x))
-        x = F.softplus(self.head2(x))
+        if self.include_midlayer:
+            x = F.softplus(self.head1(x))
+            x = F.softplus(self.head2(x))
+        else:
+            x = F.softplus(self.head(x))
 
 
         return x
@@ -280,8 +287,10 @@ class DQN_NN_conv_pretrain_phonelayer(nn.Module):
 
 class DQN_NN_conv_pretrain_phonelayer_extranodes(nn.Module):
 
-    def __init__(self, h, w, inputs, outputs, extranodes = 2, kernel = 5, sstride = 2, layers = [16, 32, 32, 20], freeze_convolution=False, n_phone_layer=39, freeze_layer = 0):
+    def __init__(self, h, w, inputs, outputs, extranodes = 2, kernel = 5, sstride = 2, layers = [16, 32, 32, 20], freeze_convolution=False,include_midlayer=True,  n_phone_layer=39, freeze_layer = 0):
         super(DQN_NN_conv_pretrain_phonelayer_extranodes, self).__init__()
+        
+        self.include_midlayer = include_midlayer
         self.conv1channels, self.conv2channels, self.conv3channels, self.mid_size = layers
 
 
@@ -302,11 +311,15 @@ class DQN_NN_conv_pretrain_phonelayer_extranodes(nn.Module):
         convh = conv2d_size_out(conv2d_size_out(conv2d_size_out(h)))
         self.linear_input_size = convw * convh * self.conv3channels
 
+           
         self.lin1 = nn.Linear(self.linear_input_size, n_phone_layer)
         self.lin1_extra = nn.Linear(self.linear_input_size, extranodes)
 
-        self.head1 = nn.Linear(n_phone_layer + extranodes + inputs,self.mid_size)
-        self.head2 = nn.Linear(self.mid_size, outputs)
+        if self.include_midlayer:
+            self.head1 = nn.Linear(n_phone_layer + extranodes + inputs,self.mid_size)
+            self.head2 = nn.Linear(self.mid_size, outputs)
+        else:
+            self.head = nn.Linear(n_phone_layer + extranodes + inputs, outputs)
 
         if freeze_convolution:
             if freeze_layer >= 1:
@@ -345,8 +358,12 @@ class DQN_NN_conv_pretrain_phonelayer_extranodes(nn.Module):
 
         x = torch.cat((x_aud_orig, x_aud_extra, x_loc), 1)
 
-        x = F.softplus(self.head1(x))
-        x = F.softplus(self.head2(x))
+        
+        if self.include_midlayer:
+            x = F.softplus(self.head1(x))
+            x = F.softplus(self.head2(x))
+        else:
+            x = F.softplus(self.head(x))
 
 
         return x

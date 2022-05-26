@@ -188,14 +188,14 @@ w,h = env.get_aud_dims()
 
 ###  Define how the pretrained model is being connected to the DQN and create a policy and target network (Q and Q*)
 if CONNECTION_LAYER == 'phone':
-    policy_net = DQN_NN_conv_pretrain_phonelayer(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
-    target_net = DQN_NN_conv_pretrain_phonelayer(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
+    policy_net = DQN_NN_conv_pretrain_phonelayer(h, w,num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, include_midlayer=INCLUDE_MIDLAYER, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
+    target_net = DQN_NN_conv_pretrain_phonelayer(h, w, num_inputs, n_actions, KERNEL, STRIDE, LAYERS, CONV_FREEZE, include_midlayer=INCLUDE_MIDLAYER, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
     MODEL_LOCATION = ROOT + MODEL_FOLDER + 'model_' + PRETRAIN_MODELNAME + '_final.pt'
     policy_net.load_state_dict(torch.load(MODEL_LOCATION, map_location=device), strict=False)
     target_net.load_state_dict(policy_net.state_dict())
 elif CONNECTION_LAYER == 'phone_extranodes':
-    policy_net = DQN_NN_conv_pretrain_phonelayer_extranodes(h, w,num_inputs, n_actions, EXTRA_NODES, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
-    target_net = DQN_NN_conv_pretrain_phonelayer_extranodes(h, w, num_inputs, n_actions, EXTRA_NODES, KERNEL, STRIDE, LAYERS, CONV_FREEZE, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
+    policy_net = DQN_NN_conv_pretrain_phonelayer_extranodes(h, w,num_inputs, n_actions, EXTRA_NODES, KERNEL, STRIDE, LAYERS, CONV_FREEZE, include_midlayer=INCLUDE_MIDLAYER, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
+    target_net = DQN_NN_conv_pretrain_phonelayer_extranodes(h, w, num_inputs, n_actions, EXTRA_NODES, KERNEL, STRIDE, LAYERS, CONV_FREEZE, include_midlayer=INCLUDE_MIDLAYER, n_phone_layer = NUM_PHONES, freeze_layer=CONV_FREEZE_LAYER).to(device)
     MODEL_LOCATION = ROOT + MODEL_FOLDER + 'model_' + PRETRAIN_MODELNAME + '_final.pt'
     policy_net.load_state_dict(torch.load(MODEL_LOCATION, map_location=device), strict=False)
     target_net.load_state_dict(policy_net.state_dict())
