@@ -1,3 +1,4 @@
+
 # VidGameRL
 
 This github repository provides code to run reinforcement learning and supervised simulations of speech category learning.  There are two primary running scripts in this respository:
@@ -38,32 +39,46 @@ Auxilliary code is organized into several libraries:
 		- `num_phones` - number of phones used in current data set
 
 - `DataLoader.get_batch(start, end)`
-	- Returns a batch of 
+	- Returns a batch of wav files, referencing datapoints with indexes between `start` and `end` 
 	 - **Parameters**: 
 		 - `start` - index of starting datapoint for batch
 		 - `end` - index of ending datapoint for batch
-
 	- **Returns**: `wavs`, `labels`
-		- `wavs` - 
-		- `labels` - 
-	
+		- `wavs` - $N * L$ dimensional tensor, where $N$ = number of indexes (ie. batch size) and $L$ = length of wav file in frames
+		- `labels` - $P$ dimension tensor with one-hot vector of phoneme label, where $P$ is total number of phonemes in corpus
+		
 - `DataLoader.get_batch_phones(start, end)`
-	- Returns a batch of 
-	 - **Parameters**: 
+	- Returns a batch of wav files, referencing datapoints with indexes between `start` and `end`, including	phoneme label
+	- **Parameters**: 
 		 - `start` - index of starting datapoint for batch
 		 - `end` - index of ending datapoint for batch
+	- **Returns**: `wavs`, `labels`, `phone`
+		- `wavs` - $N * L$ dimensional tensor, where $N$ = number of indexes (ie. batch size) and $L$ = length of wav file in frames
+		- `labels` - $P$ dimension tensor with one-hot vector of phoneme label, where $P$ is total number of phonemes in corpus
+		- 	`phone` - string representation of phoneme
 
-	- **Returns**: `wavs`, `labels`, `pohones`
-		- `wavs` - 
-		- `labels` - 
+- `DataLoader.get_batch_time(start, end)`
+	- Returns ***only*** time points, referencing datapoints with indexes between `start` and `end`, 
+	- **Parameters**: 
+		 - `start` - index of starting datapoint for batch
+		 - `end` - index of ending datapoint for batch
+	- **Returns**: `time`
+		- `time` - list indicating timepoints 
+
+- `DataLoader.get_batch_wavname(start, end)`
+	- Returns ***only*** wav names, referencing datapoints with indexes between `start` and `end`, 
+	- **Parameters**: 
+		 - `start` - index of starting datapoint for batch
+		 - `end` - index of ending datapoint for batch
+	- **Returns**: `wav_name``
+		- `wav_name` - list indicating wav file names 
 
 - `DataLoader.transform(wav)`
-	- Returns a batch of 
+	- Transform wav file according to transformation defined in `DataLoader` instance (ie. MFCC)
 	 - **Parameters**: 
-		 - `wav` - index of starting datapoint for batch
-
+		 - `wav` - $N * 1 * L$ tensor of wav file, where $N$ = batch size and $L$ = length of wav file in frames
 	- **Returns**: `transformed_wav`
-		- `transformed_wav` - 
+		- `transformed_wav` - $N* w * l$, where $N$ = batch size, and $w$ and $l$ indicate size of output representation
 
 
 
