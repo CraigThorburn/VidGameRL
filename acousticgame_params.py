@@ -1,8 +1,8 @@
 ### FILE VARIABLES
-PRETRAIN_MODELNAME_ADITIONS = 'duplicate2' #extra suffix for the pretraining folder
-TRAIN_MODELNAME_ADITIONS = 'ewcbatch200_trainWSJ_EWC0.01_750eps_updates6' #extra suffix for the training folder
+PRETRAIN_MODELNAME_ADITIONS = 'pretraining_ewcbatch200newattempt0' #extra suffix for the pretraining folder
+TRAIN_MODELNAME_ADITIONS = 'ewcbatch200_trainWSJ_EWC1_750epsnewattempt0' #extra suffix for the training folder
 ### General
-OVERWRITE = True #Default: False | whether any files should be overwritten
+OVERWRITE = False #Default: False | whether any files should be overwritten
 EXPERIMENT = 'supervised_pretraining_WSJ/' #Default: supervised_pretraining_<CORPUS> | experiment folder **************************************
 #ROOT = '/mnt/c/files/research/projects/vid_game/data/'
 ROOT = '/fs/clip-realspeech/projects/vid_game/data/' #Default: /fs/clip-realspeech/projects/vid_game/data | root folder on clip cluster
@@ -74,7 +74,7 @@ PRETRAIN_EPOCHS = 25 #Default: 25 | Number of epochs during pretraining
 LOSS_TYPE = 'ewc' #Default: ewc | (or standard) Type of loss function to use during training
 FISCHER_CORPUS='WSJ' #Default: Same as pretraining corpus | Corpus for which to calculate fischer coefficients**************************************
 FISCHER_FILE = 'fischercoeffs' #Default: fischercoeffs | Name of fischer coefficient filer
-EWC_IMPORTANCE = 0.01 #Default: ??? | EWC Importance Weighting Coefficient
+EWC_IMPORTANCE = 1 #Default: ??? | EWC Importance Weighting Coefficient
 
 ### For Train
 GAMMA = 0.9 #Default: 0.9 | Future reward decay parameter Gamma

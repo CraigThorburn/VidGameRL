@@ -51,6 +51,12 @@ print('using device ' + str(device))
 tic = time.time()
 running=True
 
+fischer_calculation_batch_size = 200
+fischer_calculation_total_data = 20000
+n_batches = math.floor(fischer_calculation_total_data/fischer_calculation_batch_size)
+print('n_batches', str(n_batches))
+
+
 
 if OVERWRITE:
     write_method = 'w'
@@ -71,12 +77,17 @@ print(int(n_outputs), 'outputs |', w, 'width |', h, 'height')
 n_datapoints = len(data)
 print('running for', str(n_datapoints))
 
+
+if n_datapoints < fischer_calculation_total_data:
+    raise AssertionError
+
 phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs, LAYERS).to(device)  # TODO: Need to create classifier
 phoneme_classifier.load_state_dict(torch.load(MODEL_LOCATION, map_location=device))
 
 
 
 print('calculating Fischer coefficients')
+
 model_params = {n: p for n, p in phoneme_classifier.named_parameters() if p.requires_grad}
 
 precision_matrices = {}
@@ -143,6 +154,7 @@ for i in range(FISCHER_BATCHES):
 
 for n, p in phoneme_classifier.named_parameters():
     precision_matrices[n].data = precision_matrices[n].data / total_steps
+
 
 
 print('calculated diagonal of fischer information matrix')
