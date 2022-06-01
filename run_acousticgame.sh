@@ -33,7 +33,7 @@ echo 'stage: '
 echo $stage
 echo 'num_runs: '
 echo $num_runs
-source activate audneurorl
+source activate audneurorl_test
 
 echo "---------------------"
 
@@ -137,7 +137,7 @@ fi
 if [ $stage -le 10 ]; then
 if [ $max_stage -ge 10 ]; then
 echo "starting generation of h5features"
-$train_cmd --mem 16GB JOB=1:$num_runs --gpu $gpu ../../data/$data_folder/log/$experiment_name/acousticgame_create_h5features.$model_id.JOB.log  run_python.sh acousticgame_create_h5features.py "$params -pretrain=false" || exit 1;
+$train_cmd --mem 48GB JOB=1:$num_runs --gpu $gpu ../../data/$data_folder/log/$experiment_name/acousticgame_create_h5features.$model_id.JOB.log  run_python.sh acousticgame_create_h5features.py "$params -pretrain=false" || exit 1;
    echo "h5features generation complete"
 fi
 fi

@@ -60,6 +60,9 @@ else:
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print('using device ' + str(device))
 
+cpu_device = torch.device("cpu")
+print('using device ' + str(cpu_device) + ' once prediction calculated')
+
 ### Set Model Start (this is used so we can add something to track how long the model is taking later)
 tic = time.time()
 running = True
@@ -73,7 +76,7 @@ for corpus in VALIDATION_COPORA:
     # so you need to include ROOT before and '.txt' after (ie. ROOT + VALIDATION_ALIGNMENTS_FILE + '.txt.)
     # We'll use the VALIDATION files for these
 
-    data = SpeechDataLoader(ROOT + VALIDATION_SEGMENTS_FILE + '_' + corpus + '.txt', ROOT + PHONES_FILE + '.txt', ROOT + VALIDATION_ALIGNMENTS_FILE+ '_' + corpus + '.txt', ROOT + WAVS_FOLDER , device) # Copied from pretrain_validation
+    data = SpeechDataLoader(ROOT + VALIDATION_SEGMENTS_FILE + '_' + corpus + '.txt', ROOT + PHONES_FILE + '.txt', ROOT + VALIDATION_ALIGNMENTS_FILE+ '_' + corpus + '.txt', ROOT + WAVS_FOLDER , device, include_oov=True) # Copied from pretrain_validation
 
     print('data loader created')
 
@@ -125,10 +128,10 @@ for corpus in VALIDATION_COPORA:
     n_batches = math.floor(n_datapoints / testing_batch_size)
 
     # Start list of wav_files, times and outputs,
-
-    wav_names = []
-    wav_times = []
-    outputs = []
+    features = {}
+    #wav_names = []
+    #wav_times = []
+    #outputs = []
 
     # Iterate over total number of batches, for each
     for i_batch in range(n_batches):
@@ -150,8 +153,8 @@ for corpus in VALIDATION_COPORA:
         wavs = data.transform(wavs)
 
         # Run wav files through network using the forward pass of the network
-
-        predictions = phoneme_classifier(wavs)
+        with torch.no_grad():
+            predictions = phoneme_classifier(wavs).to(cpu_device)
 
         # Get wav_files and times using SpeechDataLoader.get_batch_wavname() and SpeechDataLoader.get_batch_time()
         # If these don't work entirely at first, type how you think they should be used and comment out the code for now
@@ -159,12 +162,33 @@ for corpus in VALIDATION_COPORA:
 
         names = data.get_batch_wavname(i_batch * testing_batch_size, (i_batch + 1) * testing_batch_size)
         times = data.get_batch_time(i_batch * testing_batch_size, (i_batch + 1) * testing_batch_size)
-
+        #print('names')
+        #print(len(names))
+        #print('times')
+        #print(len(times))
+        #print('predicitons')
+        #print(predictions.size())
         # Append each of these 3 to appropriate lists set before for loop
+        try:
+            for w in range(len(names)):
+                if names[w] in features.keys():
+                    features[names[w]][0].append(times[w])
+                    features[names[w]][1].append(predictions[w])
 
-        wav_names += names
-        wav_times += times
-        outputs += predictions
+
+                else:
+                    features[names[w]] = ([times[w]], [predictions[w]])
+        except IndexError:
+            print('fail')
+            raise IndexError
+            #print(names)
+            #print(times)
+            #print(predictions.size())
+            #print(predictions)
+
+        #wav_names += names
+        #wav_times += times
+        #outputs += predictions
 
 
     # Remaining datapoints not covered in i batches
@@ -175,23 +199,68 @@ for corpus in VALIDATION_COPORA:
         wavs = wavs.reshape(wavs.size()[0], 1, wavs.size()[1]).to(device)
 
         wavs = data.transform(wavs)
-
-        predictions = phoneme_classifier(wavs)
+        with torch.no_grad():
+            predictions = phoneme_classifier(wavs).to(cpu_device)
 
         names = data.get_batch_wavname(n_batches * testing_batch_size, n_datapoints)
         times = data.get_batch_time(n_batches * testing_batch_size, n_datapoints)
 
-        wav_names += names
-        wav_times += times
-        outputs += predictions
+        try:
+            for w in range(len(names)):
+                if names[w] in features.keys():
+                    features[names[w]][0].append(times[w])
+                    features[names[w]][1].append(predictions[w])
 
+                else:
+                    features[names[w]] = ([times[w]], predictions[w])
+        except IndexError:
+            print('fail')
+            raise IndexError
+            #print(names)
+            #print(times)
+            #print(predictions.size())
+            #print(predictions)
 
     # Result - should be three lists of equal length, one of vectors corresponding to a model output, one a corrsponding
     # list of wav names, and one a corresponding list of times where to find those wavs
 
-    print(len(wav_names), "wav names |", len(wav_times), "wav times |", len(outputs), "outputs")
+    #print(len(wav_names), "wav names |", len(wav_times), "wav times |", len(outputs), "outputs")
+
+    print('features created')
+
+    print('writing features')
+
+    wav_names = list(features.keys())
+
+    #wav_times = [np.array(features[w][0]) for w in wav_names]
+
+    #outputs = [np.array(features[w][1]) for w in wav_names]
 
 
+    #wav_times = []
+    wav_times = []
+    outputs = []
+    total_items = 0
+    for w in wav_names:
+        #print(w)
+        times = np.array(features[w][0])
+        #print(len(times))
+        sorted_times = times[times.argsort()]
+        #print(features[w])
+        #print('----------------------------')
+        #print(features[w][1])
+        #print(np.array(  [np.array(f) for f in features[w][1]]  ).size())
+        sorted_outputs = np.array([np.array(features[w][1][i]) for i in times.argsort()])
+
+            #np.array(  [np.array(f) for f in features[w][1]]  )[times.argsort()]
+        wav_times.append(sorted_times)
+        outputs.append(sorted_outputs)
+        total_items += len(times)
+
+    #print(wav_names)
+    #print(wav_times)
+    print('h5features exported for', len(wav_names), 'wav files')
+    print('h5features exported for', total_items, 'total items')
 
     ## Step 4: Create the h5f file and save it to the correct location
 

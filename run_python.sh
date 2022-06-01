@@ -4,7 +4,7 @@ i=$SLURM_ARRAY_TASK_ID
 function=$1
 params=$2
 
-source activate audneurorl
+#source activate audneurorl
 module add cuda
 
 echo "---------------------"
