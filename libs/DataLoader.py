@@ -6,7 +6,7 @@ import warnings
 import numpy as np
 from collections import namedtuple
 Instance = namedtuple('Instance',
-                                ('file', 'start', 'end','label', 'phone'))
+                                ('file', 'start', 'end','label', 'phone', 'utt', 'start_in_utt', 'end_in_utt'))
 
 class SpeechDataLoader(object):
 
@@ -86,11 +86,11 @@ class SpeechDataLoader(object):
                     phone_rep = None
                     warnings.warn("including segement"+str(phone)+ " that is not in vocabulary.\nThis may return an error if training")
 
-                self.data.append(Instance(wav, start, end, phone_rep, phone))
+                self.data.append(Instance(wav, start, end, phone_rep, phone, utt, float(phone_start), float(phone_end)))
             elif phone in self.phone_list:
                 start = float(utt_start) + float(phone_start)
                 end = float(utt_start) + float(phone_end)
-                self.data.append(Instance(wav, start, end, self.vocab[phone], phone))
+                self.data.append(Instance(wav, start, end, self.vocab[phone], phone, utt, float(phone_start), float(phone_end)))
 
 
     def randomize_data(self):
@@ -162,12 +162,29 @@ class SpeechDataLoader(object):
 
         return batch_unzipped.file
 
+    def get_batch_utt(self, start, end):
+        batch = self.data[start:end]
+        batch_unzipped = Instance(*zip(*batch))
+
+        return batch_unzipped.utt
+
+
     def get_batch_time(self, start, end):
         batch = self.data[start:end]
         batch_unzipped = Instance(*zip(*batch))
 
         starts = torch.tensor(batch_unzipped.start)
         ends= torch.tensor(batch_unzipped.end)
+        mids = (ends + starts) / 2
+        return [ float(time) for time in mids ]
+
+
+    def get_batch_time_in_utt(self, start, end):
+        batch = self.data[start:end]
+        batch_unzipped = Instance(*zip(*batch))
+
+        starts = torch.tensor(batch_unzipped.start_in_utt)
+        ends= torch.tensor(batch_unzipped.end_in_utt)
         mids = (ends + starts) / 2
         return [ float(time) for time in mids ]
 

@@ -76,7 +76,7 @@ for corpus in VALIDATION_COPORA:
     # so you need to include ROOT before and '.txt' after (ie. ROOT + VALIDATION_ALIGNMENTS_FILE + '.txt.)
     # We'll use the VALIDATION files for these
 
-    data = SpeechDataLoader(ROOT + VALIDATION_SEGMENTS_FILE + '_' + corpus + '.txt', ROOT + PHONES_FILE + '.txt', ROOT + VALIDATION_ALIGNMENTS_FILE+ '_' + corpus + '.txt', ROOT + WAVS_FOLDER , device, include_oov=True) # Copied from pretrain_validation
+    data = SpeechDataLoader(ROOT + VALIDATION_SEGMENTS_FILE + '_' + corpus + '.txt', ROOT + PHONES_FILE + '.txt', ROOT + VALIDATION_ALIGNMENTS_FILE+ '_' + corpus + '.txt', ROOT + VALIDATION_WAV_FOLDER+'_'+corpus+ '/', device, include_oov=True) # Copied from pretrain_validation
 
     print('data loader created')
 
@@ -160,8 +160,8 @@ for corpus in VALIDATION_COPORA:
         # If these don't work entirely at first, type how you think they should be used and comment out the code for now
         # and we can troubleshoot later
 
-        names = data.get_batch_wavname(i_batch * testing_batch_size, (i_batch + 1) * testing_batch_size)
-        times = data.get_batch_time(i_batch * testing_batch_size, (i_batch + 1) * testing_batch_size)
+        names = data.get_batch_utt(i_batch * testing_batch_size, (i_batch + 1) * testing_batch_size)
+        times = data.get_batch_time_in_utt(i_batch * testing_batch_size, (i_batch + 1) * testing_batch_size)
         #print('names')
         #print(len(names))
         #print('times')
@@ -202,8 +202,8 @@ for corpus in VALIDATION_COPORA:
         with torch.no_grad():
             predictions = phoneme_classifier(wavs).to(cpu_device)
 
-        names = data.get_batch_wavname(n_batches * testing_batch_size, n_datapoints)
-        times = data.get_batch_time(n_batches * testing_batch_size, n_datapoints)
+        names = data.get_batch_utt(n_batches * testing_batch_size, n_datapoints)
+        times = data.get_batch_time_in_utt(n_batches * testing_batch_size, n_datapoints)
 
         try:
             for w in range(len(names)):
@@ -212,7 +212,7 @@ for corpus in VALIDATION_COPORA:
                     features[names[w]][1].append(predictions[w])
 
                 else:
-                    features[names[w]] = ([times[w]], predictions[w])
+                    features[names[w]] = ([times[w]], [predictions[w]])
         except IndexError:
             print('fail')
             raise IndexError
@@ -264,13 +264,20 @@ for corpus in VALIDATION_COPORA:
 
     ## Step 4: Create the h5f file and save it to the correct location
 
-    FEATURES_OUTPATH = "/fs/clip-realspeech/projects/vid_game/abx/features/" # This can be put on the RunModels notebook
+    FEATURES_OUTPATH = "/fs/clip-realspeech/projects/vid_game/abx/features/" + EXPERIMENT # This can be put on the RunModels notebook
 
-    with h5f.Writer(FEATURES_OUTPATH + TRAIN_MODELNAME + '_' + corpus + ".features") as writer:
+  #  with open(FEATURES_OUTPATH + TRAIN_MODELNAME + '_' + corpus+"_test_output.txt", "a") as f:
+ #       for w in range(len(wav_times)):
+   #         times = wav_times[w]
+     #       wav_name=wav_names[w]
+      #      f.write(str(wav_name)+ " " +str(times)+"\n")
+
+    with h5f.Writer(FEATURES_OUTPATH + MODELNAME + '_' + corpus + ".features") as writer:
 
         data = h5f.Data(wav_names, wav_times, outputs, check=True)
 
         writer.write(data, 'features')
 
+print('done')
 
 

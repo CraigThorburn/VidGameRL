@@ -15,8 +15,8 @@ import os.path as path
 def generate_task(item, out, stats_only=False):
     t = ABXpy.task.Task(item,
                         on='phone',
-                        across=['speaker', 'phone', 'prev-phone', 'next-phone'],
-                        by=[],
+                        across=['prev-phone', 'next-phone'],
+                        by=['speaker'], #'prev-phone', 'speaker','next-phone']
                         verbose=1)
     if stats_only:
         t.compute_nb_levels()
