@@ -127,7 +127,7 @@ def generate_log_table(node, port, experiment_folder):
                    'acousticgame_run_abx', 'acousticgame_train', 'game_process_experiment', 'acousticgame_test'] #run_abxtrain-1 ADD
     stage_names = ['acousticgame_pretrain_network', 'acousticgame_pretrain_validation', 'acousticgame_calculate_ewc_coeffs', 
                    'acousticgame_run_abxpretrain-1', 'acousticgame_train', 'game_process_experiment', 'acousticgame_run_abxtrain-1', 'none','none',
-                   'acousticgame_train_validation']#test-1         
+                   'acousticgame_train_validation', 'acousticgame_create_h5features', 'acousticgame_create_h5features_pretrain']#test-1         
     log_outcomes = {}
     unix_codes = []
     for exp in experiments:
@@ -144,7 +144,7 @@ def generate_log_table(node, port, experiment_folder):
                 return_value=-999
 
             if unix_code not in unix_codes:
-                log_outcomes[unix_code] = {(experiment_folder, exp, model, run): [None, None, None, None, None, None, None, None, None, None]}
+                log_outcomes[unix_code] = {(experiment_folder, exp, model, run): [None, None, None, None, None, None, None, None, None, None, None, None]}
                 unix_codes.append(unix_code)
 
 
@@ -154,7 +154,7 @@ def generate_log_table(node, port, experiment_folder):
 
             #print(log_outcomes)
             if (experiment_folder, exp, model, run) not in log_outcomes[unix_code].keys():
-                    log_outcomes[unix_code][(experiment_folder, exp, model, run)] = [None, None, None, None, None, None, None, None, None, None]
+                    log_outcomes[unix_code][(experiment_folder, exp, model, run)] = [None, None, None, None, None, None, None, None, None, None, None, None]
 
             if log_outcomes[unix_code][(experiment_folder, exp, model, run)][stage_index] is not None:
                 #print(log_outcomes[unix_code])
@@ -176,7 +176,7 @@ def generate_log_table(node, port, experiment_folder):
             
     experiment_title = ' '.join([e for e in experiment_folder.split('_')])   
     html_prefix = '<h1>' + experiment_title + '</h1><style type="text/css">.tg  {border-collapse:collapse;border-spacing:0;}.tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;  overflow:hidden;padding:10px 5px;word-break:normal;}.tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px;  font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}.tg .tg-e76x{background-color:#fe996b;text-align:left;vertical-align:top}.tg .tg-0lax{text-align:left;vertical-align:top}.tg .tg-og4q{background-color:#fd6864;text-align:left;vertical-align:top}.tg .tg-fd62{background-color:#32cb00;text-align:left;vertical-align:top}</style><table class="tg"><tbody>'
-    html_firstrow = '<tr>    <td class="tg-0lax">Experiment</td><td class="tg-0lax">Date/Time</td>    <td class="tg-0lax">ID</td>    <td class="tg-0lax">Run</td>    <td class="tg-0lax">Pretraining</td>    <td class="tg-0lax">Validation</td>    <td class="tg-0lax">Fischer Coefficients</td>    <td class="tg-0lax">Pretrain ABX</td>    <td class="tg-0lax">Training</td>    <td class="tg-0lax">Results Processing</td>    <td class="tg-0lax">Train ABX</td>  <td class="tg-0lax">Unused</td> <td class="tg-0lax">Unused</td> <td class="tg-0lax">Train Validation</td> </tr>'
+    html_firstrow = '<tr>    <td class="tg-0lax">Experiment</td><td class="tg-0lax">Date/Time</td>    <td class="tg-0lax">ID</td>    <td class="tg-0lax">Run</td>    <td class="tg-0lax">Pretraining</td>    <td class="tg-0lax">Validation</td>    <td class="tg-0lax">Fischer Coefficients</td>    <td class="tg-0lax">Pretrain ABX</td>    <td class="tg-0lax">Training</td>    <td class="tg-0lax">Results Processing</td>    <td class="tg-0lax">Train ABX</td>  <td class="tg-0lax">Unused</td> <td class="tg-0lax">Unused</td> <td class="tg-0lax">Train Validation</td> <td class="tg-0lax">Train h5features</td> <td class="tg-0lax">Pretrain h5features</td> </tr>'
     html_suffix = '</tbody>\n</table>'
 
     full_html = html_prefix + html_firstrow+table_str + html_suffix

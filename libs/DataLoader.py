@@ -2,15 +2,16 @@ import random
 import torch
 import torchaudio
 import math
+import warnings
 import numpy as np
 from collections import namedtuple
 Instance = namedtuple('Instance',
-                                ('file', 'start', 'end','label', 'phone'))
+                                ('file', 'start', 'end','label', 'phone', 'utt', 'start_in_utt', 'end_in_utt'))
 
 class SpeechDataLoader(object):
 
     def __init__(self, segments_file, phones_file, alignments_file, wav_folder, device, transform_type='mfcc', sr = 16000, phone_window_size = 0.2,
-                 n_fft = 400, spec_window_length = 400, spec_window_hop = 160, n_mfcc = 13, log_mels=True):
+                 n_fft = 400, spec_window_length = 400, spec_window_hop = 160, n_mfcc = 13, log_mels=True, include_oov=False):
 
         self.phone_list = []
         self.segments = {}
@@ -28,7 +29,7 @@ class SpeechDataLoader(object):
 
         self.load_phones(phones_file)
         self.load_segments(segments_file)
-        self.load_alignments(alignments_file)
+        self.load_alignments(alignments_file, include_oov)
 
         self.w = int((sr * phone_window_size /spec_window_hop ) + 1)
 
@@ -67,7 +68,7 @@ class SpeechDataLoader(object):
             phone_vector[i_phone] = 1
             self.vocab[self.phone_list[i_phone]] = phone_vector
 
-    def load_alignments(self, file):
+    def load_alignments(self, file, include_oov):
         f = open(file, 'r')
         lines = f.readlines()
         for l in lines:
@@ -76,10 +77,20 @@ class SpeechDataLoader(object):
             wav, utt_start, utt_end, = self.segments[utt]
             if wav not in self.wavs.keys():
                 self.wavs[wav] = None
-            if phone in self.phone_list:
+            if include_oov:
                 start = float(utt_start) + float(phone_start)
                 end = float(utt_start) + float(phone_end)
-                self.data.append(Instance(wav, start, end, self.vocab[phone], phone))
+                try:
+                    phone_rep = self.vocab[phone]
+                except KeyError:
+                    phone_rep = None
+                    warnings.warn("including segement"+str(phone)+ " that is not in vocabulary.\nThis may return an error if training")
+
+                self.data.append(Instance(wav, start, end, phone_rep, phone, utt, float(phone_start), float(phone_end)))
+            elif phone in self.phone_list:
+                start = float(utt_start) + float(phone_start)
+                end = float(utt_start) + float(phone_end)
+                self.data.append(Instance(wav, start, end, self.vocab[phone], phone, utt, float(phone_start), float(phone_end)))
 
 
     def randomize_data(self):
@@ -106,11 +117,41 @@ class SpeechDataLoader(object):
             cut_wavs = torch.stack([ wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size] for ind in range(len(window_starts))])
             cut_wavs = cut_wavs.reshape(batch_size, self.sr_window_size)
         except RuntimeError:
+            #print('runtime')
 
-            cut_wavs = torch.stack([ wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size] for ind in range(len(wavs)) if wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size].size()[1] == self.sr_window_size])
-            labs = [batch_unzipped.label[ind] for ind in range(len(wavs)) if wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size].size()[1] == self.sr_window_size]
-            labels = labs
-            self.discarded_segments += (len(labels) - len(window_starts))
+            cut_wavs = []
+            #print(window_starts)
+
+            for ind in range(len(wavs)):
+
+                if wavs[ind][:, window_starts[ind]:window_starts[ind] + self.sr_window_size].size()[
+                    1] == self.sr_window_size:
+                    #print('ind', ind, 'good')
+                    cut_wavs.append(wavs[ind][:, window_starts[ind]:window_starts[ind] + self.sr_window_size])
+
+                else:
+                    #print('ind', ind, 'bad')
+                    this_wavs = torch.zeros(1, self.sr_window_size)
+                    if  window_starts[ind] <0:
+                        #print('beggining issue')
+                        missing_frames = -window_starts[ind]
+                        #print('missing frames', missing_frames)
+                        this_wavs[:,missing_frames:] = wavs[ind][:, :window_starts[ind] + self.sr_window_size]
+                        #print(this_wavs)
+                    else:
+                        #print('end issue')
+                        missing_frames = window_starts[ind] + self.sr_window_size - wavs[ind].size()[1]
+                        #print('missing frames', missing_frames)
+                        this_wavs[:,:self.sr_window_size-missing_frames] = wavs[ind][:, window_starts[ind]: ]
+                        #print(this_wavs)
+                    cut_wavs.append(this_wavs)
+
+
+            cut_wavs = torch.stack(cut_wavs)
+            #cut_wavs = torch.stack([ wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size] for ind in range(len(wavs)) if wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size].size()[1] == self.sr_window_size])
+            #labs = [batch_unzipped.label[ind] for ind in range(len(wavs)) if wavs[ind][:,window_starts[ind]:window_starts[ind]+self.sr_window_size].size()[1] == self.sr_window_size]
+            #labels = labs
+            #self.discarded_segments += (len(labels) - len(window_starts))
             cut_wavs = cut_wavs.reshape(len(cut_wavs), self.sr_window_size)
 
         return cut_wavs , labels
@@ -121,12 +162,29 @@ class SpeechDataLoader(object):
 
         return batch_unzipped.file
 
+    def get_batch_utt(self, start, end):
+        batch = self.data[start:end]
+        batch_unzipped = Instance(*zip(*batch))
+
+        return batch_unzipped.utt
+
+
     def get_batch_time(self, start, end):
         batch = self.data[start:end]
         batch_unzipped = Instance(*zip(*batch))
 
         starts = torch.tensor(batch_unzipped.start)
         ends= torch.tensor(batch_unzipped.end)
+        mids = (ends + starts) / 2
+        return [ float(time) for time in mids ]
+
+
+    def get_batch_time_in_utt(self, start, end):
+        batch = self.data[start:end]
+        batch_unzipped = Instance(*zip(*batch))
+
+        starts = torch.tensor(batch_unzipped.start_in_utt)
+        ends= torch.tensor(batch_unzipped.end_in_utt)
         mids = (ends + starts) / 2
         return [ float(time) for time in mids ]
 
