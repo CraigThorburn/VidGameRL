@@ -26,7 +26,7 @@ if args.run_num:
     RUN_NUM = args.run_num
     TRAIN_MODELNAME = TRAIN_MODELNAME + '_run'+str(RUN_NUM)
 
-OUT_FOLDER = OUT_FOLDER + TRAIN_MODELNAME + '\''
+OUT_FOLDER = OUT_FOLDER + TRAIN_MODELNAME + '/'
 
 
 print('parameters loaded from '+args.params_file)

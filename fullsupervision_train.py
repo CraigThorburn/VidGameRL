@@ -76,7 +76,7 @@ MODEL_LOCATION = ROOT + '/exp/'+PRETRAIN_MODELNAME + '/model_' + PRETRAIN_MODELN
 model_params = torch.load(MODEL_LOCATION, map_location=device)
 #model_params.pop('lin1.weight')
 #model_params.pop('lin1.bias')
-phoneme_classifier = PhonemeConvNN_extranodes(KERNEL, STRIDE, w, h, NUM_PHONES, extra_nodes=2).to(device)  # TODO: Need to create classifier
+phoneme_classifier = PhonemeConvNN_extranodes(KERNEL, STRIDE, w, h, NUM_PHONES, layers = LAYERS, extra_nodes=2).to(device)  # TODO: Need to create classifier
 phoneme_classifier.load_state_dict(model_params, strict=False)
 optimizer = optim.SGD(phoneme_classifier.parameters(), lr = TRAIN_LR)
 phoneme_classifier.train()

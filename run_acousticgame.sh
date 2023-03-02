@@ -1,7 +1,8 @@
 #!/bin/bash
-#SBATCH --qos=batch
+#SBATCH --partition=scavenger
+#SBATCH --account=scavenger
 #SBATCH --mem=4GB
-#SBATCH --time=01-00:00:00
+#SBATCH --time=1-00:00:00
 #SBATCH --output=/fs/clip-realspeech/projects/vid_game/logs/batch_%j.txt
 #SBATCH --mail-type=fail
 #SBATCH --mail-user=craigtho@umiacs.umd.edu

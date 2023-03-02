@@ -1,9 +1,10 @@
 #!/bin/bash
-#SBATCH --qos=batch
+#SBATCH --partition=scavenger
+#SBATCH --account=scavenger
 #SBATCH --mem=4GB
-#SBATCH --time=01-00:00:00
+#SBATCH --time=1-00:00:00
 #SBATCH --output=/fs/clip-realspeech/projects/vid_game/logs/batch_%j.txt
-#SBATCH --mail-type=all
+#SBATCH --mail-type=fail
 #SBATCH --mail-user=craigtho@umiacs.umd.edu
 
 input="$@"
@@ -32,7 +33,7 @@ echo 'stage: '
 echo $stage
 echo 'num_runs: '
 echo $num_runs
-source activate audneurorl
+source activate audneurorl_test
 
 echo "---------------------"
 
@@ -108,4 +109,12 @@ $train_cmd --mem 16GB JOB=1:$num_runs --gpu $gpu ../../data/$data_folder/log/$ex
    echo "training complete validation"
 fi
 
+
+if [ $stage -le 10 ]; then
+echo "starting generation of h5features for train"
+$train_cmd --mem 48GB JOB=1:$num_runs --gpu $gpu ../../data/$data_folder/log/$experiment_name/acousticgame_create_h5features.$model_id.JOB.log  run_python.sh acousticgame_create_h5features.py "$params -pretrain=false" || exit 1;
+   echo "h5features generation complete"
+fi
+
 echo "finished"
+

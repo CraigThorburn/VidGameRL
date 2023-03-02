@@ -6,7 +6,11 @@ class StandardLoss(object):
         self.device = device
 
     def calculate_loss(self, output, target, params=None):
+        self.last_lost = F.smooth_l1_loss(output, target)
         return F.smooth_l1_loss(output, target).to(self.device)
+    
+    def get_last_loss_strings(self):
+        return str(round(float(self.last_lost), 4 )), 'NA'
 
 class EWCLoss(object):
 

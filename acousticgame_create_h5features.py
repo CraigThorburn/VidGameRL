@@ -99,7 +99,23 @@ for corpus in VALIDATION_COPORA:
     ### Step 2: Create network and load previous parameters
     # Create an instance of PhonConvNN - use dimensions of input data found above
 
-    phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs, LAYERS).to(device)
+    if MODELTYPE == 'standard':
+        phoneme_classifier = PhonemeConvNN(KERNEL, STRIDE, w, h, n_outputs, LAYERS).to(device)
+        only_extra = None
+
+    elif MODELTYPE == 'extranodes':
+        phoneme_classifier = PhonemeConvNN_extranodes(KERNEL, STRIDE, w, h, n_outputs, LAYERS, extra_nodes=EXTRA_NODES).to(device)
+        if BRANCH_EVAL == 'split':
+            only_extra = True
+        elif BRANCH_EVAL == 'cat':
+            only_extra = False
+
+    elif MODELTYPE == 'branching':
+        phoneme_classifier = PhonemeConvNN_extranodes(KERNEL, STRIDE, w, h, n_outputs, LAYERS, extra_nodes=EXTRA_NODES).to(device)
+        if BRANCH_EVAL == 'split':
+            only_extra = True
+        elif BRANCH_EVAL == 'cat':
+            only_extra = False
 
     # Load in previous model.  You can use NN.PhonemeConvNN.load_state_dict to load parameters into model and
     # torch.load() to load the model itself.  You will need to map the location of the parameters to the device
@@ -154,7 +170,7 @@ for corpus in VALIDATION_COPORA:
 
         # Run wav files through network using the forward pass of the network
         with torch.no_grad():
-            predictions = phoneme_classifier(wavs).to(cpu_device)
+            predictions = phoneme_classifier.get_out_from_layer(wavs, -1, stacked_out=True, only_extranodes=only_extra).to(cpu_device)
 
         # Get wav_files and times using SpeechDataLoader.get_batch_wavname() and SpeechDataLoader.get_batch_time()
         # If these don't work entirely at first, type how you think they should be used and comment out the code for now
@@ -200,7 +216,7 @@ for corpus in VALIDATION_COPORA:
 
         wavs = data.transform(wavs)
         with torch.no_grad():
-            predictions = phoneme_classifier(wavs).to(cpu_device)
+            predictions = phoneme_classifier.get_out_from_layer(wavs, -1, stacked_out=True, only_extranodes=only_extra).to(cpu_device)
 
         names = data.get_batch_utt(n_batches * testing_batch_size, n_datapoints)
         times = data.get_batch_time_in_utt(n_batches * testing_batch_size, n_datapoints)
@@ -272,7 +288,7 @@ for corpus in VALIDATION_COPORA:
      #       wav_name=wav_names[w]
       #      f.write(str(wav_name)+ " " +str(times)+"\n")
 
-    with h5f.Writer(FEATURES_OUTPATH + MODELNAME + '_' + corpus + ".features") as writer:
+    with h5f.Writer(FEATURES_OUTPATH + MODELNAME + '_' + corpus + BRANCH_EVAL+".features") as writer:
 
         data = h5f.Data(wav_names, wav_times, outputs, check=True)
 

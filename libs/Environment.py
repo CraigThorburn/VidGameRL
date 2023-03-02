@@ -344,6 +344,12 @@ class AcousticsGame2DConv(AcousticsGame1D):
         self.advance_state(action)
         return reward
 
+    def return_all_episodes_states(self):
+        return [self.states[s] for s in self.current_episode]
+
+    def return_all_episode_state_names(self):
+        return self.current_episode
+
 class AcousticsGame2DConvCHT(AcousticsGame2DConv):
 
 
